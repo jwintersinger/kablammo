@@ -1,0 +1,54 @@
+/* SVG rules. */
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.hit {
+  transition: all 0.3s;
+}
+
+.hit:hover {
+  /*stroke: rgba(255,0,0,1);
+  stroke-width: 2;*/
+}
+
+
+/* HTML rules. */
+svg {
+}
+
+#content {
+  width: 70%;
+  margin: 5em auto 5em auto;
+}
+
+#tooltip {
+  position: absolute;
+  padding: 8px;
+  background: lightsteelblue;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#tooltip .list {
+  list-style-type: none;
+  margin: 0.3em;
+}
+
+#tooltip .list .key {
+  font-weight: bold;
+}
+
+#header {
+  text-align: center;
+  margin-bottom: 1em;
+}

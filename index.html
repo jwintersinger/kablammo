@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kablammo!</title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
+
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet" media="screen,print">
+    <link href="kablammo.css" rel="stylesheet" media="screen,print">
+  </head>
+
+  <body>
+    <div id="content">
+      <h2 id="header">Kablammo!</h2>
+
+      <form id="results-params" class="form-horizontal">
+        <fieldset>
+          <legend>Parameters</legend>
+          <div class="control-group">
+            <label class="control-label" for="blast-results-chooser">BLAST result set:</label>
+            <div class="controls">
+              <select id="blast-results-chooser">
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="query-filter">Query filter:</label>
+            <div class="controls">
+              <input id="query-filter" type="text" placeholder="chr..." />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="subject-filter">Subject filter:</label>
+            <div class="controls">
+              <input id="subject-filter" type="text" placeholder="Toxoplasma..." />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="max-query-seqs">Max query seqs:</label>
+            <div class="controls">
+              <input id="max-query-seqs" type="number" min="1" value="10" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="max-hits-per-query-seq">Max hits per query:</label>
+            <div class="controls">
+              <input id="max-hits-per-query-seq" type="number" min="1" value="5" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn">Display results</button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+
+      <div id="information">
+        <legend>Results information</legend>
+        <dl class="dl-horizontal">
+          <dt>Query sequences:</dt> <dd id="total-query-seqs"></dd>
+          <dt>Total hits:</dt> <dd id="total-hits"></dd>
+        </dl>
+      </div>
+
+      <table id="hits" class="table table-striped table-bordered">
+      </table>
+
+      <div id="tooltip">
+        <ul class="list"></ul>
+      </div>
+    </div>
+
+    <!--<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>-->
+    <script type="text/javascript" src="kablammo.js"></script>
+  </body>
+</html>
