@@ -441,25 +441,42 @@ function retrieve_blast_results(on_done) {
   var blast_results_name = $('#blast-results-chooser').val();
 
   fetch_blast_results(blast_results_name, function(blast_results) {
+    var _calc_num_hits = function(iterations) {
+      return d3.sum(iterations, function(iteration) {
+        return iteration.hits.length;
+      })
+    };
+
     var iterations = blast_results.iterations;
+    // Store iterations_count to unify interface for determining count, given
+    // that we set filtered_iterations_count below.
+    blast_results.iterations_count = iterations.length;
+    blast_results.hits_count = _calc_num_hits(iterations);
+
+    // Filter iterations and hits.
     iterations = filter_blast_iterations(iterations);
+    // Store filtered_iterations_count, as next step slices the variable
+    // iterations, meaning the number of filtered iterations pre-slicing will
+    // be lost.
+    blast_results.filtered_iterations_count = iterations.length;
+    blast_results.filtered_hits_count = _calc_num_hits(iterations);
+
+    // Slice iterations and hits.
     iterations = slice_blast_iterations(iterations);
+
     blast_results.filtered_iterations = iterations;
     on_done(blast_results);
   });
 }
 
 function update_results_info(blast_results) {
-  var total_query_seqs = blast_results.iterations.length;
-  $('#total-query-seqs').text(total_query_seqs);
   // Don't also update "max query seqs" form field's max value, as if user
   // chooses different BLAST result set, she may want to also input a max value
   // higher than the number of sequences in the current data set.
-
-  var total_hits = d3.sum(blast_results.iterations, function(iteration) {
-    return iteration.hits.length;
-  });
-  $('#total-hits').text(total_hits);
+  $('#query-seqs-count').text(blast_results.iterations_count);
+  $('#filtered-query-seqs-count').text(blast_results.filtered_iterations_count);
+  $('#hits-count').text(blast_results.hits_count);
+  $('#filtered-hits-count').text(blast_results.filtered_hits_count);
 }
 
 function update_blast_results() {
