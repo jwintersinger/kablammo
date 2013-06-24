@@ -386,6 +386,10 @@ function display_blast_iterations(iterations) {
 
   iterations.forEach(function(iteration) {
     var hits = iteration.filtered_hits;
+    // Do not display iteration if it has no hits (e.g., because they've all
+    // been filtered out via subject filter).
+    if(hits.length === 0)
+      return;
 
     create_header(results_table, iteration.query_def);
     hits.forEach(function(hit) {
