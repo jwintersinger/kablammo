@@ -1,2 +1,3 @@
 Support loading results from local file
 Visualize coverage of all hits across sequence
+Normalize bit scores relative to highest score in filtered results, not all results
