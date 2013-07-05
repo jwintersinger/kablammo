@@ -235,10 +235,6 @@ function sort_by_score(iterations) {
   });
 }
 
-function resolve_blast_results_filename(source) {
-  return source + '_hits.xml';
-}
-
 function populate_blast_results_chooser(valid_sources) {
   var chooser = $('#blast-results-chooser');
 
@@ -359,7 +355,7 @@ function fetch_blast_results(blast_results_name, on_fetched) {
     return;
   }
 
-  var blast_results_filename = resolve_blast_results_filename(blast_results_name);
+  var blast_results_filename = blast_results_name;
 
   $.get(blast_results_filename, function(xml_doc) {
     var blast_results = parse_blast_results(xml_doc);
@@ -500,7 +496,18 @@ function configure_parameters_form() {
 function main() {
   configure_parameters_form();
 
-  var valid_sources = ['toxodb_5.3', 'toxodb_8.1', 'datatmp'];
+  var valid_sources = [
+    'enriched-rd-geneless.toxodb_8.1.blast.xml',
+    'enriched-rd-geneless.uniprot_sprot.blast.xml',
+    'enriched-rd-genes.toxodb_8.1.blast.xml',
+    'enriched-rd-genes.uniprot_sprot.blast.xml',
+    'enriched-rd-windows.toxodb_8.1.blast.xml',
+    'enriched-rd-windows.uniprot_sprot.blast.xml',
+    'overlapping-but-outside.toxodb_8.1.blast.xml',
+    'overlapping-but-outside.uniprot_sprot.blast.xml',
+    'toxodb_5.3_rrna_hits.xml',
+    'toxodb_8.1_rrna_hits.xml'
+  ];
   populate_blast_results_chooser(valid_sources);
   update_blast_results();
 }
