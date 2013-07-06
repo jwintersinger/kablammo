@@ -26,8 +26,8 @@ svg {
 }
 
 #content {
-  width: 70%;
   margin: 5em auto 5em auto;
+  max-width: 950px;
 }
 
 #tooltip {
@@ -51,4 +51,21 @@ svg {
 #header {
   text-align: center;
   margin-bottom: 1em;
+}
+
+#local-file-chooser {
+  display: none;
+}
+
+#secondary-params {
+  border-left: 1px solid #e5e5e5;
+}
+
+#display-results-container {
+  text-align: center;
+  margin-top: 30px
+}
+
+#results-params .tab-pane {
+  text-align: center;
 }

@@ -491,12 +491,18 @@ function configure_parameters_form() {
     evt.preventDefault();
     update_blast_results();
   });
+  $('#choose-file').click(function(evt) {
+    $('#local-file-chooser').click();
+    evt.preventDefault();
+  });
 }
 
 function main() {
   configure_parameters_form();
 
   var valid_sources = [
+    'toxodb_5.3_rrna_hits.xml',
+    'toxodb_8.1_rrna_hits.xml',
     'enriched-rd-geneless.toxodb_8.1.blast.xml',
     'enriched-rd-geneless.uniprot_sprot.blast.xml',
     'enriched-rd-genes.toxodb_8.1.blast.xml',
@@ -505,8 +511,6 @@ function main() {
     'enriched-rd-windows.uniprot_sprot.blast.xml',
     'overlapping-but-outside.toxodb_8.1.blast.xml',
     'overlapping-but-outside.uniprot_sprot.blast.xml',
-    'toxodb_5.3_rrna_hits.xml',
-    'toxodb_8.1_rrna_hits.xml'
   ];
   populate_blast_results_chooser(valid_sources);
   update_blast_results();
