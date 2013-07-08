@@ -21,8 +21,9 @@ BlastResultsLoader.prototype._fetch_blast_results = function(blast_results_name,
   });
 }
 
+BlastResultsLoader.prototype.load_from_local = function() {
 
-BlastResultsLoader.prototype.load_from_local = function() { }
+}
 
 BlastResultsLoader.prototype.load_from_server = function(on_done) {
   var self = this;

@@ -164,16 +164,63 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
        self._fade_other_polygons(svg, hovered_index, 1);
      });
 
-  var query_axis   = self._create_axis(svg, query_scale, 'top', query_height, 'start', '0.8em', '1em');
-  var subject_axis = self._create_axis(svg, subject_scale, 'bottom', subject_height, 'end', '-1em', '-0.4em');
+  var query_axis   = self._create_axis(svg, query_scale,   'top',    query_height,   'start', '0.8em', '1em');
+  var subject_axis = self._create_axis(svg, subject_scale, 'bottom', subject_height, 'end',   '-1em',  '-0.4em');
 }
 
-Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
+Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var padding_x = 20;
   var padding_y = 50;
   var canvas_width = 500;
   var canvas_height = 300;
 
+  var svg = table_row.append('td')
+                     .append('svg')
+                     .attr('width', canvas_width)
+                     .attr('height', canvas_height);
+
+  var zoom_factor = 1;
+  var subject_domain = this._create_subject_domain(hit.subject_length, zoom_factor, 0);
+
+  var query_scale = d3.scale.linear()
+                         .domain([0, iteration.query_length])
+                         .range([padding_x, canvas_width - padding_x]);
+  var subject_scale = d3.scale.linear()
+                         .domain(subject_domain)
+                         .range([padding_x, canvas_width - padding_x]);
+
+  var query_height = padding_y;
+  var subject_height = canvas_height - padding_y;
+  this._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+
+  var self = this;
+  svg.on('mousewheel', function() {
+    var evt = d3.event;
+    evt.preventDefault();
+
+    var delta = evt.wheelDelta;
+    var scale_by = 2;
+
+    if(delta > 0)
+      zoom_factor *= scale_by;
+    else if(delta < 0)
+      zoom_factor /= scale_by;
+
+    if(zoom_factor < 1)
+      zoom_factor = 1;
+    if(zoom_factor > hit.subject_length)
+      zoom_factor = hit.subject_length;
+
+    var mouse_coords = d3.mouse(svg[0][0]);
+    // Take x-coordinate of mouse, figure out where that lies on subject
+    // axis, then place that point on centre of new zoomed axis.
+    var zoom_from = subject_scale.invert(mouse_coords[0]);
+    subject_scale.domain(self._create_subject_domain(hit.subject_length, zoom_factor, zoom_from));
+    self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+  });
+}
+
+Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
   $(results_table).find('tr').remove();
 
   var self = this;
@@ -188,49 +235,7 @@ Grapher.prototype.display_blast_iterations = function(iterations, results_table,
     hits.forEach(function(hit) {
       var table_row = d3.select(results_table).append('tr');
       table_row.append('td').text(hit.subject_def);
-      var svg = table_row.append('td')
-                         .append('svg')
-                         .attr('width', canvas_width)
-                         .attr('height', canvas_height);
-
-      var zoom_factor = 1;
-      var subject_domain = self._create_subject_domain(hit.subject_length, zoom_factor, 0);
-
-      var query_scale = d3.scale.linear()
-                             .domain([0, iteration.query_length])
-                             .range([padding_x, canvas_width - padding_x]);
-      var subject_scale = d3.scale.linear()
-                             .domain(subject_domain)
-                             .range([padding_x, canvas_width - padding_x]);
-
-      var query_height = padding_y;
-      var subject_height = canvas_height - padding_y;
-      self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
-
-      svg.on('mousewheel', function() {
-        var evt = d3.event;
-        evt.preventDefault();
-
-        var delta = evt.wheelDelta;
-        var scale_by = 2;
-
-        if(delta > 0)
-          zoom_factor *= scale_by;
-        else if(delta < 0)
-          zoom_factor /= scale_by;
-
-        if(zoom_factor < 1)
-          zoom_factor = 1;
-        if(zoom_factor > hit.subject_length)
-          zoom_factor = hit.subject_length;
-
-        var mouse_coords = d3.mouse(svg[0][0]);
-        // Take x-coordinate of mouse, figure out where that lies on subject
-        // axis, then place that point on centre of new zoomed axis.
-        var zoom_from = subject_scale.invert(mouse_coords[0]);
-        subject_scale.domain(self._create_subject_domain(hit.subject_length, zoom_factor, zoom_from));
-        self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
-      });
+      self._display_graph(iteration, hit, table_row);
     });
   });
 }

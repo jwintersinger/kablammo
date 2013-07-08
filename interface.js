@@ -41,7 +41,6 @@ Interface.prototype.create_header = function(table, label) {
   tr.append('th').text('Hits for query ' + label);
 }
 
-
 Interface.prototype.configure_display_results = function(on_display_results) {
   $('#results-params').submit(on_display_results);
 
