@@ -1,3 +1,5 @@
+"use strict";
+
 function BlastResultsLoader() {
   this._parser = new BlastParser();
 }

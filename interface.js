@@ -1,3 +1,5 @@
+"use strict";
+
 function Interface(server_results_chooser) {
   var valid_sources = [
     'toxodb_5.3_rrna_hits.xml',

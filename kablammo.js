@@ -1,3 +1,5 @@
+"use strict";
+
 function update_blast_results(server_results_chooser, loader, grapher, iface) {
   loader.load_from_server(server_results_chooser.val(), function(blast_results) {
     grapher.display_blast_iterations(blast_results.filtered_iterations, '#hits', iface);
