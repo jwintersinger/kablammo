@@ -1,4 +1,27 @@
-function find_topmost_point(point_list) {
+function BlastParser() {
+
+}
+
+function Interface() {
+  var valid_sources = [
+    'toxodb_5.3_rrna_hits.xml',
+    'toxodb_8.1_rrna_hits.xml',
+    'enriched-rd-geneless.toxodb_8.1.blast.xml',
+    'enriched-rd-geneless.uniprot_sprot.blast.xml',
+    'enriched-rd-genes.toxodb_8.1.blast.xml',
+    'enriched-rd-genes.uniprot_sprot.blast.xml',
+    'enriched-rd-windows.toxodb_8.1.blast.xml',
+    'enriched-rd-windows.uniprot_sprot.blast.xml',
+    'overlapping-but-outside.toxodb_8.1.blast.xml',
+    'overlapping-but-outside.uniprot_sprot.blast.xml',
+  ];
+  this._populate_blast_results_chooser(valid_sources);
+}
+
+function Grapher() {
+}
+
+Grapher.prototype._find_topmost_point = function(point_list) {
   var points = point_list.split(' ').map(function(point) {
     return point.split(',').map(function(coord) {
       return parseFloat(coord);
@@ -24,14 +47,14 @@ function find_topmost_point(point_list) {
     x: top_x,
     y: top_y
   };
-}
+};
 
-function show_tooltip(svg, polygon, hsp) {
+Grapher.prototype._show_tooltip = function(svg, polygon, hsp) {
   svg = $(svg);
   polygon = $(polygon);
 
   var svg_pos = svg.offset();
-  var topmost_polygon_point = find_topmost_point(polygon.attr('points'));
+  var topmost_polygon_point = this._find_topmost_point(polygon.attr('points'));
 
   var position_formatter = d3.format(',d');
 
@@ -60,14 +83,14 @@ function show_tooltip(svg, polygon, hsp) {
                    .style('opacity', 0.9);
 }
 
-function hide_tooltip() {
+Grapher.prototype._hide_tooltip = function() {
   var tooltip = d3.select('#tooltip');
   tooltip.transition()
          .duration(200)
          .style('opacity', 0);
 }
 
-function fade_other_polygons(svg, hovered_index, opacity) {
+Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
    svg.selectAll('.hit')
       .filter(function(hit, index) {
         return index !== hovered_index;
@@ -76,14 +99,14 @@ function fade_other_polygons(svg, hovered_index, opacity) {
       .style('opacity', opacity);
 }
 
-function rotate_axis_labels(text, text_anchor, dx, dy) {
+Grapher.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
   text.style('text-anchor', text_anchor)
       .attr('dx', dx)
       .attr('dy', dy)
       .attr('transform', 'rotate(-90)');
 }
 
-function create_axis(svg, scale, orientation, height, text_anchor, dx, dy) {
+Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy) {
   var scinotation_formatter = d3.format('.2s');
   var formatter = function(val) {
     return scinotation_formatter(val) + 'b';
@@ -98,7 +121,7 @@ function create_axis(svg, scale, orientation, height, text_anchor, dx, dy) {
      .attr('class', 'axis')
      .attr('transform', 'translate(0,' + height + ')')
      .call(axis);
-  rotate_axis_labels(container.selectAll('text'), text_anchor, dx, dy);
+  this._rotate_axis_labels(container.selectAll('text'), text_anchor, dx, dy);
 
   return {
     container: container,
@@ -106,7 +129,7 @@ function create_axis(svg, scale, orientation, height, text_anchor, dx, dy) {
   };
 }
 
-function create_subject_domain(subject_length, subject_zoom_factor, subject_zoom_from) {
+Grapher.prototype._create_subject_domain = function(subject_length, subject_zoom_factor, subject_zoom_from) {
   if(subject_zoom_factor === 1)
     return [0, subject_length];
 
@@ -127,11 +150,12 @@ function create_subject_domain(subject_length, subject_zoom_factor, subject_zoom
   return [start, end];
 }
 
-function create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale) {
+Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, subject_height, subject_scale) {
   // Remove all existing child elements.
   svg.selectAll('*').remove();
 
   // Add polygons.
+  var self = this;
   svg.selectAll('polygon')
      .data(hit.hsps)
      .enter()
@@ -153,19 +177,19 @@ function create_graph(svg, hit, query_height, query_scale, subject_height, subje
         return point[0] + ',' + point[1];
        }).join(' ');
      }).on('mouseover', function(hovered_hsp, hovered_index) {
-       show_tooltip(svg[0][0], this, hovered_hsp);
-       fade_other_polygons(svg, hovered_index, 0.1);
+       self._show_tooltip(svg[0][0], this, hovered_hsp);
+       self._fade_other_polygons(svg, hovered_index, 0.1);
      }).on('mouseout', function(hovered_hsp, hovered_index) {
-       hide_tooltip.apply(this, arguments);
-       fade_other_polygons(svg, hovered_index, 1);
+       self._hide_tooltip.apply(this, arguments);
+       self._fade_other_polygons(svg, hovered_index, 1);
      });
 
-  var query_axis = create_axis(svg, query_scale, 'top', query_height, 'start', '0.8em', '1em');
-  var subject_axis = create_axis(svg, subject_scale, 'bottom', subject_height, 'end', '-1em', '-0.4em');
+  var query_axis   = self._create_axis(svg, query_scale, 'top', query_height, 'start', '0.8em', '1em');
+  var subject_axis = self._create_axis(svg, subject_scale, 'bottom', subject_height, 'end', '-1em', '-0.4em');
 }
 
-function reorder_hit_positions(hsp) {
-    if(hsp.query_start > hsp.query_end) {
+BlastParser.prototype._reorder_hit_positions = function(hsp) {
+  if(hsp.query_start > hsp.query_end) {
     var tmp = hsp.query_start;
     hsp.query_start = hsp.query_end;
     hsp.query_end = tmp;
@@ -177,21 +201,23 @@ function reorder_hit_positions(hsp) {
   }
 }
 
-function find_max_bit_score_for_hit(hit) {
+BlastParser.prototype._find_max_bit_score_for_hit =  function(hit) {
   return d3.max(hit.hsps, function(hsp) {
     return hsp.bit_score;
   });
-
 }
-function find_max_bit_score_for_iteration(iteration) {
+
+BlastParser.prototype._find_max_bit_score_for_iteration = function(iteration) {
+  var self = this;
   return d3.max(iteration.hits, function(hit) {
-    return find_max_bit_score_for_hit(hit);
+    return self._find_max_bit_score_for_hit(hit);
   });
 }
 
-function add_normalized_bit_scores(iterations) {
+BlastParser.prototype._add_normalized_bit_scores = function(iterations) {
+  var self = this;
   var max_global_bit_score = d3.max(iterations, function(iteration) {
-    return find_max_bit_score_for_iteration(iteration);
+    return self._find_max_bit_score_for_iteration(iteration);
   });
 
   iterations.forEach(function(iteration) {
@@ -203,7 +229,8 @@ function add_normalized_bit_scores(iterations) {
   });
 }
 
-function sort_by_score(iterations) {
+BlastParser.prototype._sort_by_score = function(iterations) {
+  var self = this;
   var _rev_compare = function(a, b) {
     if(a < b)
       return 1;
@@ -215,8 +242,8 @@ function sort_by_score(iterations) {
 
   var _sort_hits = function(iteration) {
     iteration.hits.sort(function(a, b) {
-      var max_bs_a = find_max_bit_score_for_hit(a);
-      var max_bs_b = find_max_bit_score_for_hit(b);
+      var max_bs_a = self._find_max_bit_score_for_hit(a);
+      var max_bs_b = self._find_max_bit_score_for_hit(b);
       return _rev_compare(max_bs_a, max_bs_b);
     });
   };
@@ -229,13 +256,13 @@ function sort_by_score(iterations) {
   // that each iteration's hits are alredy sorted, but it doesn't seem to be a
   // bottleneck.
   iterations.sort(function(a, b) {
-      var max_bs_a = find_max_bit_score_for_iteration(a);
-      var max_bs_b = find_max_bit_score_for_iteration(b);
+      var max_bs_a = self._find_max_bit_score_for_iteration(a);
+      var max_bs_b = self._find_max_bit_score_for_iteration(b);
       return _rev_compare(max_bs_a, max_bs_b);
   });
 }
 
-function populate_blast_results_chooser(valid_sources) {
+Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
   var chooser = $('#blast-results-chooser');
 
   valid_sources.forEach(function(source) {
@@ -246,7 +273,7 @@ function populate_blast_results_chooser(valid_sources) {
   });
 }
 
-function filter_blast_iterations(iterations) {
+BlastParser.prototype._filter_blast_iterations = function(iterations) {
   var query_filter = $('#query-filter').val().toLowerCase();
   var subject_filter = $('#subject-filter').val().toLowerCase();
 
@@ -275,7 +302,7 @@ function filter_blast_iterations(iterations) {
   return filtered_iterations;
 }
 
-function slice_blast_iterations(iterations) {
+BlastParser.prototype._slice_blast_iterations = function(iterations) {
   var max_query_seqs = parseInt($('#max-query-seqs').val(), 10);
   var max_hits_per_query_seq = parseInt($('#max-hits-per-query-seq').val(), 10);
 
@@ -287,7 +314,7 @@ function slice_blast_iterations(iterations) {
   return sliced_iterations;
 }
 
-function parse_blast_results(xml_doc) {
+BlastParser.prototype._parse_blast_results = function(xml_doc) {
   var doc = $(xml_doc);
 
   // Within BLAST results, you have:
@@ -295,6 +322,7 @@ function parse_blast_results(xml_doc) {
   //     Multiple hits (i.e., subject sequences pulled out of BLAST DB), each of which has ...
   //       Multiple HSPs (high-scoring pairs), corresponding to subset of query and subject
   //       sequences demonstrating sequence similarity
+  var self = this;
   var iterations = doc.find('BlastOutput_iterations > Iteration').map(function() {
     var iteration = $(this);
     var hits = iteration.find('Iteration_Hits > Hit');
@@ -319,7 +347,7 @@ function parse_blast_results(xml_doc) {
           evalue: parseFloat(hsp.find('Hsp_evalue').text())
         };
 
-        reorder_hit_positions(hsp_attribs);
+        self._reorder_hit_positions(hsp_attribs);
         return hsp_attribs;
       }).get();
 
@@ -337,8 +365,8 @@ function parse_blast_results(xml_doc) {
     return iteration !== null;
   });
 
-  sort_by_score(iterations);
-  add_normalized_bit_scores(iterations);
+  this._sort_by_score(iterations);
+  this._add_normalized_bit_scores(iterations);
 
   return {
     iterations: iterations
@@ -348,7 +376,11 @@ function parse_blast_results(xml_doc) {
 // TODO: refactor into class to obviate global variable.
 var _blast_results_cache = {};
 
-function fetch_blast_results(blast_results_name, on_fetched) {
+function BlastResultsLoader() {
+  this._parser = new BlastParser();
+}
+
+BlastResultsLoader.prototype._fetch_blast_results = function(blast_results_name, on_fetched) {
   if(typeof _blast_results_cache[blast_results_name] !== 'undefined') {
     var results = _blast_results_cache[blast_results_name];
     on_fetched(results);
@@ -357,29 +389,29 @@ function fetch_blast_results(blast_results_name, on_fetched) {
 
   var blast_results_filename = blast_results_name;
 
+  var self = this;
   $.get(blast_results_filename, function(xml_doc) {
-    var blast_results = parse_blast_results(xml_doc);
-
+    var blast_results = self._parser._parse_blast_results(xml_doc);
     _blast_results_cache[blast_results_name] = blast_results;
     on_fetched(blast_results);
   });
 }
 
-function create_header(table, label) {
+Interface.prototype.create_header = function(table, label) {
   var tr = d3.select(table).append('tr');
   tr.append('th').text('Subject');
   tr.append('th').text('Hits for query ' + label);
 }
 
-function display_blast_iterations(iterations) {
+Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
   var padding_x = 20;
   var padding_y = 50;
   var canvas_width = 500;
   var canvas_height = 300;
 
-  var results_table = '#hits';
   $(results_table).find('tr').remove();
 
+  var self = this;
   iterations.forEach(function(iteration) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
@@ -387,7 +419,7 @@ function display_blast_iterations(iterations) {
     if(hits.length === 0)
       return;
 
-    create_header(results_table, iteration.query_def);
+    iface.create_header(results_table, iteration.query_def);
     hits.forEach(function(hit) {
       var table_row = d3.select(results_table).append('tr');
       table_row.append('td').text(hit.subject_def);
@@ -397,7 +429,7 @@ function display_blast_iterations(iterations) {
                          .attr('height', canvas_height);
 
       var zoom_factor = 1;
-      var subject_domain = create_subject_domain(hit.subject_length, zoom_factor, 0);
+      var subject_domain = self._create_subject_domain(hit.subject_length, zoom_factor, 0);
 
       var query_scale = d3.scale.linear()
                              .domain([0, iteration.query_length])
@@ -408,11 +440,12 @@ function display_blast_iterations(iterations) {
 
       var query_height = padding_y;
       var subject_height = canvas_height - padding_y;
-      create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+      self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
 
       svg.on('mousewheel', function() {
         var evt = d3.event;
         evt.preventDefault();
+
         var delta = evt.wheelDelta;
         var scale_by = 2;
 
@@ -430,46 +463,54 @@ function display_blast_iterations(iterations) {
         // Take x-coordinate of mouse, figure out where that lies on subject
         // axis, then place that point on centre of new zoomed axis.
         var zoom_from = subject_scale.invert(mouse_coords[0]);
-        subject_scale.domain(create_subject_domain(hit.subject_length, zoom_factor, zoom_from));
-        create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+        subject_scale.domain(self._create_subject_domain(hit.subject_length, zoom_factor, zoom_from));
+        self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
       });
     });
   });
 }
 
-function retrieve_blast_results(on_done) {
+BlastResultsLoader.prototype.load_from_local = function() { }
+
+BlastResultsLoader.prototype.load_from_server = function(on_done) {
+  var self = this;
   var blast_results_name = $('#blast-results-chooser').val();
-
-  fetch_blast_results(blast_results_name, function(blast_results) {
-    var _calc_num_hits = function(iterations) {
-      return d3.sum(iterations, function(iteration) {
-        return iteration.hits.length;
-      })
-    };
-
-    var iterations = blast_results.iterations;
-    // Store iterations_count to unify interface for determining count, given
-    // that we set filtered_iterations_count below.
-    blast_results.iterations_count = iterations.length;
-    blast_results.hits_count = _calc_num_hits(iterations);
-
-    // Filter iterations and hits.
-    iterations = filter_blast_iterations(iterations);
-    // Store filtered_iterations_count, as next step slices the variable
-    // iterations, meaning the number of filtered iterations pre-slicing will
-    // be lost.
-    blast_results.filtered_iterations_count = iterations.length;
-    blast_results.filtered_hits_count = _calc_num_hits(iterations);
-
-    // Slice iterations and hits.
-    iterations = slice_blast_iterations(iterations);
-
-    blast_results.filtered_iterations = iterations;
+  this._fetch_blast_results(blast_results_name, function(blast_results) {
+    // Don't slice_and_dice in _fetch_blast_results, as we don't want to cache
+    // the sliced-and-diced version.
+    self._parser._slice_and_dice(blast_results);
     on_done(blast_results);
   });
 }
 
-function update_results_info(blast_results) {
+BlastParser.prototype._slice_and_dice = function(blast_results) {
+  var _calc_num_hits = function(iterations) {
+    return d3.sum(iterations, function(iteration) {
+      return iteration.hits.length;
+    })
+  };
+
+  var iterations = blast_results.iterations;
+  // Store iterations_count to unify interface for determining count, given
+  // that we set filtered_iterations_count below.
+  blast_results.iterations_count = iterations.length;
+  blast_results.hits_count = _calc_num_hits(iterations);
+
+  // Filter iterations and hits.
+  iterations = this._filter_blast_iterations(iterations);
+  // Store filtered_iterations_count, as next step slices the variable
+  // iterations, meaning the number of filtered iterations pre-slicing will
+  // be lost.
+  blast_results.filtered_iterations_count = iterations.length;
+  blast_results.filtered_hits_count = _calc_num_hits(iterations);
+
+  // Slice iterations and hits.
+  iterations = this._slice_blast_iterations(iterations);
+
+  blast_results.filtered_iterations = iterations;
+}
+
+Interface.prototype.update_results_info = function(blast_results) {
   // Don't also update "max query seqs" form field's max value, as if user
   // chooses different BLAST result set, she may want to also input a max value
   // higher than the number of sequences in the current data set.
@@ -479,41 +520,33 @@ function update_results_info(blast_results) {
   $('#filtered-hits-count').text(blast_results.filtered_hits_count);
 }
 
-function update_blast_results() {
-  retrieve_blast_results(function(blast_results) {
-    display_blast_iterations(blast_results.filtered_iterations);
-    update_results_info(blast_results);
+function update_blast_results(loader, grapher, iface) {
+  loader.load_from_server(function(blast_results) {
+    var results_table = '#hits';
+    grapher.display_blast_iterations(blast_results.filtered_iterations, '#hits', iface);
+    iface.update_results_info(blast_results);
   });
 }
 
-function configure_parameters_form() {
-  $('#results-params').submit(function(evt) {
-    evt.preventDefault();
-    update_blast_results();
-  });
+Interface.prototype.configure_display_results = function(on_display_results) {
+  $('#results-params').submit(on_display_results);
+
   $('#choose-file').click(function(evt) {
-    $('#local-file-chooser').click();
     evt.preventDefault();
+    $('#local-file-chooser').click();
   });
 }
 
 function main() {
-  configure_parameters_form();
+  var iface = new Interface();
+  var grapher = new Grapher();
+  var loader = new BlastResultsLoader();
 
-  var valid_sources = [
-    'toxodb_5.3_rrna_hits.xml',
-    'toxodb_8.1_rrna_hits.xml',
-    'enriched-rd-geneless.toxodb_8.1.blast.xml',
-    'enriched-rd-geneless.uniprot_sprot.blast.xml',
-    'enriched-rd-genes.toxodb_8.1.blast.xml',
-    'enriched-rd-genes.uniprot_sprot.blast.xml',
-    'enriched-rd-windows.toxodb_8.1.blast.xml',
-    'enriched-rd-windows.uniprot_sprot.blast.xml',
-    'overlapping-but-outside.toxodb_8.1.blast.xml',
-    'overlapping-but-outside.uniprot_sprot.blast.xml',
-  ];
-  populate_blast_results_chooser(valid_sources);
-  update_blast_results();
+  iface.configure_display_results(function(evt) {
+    evt.preventDefault();
+    update_blast_results(loader, grapher, iface);
+  });
+  update_blast_results(loader, grapher, iface);
 }
 
 main();
