@@ -131,11 +131,12 @@ Grapher.prototype._create_subject_domain = function(subject_length, subject_zoom
 }
 
 Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, subject_height, subject_scale) {
+  var self = this;
+
   // Remove all existing child elements.
   svg.selectAll('*').remove();
 
   // Add polygons.
-  var self = this;
   svg.selectAll('polygon')
      .data(hit.hsps)
      .enter()
@@ -169,6 +170,8 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
 }
 
 Grapher.prototype._display_graph = function(iteration, hit, table_row) {
+  var self = this;
+
   var padding_x = 20;
   var padding_y = 50;
   var canvas_width = 500;
@@ -193,7 +196,6 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var subject_height = canvas_height - padding_y;
   this._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
 
-  var self = this;
   svg.on('mousewheel', function() {
     var evt = d3.event;
     evt.preventDefault();
@@ -221,9 +223,10 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
 }
 
 Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
+  var self = this;
+
   $(results_table).find('tr').remove();
 
-  var self = this;
   iterations.forEach(function(iteration) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all

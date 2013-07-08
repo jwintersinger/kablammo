@@ -117,6 +117,7 @@ BlastParser.prototype._slice_blast_iterations = function(iterations) {
 }
 
 BlastParser.prototype._parse_blast_results = function(xml_doc) {
+  var self = this;
   var doc = $(xml_doc);
 
   // Within BLAST results, you have:
@@ -124,7 +125,6 @@ BlastParser.prototype._parse_blast_results = function(xml_doc) {
   //     Multiple hits (i.e., subject sequences pulled out of BLAST DB), each of which has ...
   //       Multiple HSPs (high-scoring pairs), corresponding to subset of query and subject
   //       sequences demonstrating sequence similarity
-  var self = this;
   var iterations = doc.find('BlastOutput_iterations > Iteration').map(function() {
     var iteration = $(this);
     var hits = iteration.find('Iteration_Hits > Hit');
