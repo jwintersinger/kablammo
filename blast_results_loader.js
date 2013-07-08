@@ -22,14 +22,13 @@ BlastResultsLoader.prototype._fetch_blast_results = function(blast_results_name,
   });
 }
 
-BlastResultsLoader.prototype.load_from_local = function() {
+BlastResultsLoader.prototype.load_local_file = function() {
 
 }
 
-BlastResultsLoader.prototype.load_from_server = function(on_done) {
+BlastResultsLoader.prototype.load_from_server = function(blast_results_name, on_done) {
   var self = this;
 
-  var blast_results_name = $('#blast-results-chooser').val();
   this._fetch_blast_results(blast_results_name, function(blast_results) {
     // Don't slice_and_dice in _fetch_blast_results, as we don't want to cache
     // the sliced-and-diced version.

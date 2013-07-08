@@ -21,20 +21,17 @@
                   <div class="span6">
                     <div class="tabbable tabs-left">
                       <ul class="nav nav-tabs">
-                        <li><a href="#load-local" data-toggle="tab">Load local</a></li>
-                        <li><a href="#load-remote" data-toggle="tab">Load remote</a></li>
-                        <li class="active"><a href="#load-existing" data-toggle="tab">Load existing</a></li>
+                        <li><a href="#load-local-file" data-toggle="tab">Load local file</a></li>
+                        <li class="active"><a href="#load-from-server" data-toggle="tab">Load from server</a></li>
                       </ul>
                       <div class="tab-content">
-                        <div class="tab-pane" id="load-local">
+                        <div class="tab-pane" id="load-local-file">
                           <input type="file" id="local-file-chooser" />
                           <button class="btn" id="choose-file">Choose file</button>
                         </div>
-                        <div class="tab-pane" id="load-remote">
-                          <input id="remote-file-url" type="text" placeholder="http://" />
-                        </div>
-                        <div class="tab-pane active" id="load-existing">
-                          <select id="blast-results-chooser"></select>
+
+                        <div class="tab-pane active" id="load-from-server">
+                          <select id="server-results-chooser"></select>
                         </div>
                       </div>
                     </div>
