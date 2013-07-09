@@ -227,6 +227,7 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
 Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
   var self = this;
 
+  $('#results-container').show(); // Hidden by default at app start.
   $(results_table).find('tr').remove();
 
   iterations.forEach(function(iteration) {

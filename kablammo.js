@@ -20,7 +20,8 @@ function Kablammo() {
     });
   });
 
-  self._iface.display_results();
+  // Uncomment the line below to load results from server when application first launches.
+  //self._iface.display_results();
 }
 
 Kablammo.prototype._display_results = function(results) {

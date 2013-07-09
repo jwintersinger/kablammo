@@ -110,3 +110,7 @@ html {
   font-weight: normal;
   border-bottom: 1px solid #b1b1b1;
 }
+
+#results-container {
+  display: none;
+}
