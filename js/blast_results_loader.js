@@ -15,7 +15,7 @@ BlastResultsLoader.prototype._fetch_remote_results = function(blast_results_name
     return;
   }
 
-  $.get(blast_results_name, function(xml_doc) {
+  $.get('data/' + blast_results_name, function(xml_doc) {
     var blast_results = self._parser.parse_blast_results(xml_doc);
     _blast_results_cache[blast_results_name] = blast_results;
     on_fetched(blast_results);
