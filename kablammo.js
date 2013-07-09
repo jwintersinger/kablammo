@@ -28,7 +28,19 @@ Kablammo.prototype._display_results = function(results) {
   this._iface.update_results_info(results);
 }
 
+function configure_more_info() {
+  var more_info = $('#more-info-container');
+  $('#learn-more-button').click(function() {
+    more_info.show();
+  });
+  $('#close-more-info').click(function() {
+    more_info.hide();
+  });
+}
+
 function main() {
+  configure_more_info();
   new Kablammo();
 }
+
 main();
