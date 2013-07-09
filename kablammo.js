@@ -30,18 +30,7 @@ Kablammo.prototype._display_results = function(results) {
   Interface.scroll_to('#results-container');
 }
 
-function configure_more_info() {
-  var more_info = $('#more-info-container');
-  $('#learn-more-button').click(function() {
-    more_info.show();
-  });
-  $('#close-more-info').click(function() {
-    more_info.hide();
-  });
-}
-
 function main() {
-  configure_more_info();
   new Kablammo();
 }
 

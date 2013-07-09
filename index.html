@@ -23,7 +23,7 @@
                   sequences in BLAST's database. Kablammo also helps you
                   understand how strong each hit is relative to others.
                 </p>
-                <button id="learn-more-button" class="btn">Learn more ...</button>
+                <button id="learn-more-button" class="btn" data-toggle="modal" data-target="#more-info-container">Learn more ...</button>
               </div>
             </div>
 
@@ -121,80 +121,36 @@
       </div>
     </div>
 
-    <div id="more-info-container">
-      <div class="container-fluid">
-        <div class="row-fluid">
-          <div class="span8 offset2" id="more-info">
-            <a class="close" id="close-more-info" href="#">&times;</a>
+    <div class="modal hide fade" id="more-info-container">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Kablammo!</h3>
+      </div>
 
-            <h2>Introduction</h2>
-            <p>Kablammo is awesome.</p>
+      <div class="modal-body" id="more-info">
+        <section>
+          <h4>Introduction</h4>
+          <p>Kablammo is awesome.</p>
+          </section>
 
-            <h2>Tips</h2>
-            <ul>
-              <li>Don't trust anyone over 30.</li>
-            </ul>
+        <section>
+          <h4>Tips</h4>
+          <ul>
+            <li>Don't trust anyone over 30.</li>
+          </ul>
+        </section>
 
-            <h2>Support</h2>
-            <p>
-              Yeah, I made this. I'm freaking awesome. Tell me why at
-              <a href="http://jeff.wintersinger.org/">jeff.wintersinger.org</a>.
-            </p>
+        <section>
+          <h4>Support</h4>
+          <p>
+            Yeah, I made this. I'm freaking awesome. Tell me why at
+            <a href="http://jeff.wintersinger.org/">jeff.wintersinger.org</a>.
+          </p>
+        </section>
+      </div>
 
-            <h2>Introduction</h2>
-            <p>Kablammo is awesome.</p>
-
-            <h2>Tips</h2>
-            <ul>
-              <li>Don't trust anyone over 30.</li>
-            </ul>
-
-            <h2>Support</h2>
-            <p>
-              Yeah, I made this. I'm freaking awesome. Tell me why at
-              <a href="http://jeff.wintersinger.org/">jeff.wintersinger.org</a>.
-            </p>
-            <h2>Introduction</h2>
-            <p>Kablammo is awesome.</p>
-
-            <h2>Tips</h2>
-            <ul>
-              <li>Don't trust anyone over 30.</li>
-            </ul>
-
-            <h2>Support</h2>
-            <p>
-              Yeah, I made this. I'm freaking awesome. Tell me why at
-              <a href="http://jeff.wintersinger.org/">jeff.wintersinger.org</a>.
-            </p>
-            <h2>Introduction</h2>
-            <p>Kablammo is awesome.</p>
-
-            <h2>Tips</h2>
-            <ul>
-              <li>Don't trust anyone over 30.</li>
-            </ul>
-
-            <h2>Support</h2>
-            <p>
-              Yeah, I made this. I'm freaking awesome. Tell me why at
-              <a href="http://jeff.wintersinger.org/">jeff.wintersinger.org</a>.
-            </p>
-            <h2>Introduction</h2>
-            <p>Kablammo is awesome.</p>
-
-            <h2>Tips</h2>
-            <ul>
-              <li>Don't trust anyone over 30.</li>
-            </ul>
-
-            <h2>Support</h2>
-            <p>
-              Yeah, I made this. I'm freaking awesome. Tell me why at
-              <a href="http://jeff.wintersinger.org/">jeff.wintersinger.org</a>.
-            </p>
-          </div>
-        </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">Close</button>
       </div>
     </div>
 
