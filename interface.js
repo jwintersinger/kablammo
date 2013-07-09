@@ -1,21 +1,12 @@
 "use strict";
 
 function Interface(server_results_chooser) {
-  var valid_sources = [
-    'toxodb_5.3_rrna_hits.xml',
-    'toxodb_8.1_rrna_hits.xml',
-    'enriched-rd-geneless.toxodb_8.1.blast.xml',
-    'enriched-rd-geneless.uniprot_sprot.blast.xml',
-    'enriched-rd-genes.toxodb_8.1.blast.xml',
-    'enriched-rd-genes.uniprot_sprot.blast.xml',
-    'enriched-rd-windows.toxodb_8.1.blast.xml',
-    'enriched-rd-windows.uniprot_sprot.blast.xml',
-    'overlapping-but-outside.toxodb_8.1.blast.xml',
-    'overlapping-but-outside.uniprot_sprot.blast.xml',
-  ];
+  var self = this;
   this._form = $('#load-results-form');
   this._server_results_chooser = $('#server-results-chooser');
-  this._populate_blast_results_chooser(valid_sources);
+  $.getJSON('blast_results.json', function(data) {
+    self._populate_blast_results_chooser(data.blast_results);
+  });
 }
 
 Interface.prototype.update_results_info = function(blast_results) {

@@ -1,0 +1,14 @@
+{
+  "blast_results": [
+    "toxodb_5.3_rrna_hits.xml",
+    "toxodb_8.1_rrna_hits.xml",
+    "enriched-rd-geneless.toxodb_8.1.blast.xml",
+    "enriched-rd-geneless.uniprot_sprot.blast.xml",
+    "enriched-rd-genes.toxodb_8.1.blast.xml",
+    "enriched-rd-genes.uniprot_sprot.blast.xml",
+    "enriched-rd-windows.toxodb_8.1.blast.xml",
+    "enriched-rd-windows.uniprot_sprot.blast.xml",
+    "overlapping-but-outside.toxodb_8.1.blast.xml",
+    "overlapping-but-outside.uniprot_sprot.blast.xml"
+  ]
+}
