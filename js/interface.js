@@ -50,13 +50,15 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
   local_chooser.change(function() {
     var label = $(this).parent().find('.file-label');
     var file = local_chooser.get(0).files[0];
-    console.log(file);
-    label.text(file.name);
+
+    var label_text = file ? file.name : '';
+    label.text(label_text);
   });
 
   this._form.submit(function(evt) {
     evt.preventDefault();
     var active_id = $(this).find('.tab-pane.active').attr('id');
+    console.log('form submit');
 
     if(active_id === 'load-from-server') {
       var server_results_chooser = $('#server-results-chooser');
