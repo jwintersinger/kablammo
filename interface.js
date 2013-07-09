@@ -94,3 +94,13 @@ Interface.error = function(msg) {
   error.find('.message').text(msg);
   container.append(error);
 }
+
+Interface.scroll_to = function(elem) {
+  elem = $(elem);
+  $('html, body').animate({
+    scrollTop: $(elem).offset().top
+  }, {
+    duration: 700,
+    complete: function() { }
+  });
+}
