@@ -1,0 +1,20 @@
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.hit {
+  transition: all 0.3s;
+}
+
+.hit:hover {
+  /*stroke: rgba(255,0,0,1);
+  stroke-width: 2;*/
+}
