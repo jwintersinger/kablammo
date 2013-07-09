@@ -31,9 +31,18 @@ BlastResultsLoader.prototype.load_local_file = function(file, on_done) {
   var reader = new FileReader();
   reader.onload = function(loaded_file) {
     var xml = loaded_file.target.result;
-    var parsed_xml = $($.parseXML(xml));
-    var results = self._parser.parse_blast_results(parsed_xml);
+    try {
+      var parsed_xml = $($.parseXML(xml));
+    } catch(e) {
+      if(e.message.indexOf('Invalid XML') === 0) {
+        console.log(e.message);
+        return;
+      } else {
+        throw e;
+      }
+    }
 
+    var results = self._parser.parse_blast_results(parsed_xml);
     self._munge_results(results);
     on_done(results);
   };
