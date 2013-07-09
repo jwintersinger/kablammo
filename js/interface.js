@@ -4,7 +4,7 @@ function Interface(server_results_chooser) {
   var self = this;
   this._form = $('#load-results-form');
   this._server_results_chooser = $('#server-results-chooser');
-  $.getJSON('blast_results.json', function(data) {
+  $.getJSON('data/blast_results.json', function(data) {
     self._populate_blast_results_chooser(data.blast_results);
   });
 }
