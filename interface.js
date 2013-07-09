@@ -13,7 +13,9 @@ function Interface(server_results_chooser) {
     'overlapping-but-outside.toxodb_8.1.blast.xml',
     'overlapping-but-outside.uniprot_sprot.blast.xml',
   ];
-  this._populate_blast_results_chooser(valid_sources, server_results_chooser);
+  this._form = $('#load-results-form');
+  this._server_results_chooser = $('#server-results-chooser');
+  this._populate_blast_results_chooser(valid_sources);
 }
 
 Interface.prototype.update_results_info = function(blast_results) {
@@ -26,9 +28,10 @@ Interface.prototype.update_results_info = function(blast_results) {
   $('#filtered-hits-count').text(blast_results.filtered_hits_count);
 }
 
-Interface.prototype._populate_blast_results_chooser = function(valid_sources, server_results_chooser) {
+Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
+  var self = this;
   valid_sources.forEach(function(source) {
-    server_results_chooser.append($('<option>', {
+    self._server_results_chooser.append($('<option>', {
       value: source,
       text:  source
     }));
@@ -41,11 +44,34 @@ Interface.prototype.create_header = function(table, label) {
   tr.append('th').text('Hits for query ' + label);
 }
 
-Interface.prototype.configure_display_results = function(on_display_results) {
-  $('#results-params').submit(on_display_results);
+Interface.prototype.configure_query_form = function(on_load_from_server, on_load_local_file) {
+  var local_chooser = $('#local-file-chooser');
 
   $('#choose-file').click(function(evt) {
     evt.preventDefault();
-    $('#local-file-chooser').click();
+    local_chooser.click();
   });
+
+  this._form.submit(function(evt) {
+    evt.preventDefault();
+    var active_id = $(this).find('.tab-pane.active').attr('id');
+
+    if(active_id === 'load-from-server') {
+      var server_results_chooser = $('#server-results-chooser');
+      var blast_results_filename = server_results_chooser.val();
+      on_load_from_server(blast_results_filename);
+    } else if (active_id === 'load-local-file') {
+      var file = local_chooser.get(0).files[0];
+      // User hasn't selected file.
+      if(!file)
+        return;
+      on_load_local_file(file);
+    } else {
+      throw 'Invalid active tab ID: ' + active_id;
+    }
+  });
+}
+
+Interface.prototype.display_results = function() {
+  this._form.submit();
 }

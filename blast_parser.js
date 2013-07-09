@@ -118,7 +118,7 @@ BlastParser.prototype._slice_blast_iterations = function(iterations) {
   return sliced_iterations;
 }
 
-BlastParser.prototype._parse_blast_results = function(xml_doc) {
+BlastParser.prototype.parse_blast_results = function(xml_doc) {
   var self = this;
   var doc = $(xml_doc);
 
@@ -177,7 +177,7 @@ BlastParser.prototype._parse_blast_results = function(xml_doc) {
   };
 }
 
-BlastParser.prototype._slice_and_dice = function(blast_results) {
+BlastParser.prototype.slice_and_dice = function(blast_results) {
   var _calc_num_hits = function(iterations) {
     return d3.sum(iterations, function(iteration) {
       return iteration.hits.length;
