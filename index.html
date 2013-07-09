@@ -31,7 +31,8 @@
 
                         <div class="tab-pane" id="load-local-file">
                           <input type="file" id="local-file-chooser" />
-                          <button class="btn" id="choose-file">Choose file</button>
+                          <button class="btn" id="choose-file">Choose file ...</button>
+                          <p class="file-label"></p>
                         </div>
                       </div>
                     </div>
@@ -94,6 +95,14 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div id="errors">
+      <div class="alert alert-error fade in example">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Error:</strong>
+        <span class="message">This is an example error.</span>
       </div>
     </div>
 

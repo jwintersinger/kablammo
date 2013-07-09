@@ -35,7 +35,7 @@ BlastResultsLoader.prototype.load_local_file = function(file, on_done) {
       var parsed_xml = $($.parseXML(xml));
     } catch(e) {
       if(e.message.indexOf('Invalid XML') === 0) {
-        console.log(e.message);
+        Interface.error(file.name + ' is not valid XML');
         return;
       } else {
         throw e;

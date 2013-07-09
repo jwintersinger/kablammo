@@ -50,6 +50,12 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
   $('#choose-file').click(function(evt) {
     evt.preventDefault();
     local_chooser.click();
+  })
+  local_chooser.change(function() {
+    var label = $(this).parent().find('.file-label');
+    var file = local_chooser.get(0).files[0];
+    console.log(file);
+    label.text(file.name);
   });
 
   this._form.submit(function(evt) {
@@ -74,4 +80,12 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
 
 Interface.prototype.display_results = function() {
   this._form.submit();
+}
+
+Interface.error = function(msg) {
+  var container = $('#errors');
+  var error = container.find('.alert-error').first().clone();
+  error.removeClass('example');
+  error.find('.message').text(msg);
+  container.append(error);
 }
