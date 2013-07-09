@@ -41,6 +41,11 @@ Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
 Interface.prototype.create_header = function(table, label) {
   var tr = d3.select(table).append('tr');
   tr.append('th').text('Subject');
+
+  // Don't show label if no valid one present.
+  if(label === 'No definition line')
+    label = '';
+
   tr.append('th').text('Hits for query ' + label);
 }
 
