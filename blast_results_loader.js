@@ -19,6 +19,8 @@ BlastResultsLoader.prototype._fetch_remote_results = function(blast_results_name
     var blast_results = self._parser.parse_blast_results(xml_doc);
     _blast_results_cache[blast_results_name] = blast_results;
     on_fetched(blast_results);
+  }).fail(function(jqxhr, text_status, error) {
+    Interface.error('Failed to retrieve ' + blast_results_name + ': ' + error);
   });
 }
 
