@@ -1,4 +1,11 @@
 #!/usr/bin/env python2
+'''
+Generate blast_results.json file, used by Kablammo to list all BLAST result
+sets available on the server.
+
+Usage: simply run generate_list.py with no arguments. data/blast_results.json
+will then list all XML files in the data/ directory.
+'''
 import os
 import json
 
