@@ -1,3 +1,20 @@
 Support loading results from local file
 Visualize coverage of all hits across sequence
 Normalize bit scores relative to highest score in filtered results, not all results
+
+Ivan's suggestions:
+  Show alignment -- simple text is fine
+  Output hit ID in addition to hit def
+  Rewrite mouse handling
+    Zoom on both axes
+    Zoom more intuitively
+    Allow panning
+  Allow for displaying bigger SVGs
+
+  Export table format:
+    Query ID
+    Subject ID
+    Bit score
+    E value
+    Query start/end
+    Subject start/end
