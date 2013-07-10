@@ -73,3 +73,23 @@ svg {
 #results-container {
   display: none;
 }
+
+#curtain {
+  background-color: rgba(0, 0, 0, 0.8);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  display: none;
+  text-align: center;
+}
+
+#curtain .message {
+  background-color: white;
+  padding: 2em;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 20%;
+}

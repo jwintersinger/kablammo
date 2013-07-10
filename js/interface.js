@@ -58,18 +58,21 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
   this._form.submit(function(evt) {
     evt.preventDefault();
     var active_id = $(this).find('.tab-pane.active').attr('id');
-    console.log('form submit');
 
     if(active_id === 'load-from-server') {
       var server_results_chooser = $('#server-results-chooser');
       var blast_results_filename = server_results_chooser.val();
-      on_load_from_server(blast_results_filename);
+      Interface.show_curtain(function() {
+        on_load_from_server(blast_results_filename);
+      });
     } else if (active_id === 'load-local-file') {
       var file = local_chooser.get(0).files[0];
       // User hasn't selected file.
       if(!file)
         return;
-      on_load_local_file(file);
+      Interface.show_curtain(function() {
+        on_load_local_file(file);
+      });
     } else {
       throw 'Invalid active tab ID: ' + active_id;
     }
@@ -81,6 +84,9 @@ Interface.prototype.display_results = function() {
 }
 
 Interface.error = function(msg) {
+  // Hide curtain in case it is showing, which would obscure error.
+  Interface.hide_curtain();
+
   var container = $('#errors');
   var error = container.find('.alert-error').first().clone();
   error.removeClass('example');
@@ -96,4 +102,12 @@ Interface.scroll_to = function(elem) {
     duration: 700,
     complete: function() { }
   });
+}
+
+Interface.show_curtain = function(on_done) {
+  $('#curtain').fadeIn(500, on_done);
+}
+
+Interface.hide_curtain = function(on_done) {
+  $('#curtain').fadeOut(500, on_done);
 }
