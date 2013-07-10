@@ -4,8 +4,7 @@ Normalize bit scores relative to highest score in filtered results, not all resu
 
 Ivan's suggestions:
   Show alignment -- simple text is fine
-  Show reading frame
-  Outboth ID in addition to hit def
+  Output hit ID in addition to hit def
   Rewrite mouse handling
     Zoom on both axes
     Zoom more intuitively

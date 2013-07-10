@@ -145,8 +145,10 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
         var hsp_attribs = {
           query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
           query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
+          query_frame: parseInt(hsp.find('Hsp_query-frame').text(), 10),
           subject_start: parseInt(hsp.find('Hsp_hit-from').text(), 10),
           subject_end: parseInt(hsp.find('Hsp_hit-to').text(), 10),
+          subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
           bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
           evalue: parseFloat(hsp.find('Hsp_evalue').text())
         };
