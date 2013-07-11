@@ -113,6 +113,10 @@ Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_
   };
 }
 
+Grapher.prototype._is_domain_within_orig = function(original_domain, new_domain) {
+  return original_domain[0] <= new_domain[0] && original_domain[1] >= new_domain[1];
+}
+
 Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom_from, scale_by) {
   var l = existing_domain[0];
   var r = existing_domain[1];
@@ -129,9 +133,24 @@ Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom
   if(l == r)
     r = l + 1;
 
-  if(l < original_domain[0] || r > original_domain[1])
+  var new_domain = [l, r];
+  if(this._is_domain_within_orig(original_domain, new_domain))
+    return new_domain;
+  else
     return original_domain;
-  return [l, r];
+}
+
+Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) {
+  var scale = (existing_scale.domain()[1] - existing_scale.domain()[0]) / (existing_scale.range()[1] - existing_scale.range()[0]);
+  var scaled_delta = -delta * scale;
+
+  var domain = existing_scale.domain();
+  var l = domain[0] + scaled_delta;
+  var r = domain[1] + scaled_delta;
+  var new_domain = [l, r];
+
+  if(this._is_domain_within_orig(original_domain, new_domain))
+    existing_scale.domain(new_domain);
 }
 
 Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, subject_height, subject_scale) {
@@ -198,6 +217,22 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var query_height = padding_y;
   var subject_height = canvas_height - padding_y;
   this._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+
+  var last_x = null;
+  svg.on('mousedown',  function() { last_x = d3.event.clientX; });
+  svg.on('mouseup',    function() { last_x = null;             });
+  svg.on('mouseleave', function() { last_x = null;             });
+  svg.on('mousemove',  function() {
+    if(last_x === null)
+      return;
+
+    var new_x = d3.event.clientX;
+    var delta = new_x - last_x;
+    last_x = new_x;
+
+    self._pan_scale(subject_scale, original_subject_domain, delta);
+    self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+  });
 
   svg.on('mousewheel', function() {
     var evt = d3.event;
