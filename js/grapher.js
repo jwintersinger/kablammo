@@ -117,9 +117,9 @@ Grapher.prototype._is_domain_within_orig = function(original_domain, new_domain)
   return original_domain[0] <= new_domain[0] && original_domain[1] >= new_domain[1];
 }
 
-Grapher.prototype._zoom_scale = function(existing_scale, original_domain, zoom_from, scale_by) {
-  var l = existing_scale.domain()[0];
-  var r = existing_scale.domain()[1];
+Grapher.prototype._zoom_scale = function(scale, original_domain, zoom_from, scale_by) {
+  var l = scale.domain()[0];
+  var r = scale.domain()[1];
 
   l = zoom_from - (zoom_from - l) / scale_by;
   r = zoom_from + (r - zoom_from) / scale_by;
@@ -135,7 +135,9 @@ Grapher.prototype._zoom_scale = function(existing_scale, original_domain, zoom_f
 
   var new_domain = [l, r];
   if(this._is_domain_within_orig(original_domain, new_domain))
-    existing_scale.domain(new_domain);
+    scale.domain(new_domain);
+  else
+    scale.domain(original_domain);
 }
 
 Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) {
@@ -232,13 +234,13 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
   });
 
-  svg.on('mousewheel', function() {
+  function handle_mouse_wheel() {
     var evt = d3.event;
     evt.preventDefault();
 
     var scale_by = 2;
-    var delta = evt.wheelDelta;
-    if(delta < 0)
+    var direction = (evt.deltaY < 0 || evt.wheelDelta > 0) ? 1 : -1;
+    if(direction < 0)
       scale_by = 1/scale_by;
 
     var mouse_coords = d3.mouse(svg[0][0]);
@@ -254,7 +256,9 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
       hit.subject_length
     );
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
-  });
+  }
+  svg.on('mousewheel', handle_mouse_wheel); // Chrome
+  svg.on('wheel',      handle_mouse_wheel); // Firefox, IE
 }
 
 Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
