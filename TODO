@@ -1,15 +1,10 @@
-Support loading results from local file
 Visualize coverage of all hits across sequence
 Normalize bit scores relative to highest score in filtered results, not all results
 
 Ivan's suggestions:
   Show alignment -- simple text is fine
-  Output hit ID in addition to hit def
-  Rewrite mouse handling
-    Zoom on both axes
-    Zoom more intuitively
-    Allow panning
-  Allow for displaying bigger SVGs
+  Allow zooming/panning on both axes, rather than just subject axis
+  Display blown-up SVG for particular hit of interest
 
   Export table format:
     Query ID

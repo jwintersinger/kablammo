@@ -277,7 +277,9 @@ Grapher.prototype.display_blast_iterations = function(iterations, results_table,
     iface.create_header(results_table, iteration.query_def);
     hits.forEach(function(hit) {
       var table_row = d3.select(results_table).append('tr');
-      table_row.append('td').text(hit.subject_def);
+      var label_cell = table_row.append('td')
+      label_cell.html('<strong>ID:</strong> ' + hit.subject_id +
+        '<br /><strong>Def:</strong> ' + hit.subject_def);
       self._display_graph(iteration, hit, table_row);
     });
   });

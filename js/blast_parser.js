@@ -138,6 +138,7 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
       var hit = $(this);
 
       var hit_attribs = {};
+      hit_attribs.subject_id = hit.children('Hit_id').text();
       hit_attribs.subject_def = hit.children('Hit_def').text();
       hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
       hit_attribs.hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
@@ -161,6 +162,7 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
     }).get();
 
     return {
+      query_id: iteration.find('Iteration_query-ID').text(),
       query_def: iteration.find('Iteration_query-def').text(),
       query_length: parseInt(iteration.find('Iteration_query-len').text(), 10),
       hits: hits,
