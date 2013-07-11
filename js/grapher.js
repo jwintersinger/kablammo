@@ -113,25 +113,25 @@ Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_
   };
 }
 
-Grapher.prototype._create_subject_domain = function(subject_length, subject_zoom_factor, subject_zoom_from) {
-  if(subject_zoom_factor === 1)
-    return [0, subject_length];
+Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom_from, scale_by) {
+  var l = existing_domain[0];
+  var r = existing_domain[1];
 
-  var visible_length = subject_length / subject_zoom_factor;
-  var start = subject_zoom_from - visible_length/2;
-  var end = subject_zoom_from + visible_length/2;
+  l = zoom_from - (zoom_from - l) / scale_by;
+  r = zoom_from + (r - zoom_from) / scale_by;
 
-  if(start < 0) {
-    start = 0;
-    end = visible_length;
-  } else if(end > subject_length) {
-    end = subject_length;
-    start = subject_length - visible_length;
-  }
+  l = Math.round(l);
+  r = Math.round(r);
+  // If Math.round(r) - Math.round(l) = 1 from previous zoom event, and for
+  // this event, fractional parts of l and r such that l rounds up and r rounds
+  // down, we end up with l = r. This is bad, since we're telling d3 to create
+  // scale consisting of only a single point, not an interval.
+  if(l == r)
+    r = l + 1;
 
-  start = Math.round(start);
-  end = Math.round(end);
-  return [start, end];
+  if(l < original_domain[0] || r > original_domain[1])
+    return original_domain;
+  return [l, r];
 }
 
 Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, subject_height, subject_scale) {
@@ -186,14 +186,13 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
                      .attr('width', canvas_width)
                      .attr('height', canvas_height);
 
-  var zoom_factor = 1;
-  var subject_domain = this._create_subject_domain(hit.subject_length, zoom_factor, 0);
+  var original_subject_domain = [0, hit.subject_length];
 
   var query_scale = d3.scale.linear()
                          .domain([0, iteration.query_length])
                          .range([padding_x, canvas_width - padding_x]);
   var subject_scale = d3.scale.linear()
-                         .domain(subject_domain)
+                         .domain(original_subject_domain)
                          .range([padding_x, canvas_width - padding_x]);
 
   var query_height = padding_y;
@@ -204,24 +203,24 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     var evt = d3.event;
     evt.preventDefault();
 
-    var delta = evt.wheelDelta;
     var scale_by = 2;
-
-    if(delta > 0)
-      zoom_factor *= scale_by;
-    else if(delta < 0)
-      zoom_factor /= scale_by;
-
-    if(zoom_factor < 1)
-      zoom_factor = 1;
-    if(zoom_factor > hit.subject_length)
-      zoom_factor = hit.subject_length;
+    var delta = evt.wheelDelta;
+    if(delta < 0)
+      scale_by = 1/scale_by;
 
     var mouse_coords = d3.mouse(svg[0][0]);
     // Take x-coordinate of mouse, figure out where that lies on subject
     // axis, then place that point on centre of new zoomed axis.
     var zoom_from = subject_scale.invert(mouse_coords[0]);
-    subject_scale.domain(self._create_subject_domain(hit.subject_length, zoom_factor, zoom_from));
+
+    var new_domain = self._zoom_domain(
+      subject_scale.domain(),
+      original_subject_domain,
+      zoom_from,
+      scale_by,
+      hit.subject_length
+    );
+    subject_scale.domain(new_domain);
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
   });
 }
