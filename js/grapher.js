@@ -117,9 +117,9 @@ Grapher.prototype._is_domain_within_orig = function(original_domain, new_domain)
   return original_domain[0] <= new_domain[0] && original_domain[1] >= new_domain[1];
 }
 
-Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom_from, scale_by) {
-  var l = existing_domain[0];
-  var r = existing_domain[1];
+Grapher.prototype._zoom_scale = function(existing_scale, original_domain, zoom_from, scale_by) {
+  var l = existing_scale.domain()[0];
+  var r = existing_scale.domain()[1];
 
   l = zoom_from - (zoom_from - l) / scale_by;
   r = zoom_from + (r - zoom_from) / scale_by;
@@ -135,9 +135,7 @@ Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom
 
   var new_domain = [l, r];
   if(this._is_domain_within_orig(original_domain, new_domain))
-    return new_domain;
-  else
-    return original_domain;
+    existing_scale.domain(new_domain);
 }
 
 Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) {
@@ -248,14 +246,13 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     // axis, then place that point on centre of new zoomed axis.
     var zoom_from = subject_scale.invert(mouse_coords[0]);
 
-    var new_domain = self._zoom_domain(
-      subject_scale.domain(),
+    self._zoom_scale(
+      subject_scale,
       original_subject_domain,
       zoom_from,
       scale_by,
       hit.subject_length
     );
-    subject_scale.domain(new_domain);
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
   });
 }
