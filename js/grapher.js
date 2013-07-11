@@ -113,9 +113,13 @@ Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_
   };
 }
 
-Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom_from, scale_by) {
-  var l = existing_domain[0];
-  var r = existing_domain[1];
+Grapher.prototype._is_domain_within_orig = function(original_domain, new_domain) {
+  return original_domain[0] <= new_domain[0] && original_domain[1] >= new_domain[1];
+}
+
+Grapher.prototype._zoom_scale = function(scale, original_domain, zoom_from, scale_by) {
+  var l = scale.domain()[0];
+  var r = scale.domain()[1];
 
   l = zoom_from - (zoom_from - l) / scale_by;
   r = zoom_from + (r - zoom_from) / scale_by;
@@ -129,9 +133,24 @@ Grapher.prototype._zoom_domain = function(existing_domain, original_domain, zoom
   if(l == r)
     r = l + 1;
 
-  if(l < original_domain[0] || r > original_domain[1])
-    return original_domain;
-  return [l, r];
+  var new_domain = [l, r];
+  if(this._is_domain_within_orig(original_domain, new_domain))
+    scale.domain(new_domain);
+  else
+    scale.domain(original_domain);
+}
+
+Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) {
+  var scale = (existing_scale.domain()[1] - existing_scale.domain()[0]) / (existing_scale.range()[1] - existing_scale.range()[0]);
+  var scaled_delta = -delta * scale;
+
+  var domain = existing_scale.domain();
+  var l = domain[0] + scaled_delta;
+  var r = domain[1] + scaled_delta;
+  var new_domain = [l, r];
+
+  if(this._is_domain_within_orig(original_domain, new_domain))
+    existing_scale.domain(new_domain);
 }
 
 Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, subject_height, subject_scale) {
@@ -199,13 +218,29 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var subject_height = canvas_height - padding_y;
   this._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
 
-  svg.on('mousewheel', function() {
+  var last_x = null;
+  svg.on('mousedown',  function() { last_x = d3.event.clientX; });
+  svg.on('mouseup',    function() { last_x = null;             });
+  svg.on('mouseleave', function() { last_x = null;             });
+  svg.on('mousemove',  function() {
+    if(last_x === null)
+      return;
+
+    var new_x = d3.event.clientX;
+    var delta = new_x - last_x;
+    last_x = new_x;
+
+    self._pan_scale(subject_scale, original_subject_domain, delta);
+    self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+  });
+
+  function handle_mouse_wheel() {
     var evt = d3.event;
     evt.preventDefault();
 
     var scale_by = 2;
-    var delta = evt.wheelDelta;
-    if(delta < 0)
+    var direction = (evt.deltaY < 0 || evt.wheelDelta > 0) ? 1 : -1;
+    if(direction < 0)
       scale_by = 1/scale_by;
 
     var mouse_coords = d3.mouse(svg[0][0]);
@@ -213,16 +248,17 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     // axis, then place that point on centre of new zoomed axis.
     var zoom_from = subject_scale.invert(mouse_coords[0]);
 
-    var new_domain = self._zoom_domain(
-      subject_scale.domain(),
+    self._zoom_scale(
+      subject_scale,
       original_subject_domain,
       zoom_from,
       scale_by,
       hit.subject_length
     );
-    subject_scale.domain(new_domain);
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
-  });
+  }
+  svg.on('mousewheel', handle_mouse_wheel); // Chrome
+  svg.on('wheel',      handle_mouse_wheel); // Firefox, IE
 }
 
 Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
