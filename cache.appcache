@@ -1,0 +1,12 @@
+CACHE MANIFEST
+# v1 2013-10-31
+
+index.html
+css/kablammo.css
+css/svg.css
+js/blast_parser.js
+js/blast_results_loader.js
+js/grapher.js
+js/interface.js
+js/kablammo.js
+js/snippets.js
