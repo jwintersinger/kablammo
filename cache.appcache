@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# v1 2013-10-31
+# v2 2013-10-31
 
 index.html
 css/kablammo.css
@@ -10,3 +10,8 @@ js/grapher.js
 js/interface.js
 js/kablammo.js
 js/snippets.js
+
+//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css
+//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js
+//d3js.org/d3.v3.min.js
+//code.jquery.com/jquery-2.0.0.min.js
