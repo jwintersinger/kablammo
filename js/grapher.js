@@ -252,7 +252,10 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     var delta = new_x - last_x;
     last_x = new_x;
 
-    self._pan_scale(subject_scale, subject_scale.original_domain, delta);
+    var mouse_coords = d3.mouse(svg[0][0]);
+    var target_scale = self._find_nearest_scale(mouse_coords, scales);
+
+    self._pan_scale(target_scale, target_scale.original_domain, delta);
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
   });
 
