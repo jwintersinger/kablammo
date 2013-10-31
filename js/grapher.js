@@ -196,10 +196,13 @@ Grapher.prototype._find_nearest_scale = function(point, scales) {
   var nearest = null;
   var smallest_distance = Number.MAX_VALUE;
 
-  scales.forEach(function(scale_and_height) {
-    var delta = Math.abs(scale_and_height.height - point[1]);
+  Object.keys(scales).forEach(function(scale_name) {
+    var scale        = scales[scale_name].scale;
+    var scale_height = scales[scale_name].height;
+
+    var delta = Math.abs(scale_height - point[1]);
     if(delta < smallest_distance) {
-      nearest = scale_and_height.scale;
+      nearest = scale;
       smallest_distance = delta;
     }
   });
@@ -223,14 +226,18 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var query_scale = d3.scale.linear()
                          .domain([0, iteration.query_length])
                          .range([padding_x, canvas_width - padding_x]);
-  query_scale.original_domain = query_scale.domain();
   var subject_scale = d3.scale.linear()
                          .domain([0, hit.subject_length])
                          .range([padding_x, canvas_width - padding_x]);
+  query_scale.original_domain = query_scale.domain();
   subject_scale.original_domain = subject_scale.domain();
-
   var query_height = padding_y;
   var subject_height = canvas_height - padding_y;
+  var scales = {
+    'subject': { height: subject_height, scale: subject_scale },
+    'query':   { height: query_height,   scale: query_scale   },
+  };
+
   this._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
 
   var last_x = null;
@@ -259,10 +266,7 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
       scale_by = 1/scale_by;
 
     var mouse_coords = d3.mouse(svg[0][0]);
-    var target_scale = self._find_nearest_scale(mouse_coords, [
-      { name: 'subject', height: subject_height, scale: subject_scale },
-      { name: 'query',   height: query_height,   scale: query_scale },
-    ]);
+    var target_scale = self._find_nearest_scale(mouse_coords, scales);
     // Take x-coordinate of mouse, figure out where that lies on subject
     // axis, then place that point on centre of new zoomed axis.
     var zoom_from = target_scale.invert(mouse_coords[0]);
