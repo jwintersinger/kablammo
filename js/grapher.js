@@ -48,6 +48,7 @@ Grapher.prototype._show_tooltip = function(svg, polygon, hsp) {
     ['Query frame', hsp.query_frame],
     ['Subject start', position_formatter(hsp.subject_start)],
     ['Subject end', position_formatter(hsp.subject_end)],
+    ['Alignment length', position_formatter(hsp.alignment_length)],
     ['Subject frame', hsp.subject_frame],
   ];
   var tooltip_contents = tooltip_info.map(function(info) {

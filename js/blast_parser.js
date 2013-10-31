@@ -150,6 +150,7 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
           subject_start: parseInt(hsp.find('Hsp_hit-from').text(), 10),
           subject_end: parseInt(hsp.find('Hsp_hit-to').text(), 10),
           subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
+          alignment_length: parseInt(hsp.find('Hsp_align-len').text(), 10),
           bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
           evalue: parseFloat(hsp.find('Hsp_evalue').text())
         };
