@@ -1,16 +1,16 @@
 CACHE MANIFEST
 # v2 2013-10-31
 
-index.html
-css/kablammo.css
-css/svg.css
-data/blast_results.json
-js/blast_parser.js
-js/blast_results_loader.js
-js/grapher.js
-js/interface.js
-js/kablammo.js
-js/snippets.js
+/index.html
+/css/kablammo.css
+/css/svg.css
+/data/blast_results.json
+/js/blast_parser.js
+/js/blast_results_loader.js
+/js/grapher.js
+/js/interface.js
+/js/kablammo.js
+/js/snippets.js
 
 //netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css
 //netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js
