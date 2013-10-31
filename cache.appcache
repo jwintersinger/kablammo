@@ -4,6 +4,7 @@ CACHE MANIFEST
 index.html
 css/kablammo.css
 css/svg.css
+data/blast_results.json
 js/blast_parser.js
 js/blast_results_loader.js
 js/grapher.js
