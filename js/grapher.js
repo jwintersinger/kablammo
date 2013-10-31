@@ -192,6 +192,21 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
   var subject_axis = self._create_axis(svg, subject_scale, 'bottom', subject_height, 'end',   '-1em',  '-0.4em');
 }
 
+Grapher.prototype._find_nearest_scale = function(point, scales) {
+  var nearest = null;
+  var smallest_distance = Number.MAX_VALUE;
+
+  scales.forEach(function(scale_and_height) {
+    var delta = Math.abs(scale_and_height.height - point[1]);
+    if(delta < smallest_distance) {
+      nearest = scale_and_height.scale;
+      smallest_distance = delta;
+    }
+  });
+
+  return nearest;
+}
+
 Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var self = this;
 
@@ -205,14 +220,14 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
                      .attr('width', canvas_width)
                      .attr('height', canvas_height);
 
-  var original_subject_domain = [0, hit.subject_length];
-
   var query_scale = d3.scale.linear()
                          .domain([0, iteration.query_length])
                          .range([padding_x, canvas_width - padding_x]);
+  query_scale.original_domain = query_scale.domain();
   var subject_scale = d3.scale.linear()
-                         .domain(original_subject_domain)
+                         .domain([0, hit.subject_length])
                          .range([padding_x, canvas_width - padding_x]);
+  subject_scale.original_domain = subject_scale.domain();
 
   var query_height = padding_y;
   var subject_height = canvas_height - padding_y;
@@ -230,7 +245,7 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     var delta = new_x - last_x;
     last_x = new_x;
 
-    self._pan_scale(subject_scale, original_subject_domain, delta);
+    self._pan_scale(subject_scale, subject_scale.original_domain, delta);
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
   });
 
@@ -244,16 +259,19 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
       scale_by = 1/scale_by;
 
     var mouse_coords = d3.mouse(svg[0][0]);
+    var target_scale = self._find_nearest_scale(mouse_coords, [
+      { name: 'subject', height: subject_height, scale: subject_scale },
+      { name: 'query',   height: query_height,   scale: query_scale },
+    ]);
     // Take x-coordinate of mouse, figure out where that lies on subject
     // axis, then place that point on centre of new zoomed axis.
-    var zoom_from = subject_scale.invert(mouse_coords[0]);
+    var zoom_from = target_scale.invert(mouse_coords[0]);
 
     self._zoom_scale(
-      subject_scale,
-      original_subject_domain,
+      target_scale,
+      target_scale.original_domain,
       zoom_from,
-      scale_by,
-      hit.subject_length
+      scale_by
     );
     self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
   }
