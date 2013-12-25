@@ -18,3 +18,7 @@
   /*stroke: rgba(255,0,0,1);
   stroke-width: 2;*/
 }
+
+.axis-label {
+  font-size: 11px;
+}

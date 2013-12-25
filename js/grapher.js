@@ -191,6 +191,20 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
 
   var query_axis   = self._create_axis(svg, query_scale,   'top',    query_height,   'start', '0.8em', '1em');
   var subject_axis = self._create_axis(svg, subject_scale, 'bottom', subject_height, 'end',   '-1em',  '-0.4em');
+
+  // Create axis labels.
+  svg.append('text')
+     .attr('class', 'query axis-label')
+     .attr('text-anchor', 'end')
+     .attr('x', 0.5*svg.attr('width'))
+     .attr('y', '1.1em')
+     .text('Query');
+  svg.append('text')
+     .attr('class', 'subject axis-label')
+     .attr('text-anchor', 'end')
+     .attr('x', 0.5*svg.attr('width'))
+     .attr('y', svg.attr('height') - 5)
+     .text('Subject');
 }
 
 Grapher.prototype._find_nearest_scale = function(point, scales) {
@@ -215,9 +229,9 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
   var self = this;
 
   var padding_x = 20;
-  var padding_y = 50;
+  var padding_y = 60;
   var canvas_width = 500;
-  var canvas_height = 300;
+  var canvas_height = 330;
 
   var svg = table_row.append('td')
                      .append('svg')
