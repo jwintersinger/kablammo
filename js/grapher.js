@@ -224,12 +224,19 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
                      .attr('width', canvas_width)
                      .attr('height', canvas_height);
 
+  var query_range   = [padding_x, canvas_width - padding_x];
+  var subject_range = [padding_x, canvas_width - padding_x];
+  if(hit.hsps[0].query_frame < 0)
+    query_range.reverse();
+  if(hit.hsps[0].subject_frame < 0)
+    subject_range.reverse();
+
   var query_scale = d3.scale.linear()
                          .domain([0, iteration.query_length])
-                         .range([padding_x, canvas_width - padding_x]);
+                         .range(query_range);
   var subject_scale = d3.scale.linear()
                          .domain([0, hit.subject_length])
-                         .range([padding_x, canvas_width - padding_x]);
+                         .range(subject_range);
   query_scale.original_domain = query_scale.domain();
   subject_scale.original_domain = subject_scale.domain();
   var query_height = padding_y;

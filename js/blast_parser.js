@@ -3,19 +3,6 @@
 function BlastParser() {
 }
 
-BlastParser.prototype._reorder_hit_positions = function(hsp) {
-  if(hsp.query_start > hsp.query_end) {
-    var tmp = hsp.query_start;
-    hsp.query_start = hsp.query_end;
-    hsp.query_end = tmp;
-  }
-  if(hsp.subject_start > hsp.subject_end) {
-    var tmp = hsp.subject_start;
-    hsp.subject_start = hsp.subject_end;
-    hsp.subject_end = tmp;
-  }
-}
-
 BlastParser.prototype._find_max_bit_score_for_hit =  function(hit) {
   return d3.max(hit.hsps, function(hsp) {
     return hsp.bit_score;
@@ -155,7 +142,6 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
           evalue: parseFloat(hsp.find('Hsp_evalue').text())
         };
 
-        self._reorder_hit_positions(hsp_attribs);
         return hsp_attribs;
       }).get();
 
