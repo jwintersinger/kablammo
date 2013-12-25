@@ -3,6 +3,43 @@
 function BlastParser() {
 }
 
+// Always ensure that sequence coordinates are ordered such that start < end.
+// This is not necessarily the case in BLAST results -- when a hit is found to
+// the subject's reverse complement, the subject coordinates may be ordered
+// [end, start], depending on which BLAST variant you're using. Here, we
+// correct this inconsistency to simplify downstream use of the parsed data.
+BlastParser.prototype._reorder_hit_positions = function(hsp) {
+  // In blastn results, for a given sequence (whether subject or query), if the
+  // sequence's reading frame is negative (meaning that the subject or query
+  // corresponds to the reverse complement of the actual sequence), then the
+  // sequence's coordinates are specified such that start > end. That is, the
+  // coordinates [6, 3] means that the given fragment runs from positions 3 to 6
+  // of the *reverse complement* of the sequence. When this occurs, we will
+  // render the corresponding axis such that it *decreases* from left to right,
+  // with the 0 position on the right of the axis.
+  //
+  // Now, the above is all well and good with regard to blastn, but for blastx
+  // (and perhaps other BLAST variants), the behaviour is slightly different. In
+  // sequences with a negative reading frame, the coordinates won't be reversed
+  // -- you will always be given the coordinates [3, 6], even if the fragment
+  // occurs within the reverse complement.
+  //
+  // To resolve the inconsistency between BLAST variants, we munge sequence
+  // coordinates here to guarantee that start < end. You can then look at
+  // hsp.{query,subject}_frame to determine whether the coordinates refer to
+  // the original or reverse-complement sequence.
+  if(hsp.query_start > hsp.query_end) {
+    var tmp = hsp.query_start;
+    hsp.query_start = hsp.query_end;
+    hsp.query_end = tmp;
+  }
+  if(hsp.subject_start > hsp.subject_end) {
+    var tmp = hsp.subject_start;
+    hsp.subject_start = hsp.subject_end;
+    hsp.subject_end = tmp;
+  }
+}
+
 BlastParser.prototype._find_max_bit_score_for_hit =  function(hit) {
   return d3.max(hit.hsps, function(hsp) {
     return hsp.bit_score;
@@ -142,6 +179,7 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
           evalue: parseFloat(hsp.find('Hsp_evalue').text())
         };
 
+        self._reorder_hit_positions(hsp_attribs);
         return hsp_attribs;
       }).get();
 
