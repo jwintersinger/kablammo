@@ -171,14 +171,12 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
        var colour = 'rgba(' + [val, val, val].join(',') + ',1.0)';
        return colour;
      }).attr('points', function(hsp) {
-       //
-       // So, what is the upshot of all the above? We create query_x_points
-       // such that the 0th element is *always* going to be on the left of the
-       // 1st element, regardless of whether the axis is drawn normally (i.e.,
-       // ltr) or reversed (i.e., rtl). We do the same for subject_x_points. As
-       // our parsing code guarantees that start < end, we decide on this
-       // ordering based on the reading frame, because it determines whether
-       // our axis will be reversed or not.
+       // We create query_x_points such that the 0th element will *always* be
+       // on the left of the 1st element, regardless of whether the axis is
+       // drawn normally (i.e., ltr) or reversed (i.e., rtl). We do the same
+       // for subject_x_points. As our parsing code guarantees start < end, we
+       // decide on this ordering based on the reading frame, because it
+       // determines whether our axis will be reversed or not.
        var query_x_points = [query_scale(hsp.query_start), query_scale(hsp.query_end)];
        if(hsp.query_frame < 0)
          query_x_points.reverse();
