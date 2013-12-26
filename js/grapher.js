@@ -154,7 +154,7 @@ Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) 
     existing_scale.domain(new_domain);
 }
 
-Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, subject_height, subject_scale) {
+Grapher.prototype._create_graph = function(svg, hsps, query_height, query_scale, subject_height, subject_scale) {
   var self = this;
 
   // Remove all existing child elements.
@@ -162,7 +162,7 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
 
   // Add polygons.
   svg.selectAll('polygon')
-     .data(hit.hsps)
+     .data(hsps)
      .enter()
      .append('polygon')
      .attr('class', 'hit')
@@ -171,14 +171,12 @@ Grapher.prototype._create_graph = function(svg, hit, query_height, query_scale, 
        var colour = 'rgba(' + [val, val, val].join(',') + ',1.0)';
        return colour;
      }).attr('points', function(hsp) {
-       //
-       // So, what is the upshot of all the above? We create query_x_points
-       // such that the 0th element is *always* going to be on the left of the
-       // 1st element, regardless of whether the axis is drawn normally (i.e.,
-       // ltr) or reversed (i.e., rtl). We do the same for subject_x_points. As
-       // our parsing code guarantees that start < end, we decide on this
-       // ordering based on the reading frame, because it determines whether
-       // our axis will be reversed or not.
+       // We create query_x_points such that the 0th element will *always* be
+       // on the left of the 1st element, regardless of whether the axis is
+       // drawn normally (i.e., ltr) or reversed (i.e., rtl). We do the same
+       // for subject_x_points. As our parsing code guarantees start < end, we
+       // decide on this ordering based on the reading frame, because it
+       // determines whether our axis will be reversed or not.
        var query_x_points = [query_scale(hsp.query_start), query_scale(hsp.query_end)];
        if(hsp.query_frame < 0)
          query_x_points.reverse();
@@ -240,7 +238,7 @@ Grapher.prototype._find_nearest_scale = function(point, scales) {
   return nearest;
 }
 
-Grapher.prototype._display_graph = function(iteration, hit, table_row) {
+Grapher.prototype._display_graph = function(query_length, subject_length, hsps, table_row) {
   var self = this;
 
   var padding_x = 20;
@@ -255,16 +253,17 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
 
   var query_range   = [padding_x, canvas_width - padding_x];
   var subject_range = [padding_x, canvas_width - padding_x];
-  if(hit.hsps[0].query_frame < 0)
+
+  if(hsps[0].query_frame < 0)
     query_range.reverse();
-  if(hit.hsps[0].subject_frame < 0)
+  if(hsps[0].subject_frame < 0)
     subject_range.reverse();
 
   var query_scale = d3.scale.linear()
-                         .domain([0, iteration.query_length])
+                         .domain([0, query_length])
                          .range(query_range);
   var subject_scale = d3.scale.linear()
-                         .domain([0, hit.subject_length])
+                         .domain([0, subject_length])
                          .range(subject_range);
   query_scale.original_domain = query_scale.domain();
   subject_scale.original_domain = subject_scale.domain();
@@ -275,7 +274,7 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     'query':   { height: query_height,   scale: query_scale   },
   };
 
-  this._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+  this._create_graph(svg, hsps, query_height, query_scale, subject_height, subject_scale);
 
   var last_x = null;
   svg.on('mousedown',  function() { last_x = d3.event.clientX; });
@@ -293,7 +292,7 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
     var target_scale = self._find_nearest_scale(mouse_coords, scales);
 
     self._pan_scale(target_scale, target_scale.original_domain, delta);
-    self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+    self._create_graph(svg, hsps, query_height, query_scale, subject_height, subject_scale);
   });
 
   function handle_mouse_wheel() {
@@ -317,7 +316,7 @@ Grapher.prototype._display_graph = function(iteration, hit, table_row) {
       zoom_from,
       scale_by
     );
-    self._create_graph(svg, hit, query_height, query_scale, subject_height, subject_scale);
+    self._create_graph(svg, hsps, query_height, query_scale, subject_height, subject_scale);
   }
   svg.on('mousewheel', handle_mouse_wheel); // Chrome
   svg.on('wheel',      handle_mouse_wheel); // Firefox, IE
@@ -338,11 +337,19 @@ Grapher.prototype.display_blast_iterations = function(iterations, results_table,
 
     iface.create_header(results_table, iteration.query_def);
     hits.forEach(function(hit) {
-      var table_row = d3.select(results_table).append('tr');
-      var label_cell = table_row.append('td')
-      label_cell.html('<strong>ID:</strong> ' + hit.subject_id +
-        '<br /><strong>Def:</strong> ' + hit.subject_def);
-      self._display_graph(iteration, hit, table_row);
+      Object.keys(hit.hsps).forEach(function(strand_pair) {
+        var table_row = d3.select(results_table).append('tr');
+        var label_cell = table_row.append('td')
+        label_cell.html('<strong>ID:</strong> ' + hit.subject_id +
+          '<br /><strong>Def:</strong> ' + hit.subject_def);
+
+        self._display_graph(
+          iteration.query_length,
+          hit.subject_length,
+          hit.hsps[strand_pair],
+          table_row
+        );
+      });
     });
   });
 }
