@@ -32,9 +32,9 @@ Kablammo supports two means of loading BLAST XML results.
    permits workflows in which BLAST is run on the server and the client visualizes
    the results in her web browser, without having to first download the
    XML-formatted results from the server. The result sets Kablammo lists are
-   dictated by the data/blast_results.json file. To generate this file, put your
-   BLAST result files (or symlinks to them) in the data/ directory, then run
-   data/generate_list.py.
+   dictated by the `data/blast_results.json` file. To generate this file, put your
+   BLAST result files (or symlinks to them) in the `data/` directory, then run
+   `data/generate_list.py`.
 
 Contact
 =======
