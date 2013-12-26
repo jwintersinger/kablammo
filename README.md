@@ -6,7 +6,8 @@ format, Kablammo will illustrate exactly which portions of the query sequence
 sequence (i.e., the sequence BLAST found in its database that aligns to your
 input). This can be of considerable value in visualizing genome misassembly.
 
-For more details, please see [my blog post on Kablammo][kablammo blog].
+You may access an [already-deployed copy of Kablammo][kablammo]. For more
+details, please see [my blog post on Kablammo][kablammo blog].
 
 
 Running
@@ -40,6 +41,7 @@ Contact
 =======
 Reach me via [my web site][my site] or [on Twitter][my twitter].
 
+[kablammo]: http://kablammo.wintersinger.org
 [kablammo blog]: http://jeff.wintersinger.org/posts/2013/07/introducing-kablammo-a-blast-visualization-tool/
 [my site]: http://jeff.wintersinger.org/
 [my twitter]: http://twitter.com/jwintersinger
