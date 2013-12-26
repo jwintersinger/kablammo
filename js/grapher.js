@@ -306,6 +306,8 @@ Grapher.prototype._configure_panning = function(svg, hsps, scales) {
 }
 
 Grapher.prototype._configure_zooming = function(svg, hsps, scales) {
+  var self = this;
+
   function handle_mouse_wheel() {
     var evt = d3.event;
     evt.preventDefault();
