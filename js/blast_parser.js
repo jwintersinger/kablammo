@@ -40,8 +40,16 @@ BlastParser.prototype._reorder_hit_positions = function(hsp) {
   }
 }
 
-BlastParser.prototype._find_max_bit_score_for_hit =  function(hit) {
-  return d3.max(hit.hsps, function(hsp) {
+BlastParser.prototype._collect_all_hsps = function(stranded_hsps) {
+  return Object.keys(stranded_hsps).map(function(strand_pair) {
+    return stranded_hsps[strand_pair];
+  }).reduce(function(accumulated, additional) {
+    return accumulated.concat(additional);
+  });
+}
+
+BlastParser.prototype._find_max_bit_score_for_hit = function(hit) {
+  return d3.max(this._collect_all_hsps(hit.hsps), function(hsp) {
     return hsp.bit_score;
   });
 }
@@ -55,13 +63,14 @@ BlastParser.prototype._find_max_bit_score_for_iteration = function(iteration) {
 
 BlastParser.prototype._add_normalized_bit_scores = function(iterations) {
   var self = this;
+  // TODO: optimize -- input is already sorted, so we don't need to search across all iterations & hits.
   var max_global_bit_score = d3.max(iterations, function(iteration) {
     return self._find_max_bit_score_for_iteration(iteration);
   });
 
   iterations.forEach(function(iteration) {
     iteration.hits.forEach(function(hit) {
-      hit.hsps.forEach(function(hsp) {
+      self._collect_all_hsps(hit.hsps).forEach(function(hsp) {
         hsp.normalized_bit_score = hsp.bit_score / max_global_bit_score;
       });
     });
@@ -88,6 +97,16 @@ BlastParser.prototype._sort_by_score = function(iterations) {
   };
   // Sort hits within each iteration, so that each iteration's first hit will
   // be the one with the highest-scoring HSP.
+  //
+  // Note that strand pairs *aren't* sorted such that strand pair containing
+  // highest-scoring hit will come first. As strand pair information is most
+  // logically represented through a dictionary, I elected to use this data
+  // structure at the cost of being able to sort the stranded sets of HSPs
+  // corresponding to a single hit on a subject sequence. In practice, since
+  // multiple groups of HSPs with different strandedness are rare for a given
+  // hit, this does not substantially inconvenience the user. Even in cases
+  // when it does occur, it simply means that two or three successive graphs
+  // may not be displayed in the proper order.
   iterations.forEach(_sort_hits);
 
   // Sort iterations by hit scores (so that first iteration has highest-scoring
@@ -142,6 +161,32 @@ BlastParser.prototype._slice_blast_iterations = function(iterations) {
   return sliced_iterations;
 }
 
+BlastParser.prototype._determine_strand = function(frame) {
+  if(frame > 0)
+    return '+';
+  else if(frame < 0)
+    return '-';
+  else
+    return '.';
+}
+
+BlastParser.prototype._segregate_hsps_by_strand = function(hsps) {
+  var segregated = {};
+  var self = this;
+
+  hsps.forEach(function(hsp) {
+    var query_strand   = self._determine_strand(hsp.query_frame);
+    var subject_strand = self._determine_strand(hsp.subject_frame);
+    var key = query_strand + subject_strand;
+
+    if(typeof segregated[key] === 'undefined')
+      segregated[key] = [];
+    segregated[key].push(hsp);
+  });
+
+  return segregated;
+}
+
 BlastParser.prototype.parse_blast_results = function(xml_doc) {
   var self = this;
   var doc = $(xml_doc);
@@ -165,7 +210,7 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
       hit_attribs.subject_id = hit.children('Hit_id').text();
       hit_attribs.subject_def = hit.children('Hit_def').text();
       hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
-      hit_attribs.hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
+      var unsegregated_hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
         var hsp = $(this);
         var hsp_attribs = {
           query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
@@ -182,6 +227,8 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
         self._reorder_hit_positions(hsp_attribs);
         return hsp_attribs;
       }).get();
+
+      hit_attribs.hsps = self._segregate_hsps_by_strand(unsegregated_hsps);
 
       return hit_attribs;
     }).get();
