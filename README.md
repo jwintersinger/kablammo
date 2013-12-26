@@ -38,7 +38,7 @@ Kablammo supports two means of loading BLAST XML results.
 
 Contact
 =======
-Reach me via [my web site][my site], or [on Twitter][my twitter].
+Reach me via [my web site][my site] or [on Twitter][my twitter].
 
 [kablammo blog]: http://jeff.wintersinger.org/posts/2013/07/introducing-kablammo-a-blast-visualization-tool/
 [my site]: http://jeff.wintersinger.org/
