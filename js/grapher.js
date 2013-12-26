@@ -91,10 +91,14 @@ Grapher.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
       .attr('transform', 'rotate(-90)');
 }
 
-Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy) {
+Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy, seq_type) {
   var scinotation_formatter = d3.format('.2s');
   var formatter = function(val) {
-    return scinotation_formatter(val) + 'b';
+    var suffixes = {
+      amino_acid:   'aa',
+      nucleic_acid: 'b'
+    };
+    return scinotation_formatter(val) + suffixes[seq_type];
   }
 
   var axis = d3.svg.axis()
@@ -154,7 +158,7 @@ Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) 
     existing_scale.domain(new_domain);
 }
 
-Grapher.prototype._create_graph = function(svg, hsps, query_height, query_scale, subject_height, subject_scale) {
+Grapher.prototype._render_polygons = function(svg, hsps, scales) {
   var self = this;
 
   // Remove all existing child elements.
@@ -177,18 +181,18 @@ Grapher.prototype._create_graph = function(svg, hsps, query_height, query_scale,
        // for subject_x_points. As our parsing code guarantees start < end, we
        // decide on this ordering based on the reading frame, because it
        // determines whether our axis will be reversed or not.
-       var query_x_points = [query_scale(hsp.query_start), query_scale(hsp.query_end)];
+       var query_x_points = [scales.query.scale(hsp.query_start), scales.query.scale(hsp.query_end)];
        if(hsp.query_frame < 0)
          query_x_points.reverse();
-       var subject_x_points = [subject_scale(hsp.subject_start), subject_scale(hsp.subject_end)];
+       var subject_x_points = [scales.subject.scale(hsp.subject_start), scales.subject.scale(hsp.subject_end)];
        if(hsp.subject_frame < 0)
          subject_x_points.reverse();
 
        var points = [
-         [query_x_points[0],   query_height   + 1],
-         [subject_x_points[0], subject_height - 1],
-         [subject_x_points[1], subject_height - 1],
-         [query_x_points[1],   query_height   + 1],
+         [query_x_points[0],   scales.query.height   + 1],
+         [subject_x_points[0], scales.subject.height - 1],
+         [subject_x_points[1], scales.subject.height - 1],
+         [query_x_points[1],   scales.query.height   + 1],
        ];
 
        return points.map(function(point) {
@@ -201,9 +205,15 @@ Grapher.prototype._create_graph = function(svg, hsps, query_height, query_scale,
        self._hide_tooltip.apply(this, arguments);
        self._fade_other_polygons(svg, hovered_index, 1);
      });
+}
 
-  var query_axis   = self._create_axis(svg, query_scale,   'top',    query_height,   'start', '0.8em', '1em');
-  var subject_axis = self._create_axis(svg, subject_scale, 'bottom', subject_height, 'end',   '-1em',  '-0.4em');
+Grapher.prototype._render_axes = function(svg, scales) {
+  var query_axis   = this._create_axis(svg, scales.query.scale,   'top',
+                                       scales.query.height,   'start', '0.8em', '1em',
+                                       this._results.query_seq_type);
+  var subject_axis = this._create_axis(svg, scales.subject.scale, 'bottom',
+                                       scales.subject.height, 'end',   '-1em',  '-0.4em',
+                                       this._results.subject_seq_type);
 
   // Create axis labels.
   svg.append('text')
@@ -218,6 +228,11 @@ Grapher.prototype._create_graph = function(svg, hsps, query_height, query_scale,
      .attr('x', 0.5*svg.attr('width'))
      .attr('y', svg.attr('height') - 5)
      .text('Subject');
+}
+
+Grapher.prototype._render_graph = function(svg, hsps, scales) {
+  this._render_polygons(svg, hsps, scales);
+  this._render_axes(svg, scales);
 }
 
 Grapher.prototype._find_nearest_scale = function(point, scales) {
@@ -238,19 +253,7 @@ Grapher.prototype._find_nearest_scale = function(point, scales) {
   return nearest;
 }
 
-Grapher.prototype._display_graph = function(query_length, subject_length, hsps, table_row) {
-  var self = this;
-
-  var padding_x = 20;
-  var padding_y = 60;
-  var canvas_width = 500;
-  var canvas_height = 330;
-
-  var svg = table_row.append('td')
-                     .append('svg')
-                     .attr('width', canvas_width)
-                     .attr('height', canvas_height);
-
+Grapher.prototype._create_scales = function(padding_x, padding_y, canvas_width, canvas_height, query_length, subject_length, hsps) {
   var query_range   = [padding_x, canvas_width - padding_x];
   var subject_range = [padding_x, canvas_width - padding_x];
 
@@ -267,19 +270,25 @@ Grapher.prototype._display_graph = function(query_length, subject_length, hsps, 
                          .range(subject_range);
   query_scale.original_domain = query_scale.domain();
   subject_scale.original_domain = subject_scale.domain();
+
   var query_height = padding_y;
   var subject_height = canvas_height - padding_y;
+
   var scales = {
-    'subject': { height: subject_height, scale: subject_scale },
-    'query':   { height: query_height,   scale: query_scale   },
+    subject: { height: subject_height, scale: subject_scale },
+    query:   { height: query_height,   scale: query_scale   },
   };
+  return scales;
+}
 
-  this._create_graph(svg, hsps, query_height, query_scale, subject_height, subject_scale);
-
+Grapher.prototype._configure_panning = function(svg, hsps, scales) {
+  var self = this;
   var last_x = null;
+
   svg.on('mousedown',  function() { last_x = d3.event.clientX; });
   svg.on('mouseup',    function() { last_x = null;             });
   svg.on('mouseleave', function() { last_x = null;             });
+
   svg.on('mousemove',  function() {
     if(last_x === null)
       return;
@@ -292,8 +301,12 @@ Grapher.prototype._display_graph = function(query_length, subject_length, hsps, 
     var target_scale = self._find_nearest_scale(mouse_coords, scales);
 
     self._pan_scale(target_scale, target_scale.original_domain, delta);
-    self._create_graph(svg, hsps, query_height, query_scale, subject_height, subject_scale);
+    self._render_graph(svg, hsps, scales);
   });
+}
+
+Grapher.prototype._configure_zooming = function(svg, hsps, scales) {
+  var self = this;
 
   function handle_mouse_wheel() {
     var evt = d3.event;
@@ -316,19 +329,40 @@ Grapher.prototype._display_graph = function(query_length, subject_length, hsps, 
       zoom_from,
       scale_by
     );
-    self._create_graph(svg, hsps, query_height, query_scale, subject_height, subject_scale);
+    self._render_graph(svg, hsps, scales);
   }
   svg.on('mousewheel', handle_mouse_wheel); // Chrome
   svg.on('wheel',      handle_mouse_wheel); // Firefox, IE
 }
 
-Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
+Grapher.prototype._create_graph = function(query_length, subject_length, hsps, table_row) {
   var self = this;
+
+  var padding_x = 20;
+  var padding_y = 60;
+  var canvas_width = 500;
+  var canvas_height = 330;
+
+  var svg = table_row.append('td')
+                     .append('svg')
+                     .attr('width', canvas_width)
+                     .attr('height', canvas_height);
+  var scales = this._create_scales(padding_x, padding_y, canvas_width,
+                                   canvas_height, query_length, subject_length, hsps);
+  this._render_graph(svg, hsps, scales);
+
+  this._configure_panning(svg, hsps, scales);
+  this._configure_zooming(svg, hsps, scales);
+}
+
+Grapher.prototype.display_blast_results = function(results, results_table, iface) {
+  var self = this;
+  this._results = results;
 
   $('#results-container').show(); // Hidden by default at app start.
   $(results_table).find('tr').remove();
 
-  iterations.forEach(function(iteration) {
+  this._results.filtered_iterations.forEach(function(iteration) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
     // been filtered out via subject filter).
@@ -343,7 +377,7 @@ Grapher.prototype.display_blast_iterations = function(iterations, results_table,
         label_cell.html('<strong>ID:</strong> ' + hit.subject_id +
           '<br /><strong>Def:</strong> ' + hit.subject_def);
 
-        self._display_graph(
+        self._create_graph(
           iteration.query_length,
           hit.subject_length,
           hit.hsps[strand_pair],

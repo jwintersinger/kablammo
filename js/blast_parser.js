@@ -1,6 +1,37 @@
 "use strict";
 
 function BlastParser() {
+  // Specify types of query and subject sequences given in each program.
+  //
+  // This list is taken from http://en.wikipedia.org/wiki/BLAST#Program. I
+  // don't know whether all listed BLAST types will appear in BLAST's XML
+  // output.
+  this._seq_types = {
+    blastn: {
+      query:   'nucleic_acid',
+      subject: 'nucleic_acid',
+    },
+    blastp: {
+      query:   'amino_acid',
+      subject: 'amino_acid',
+    },
+    blastpgp: {
+      query:   'amino_acid',
+      subject: 'amino_acid',
+    },
+    blastx: {
+      query:   'nucleic_acid',
+      subject: 'amino_acid',
+    },
+    tblastx: {
+      query:   'nucleic_acid',
+      subject: 'nucleic_acid',
+    },
+    tblastn: {
+      query:   'amino_acid',
+      subject: 'nucleic_acid',
+    },
+  };
 }
 
 // Always ensure that sequence coordinates are ordered such that start < end.
@@ -187,9 +218,8 @@ BlastParser.prototype._segregate_hsps_by_strand = function(hsps) {
   return segregated;
 }
 
-BlastParser.prototype.parse_blast_results = function(xml_doc) {
+BlastParser.prototype._parse_iterations = function(doc) {
   var self = this;
-  var doc = $(xml_doc);
 
   // Within BLAST results, you have:
   //   Multiple iterations (i.e., query sequences input by user), each of which has ...
@@ -248,9 +278,27 @@ BlastParser.prototype.parse_blast_results = function(xml_doc) {
   this._sort_by_score(iterations);
   this._add_normalized_bit_scores(iterations);
 
+  return iterations;
+}
+
+BlastParser.prototype._determine_seq_types = function(doc) {
+  var blast_variant = doc.find('BlastOutput > BlastOutput_program').text();
+  var seq_types = this._seq_types[blast_variant];
+
   return {
-    iterations: iterations
+    query_seq_type:   seq_types.query,
+    subject_seq_type: seq_types.subject,
   };
+}
+
+BlastParser.prototype.parse_blast_results = function(xml_doc) {
+  var doc = $(xml_doc);
+
+  var parsed = {};
+  parsed.iterations = this._parse_iterations(doc);
+  $.extend(parsed, this._determine_seq_types(doc));
+
+  return parsed;
 }
 
 BlastParser.prototype.slice_and_dice = function(blast_results) {
