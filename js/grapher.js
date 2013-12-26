@@ -91,10 +91,14 @@ Grapher.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
       .attr('transform', 'rotate(-90)');
 }
 
-Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy) {
+Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy, seq_type) {
   var scinotation_formatter = d3.format('.2s');
   var formatter = function(val) {
-    return scinotation_formatter(val) + 'b';
+    var suffixes = {
+      amino_acid:   'aa',
+      nucleic_acid: 'b'
+    };
+    return scinotation_formatter(val) + suffixes[seq_type];
   }
 
   var axis = d3.svg.axis()
@@ -205,9 +209,11 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
 
 Grapher.prototype._render_axes = function(svg, scales) {
   var query_axis   = this._create_axis(svg, scales.query.scale,   'top',
-                                       scales.query.height,   'start', '0.8em', '1em');
+                                       scales.query.height,   'start', '0.8em', '1em',
+                                       this._results.query_seq_type);
   var subject_axis = this._create_axis(svg, scales.subject.scale, 'bottom',
-                                       scales.subject.height, 'end',   '-1em',  '-0.4em');
+                                       scales.subject.height, 'end',   '-1em',  '-0.4em',
+                                       this._results.subject_seq_type);
 
   // Create axis labels.
   svg.append('text')
@@ -347,13 +353,14 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, t
   this._configure_zooming(svg, hsps, scales);
 }
 
-Grapher.prototype.display_blast_iterations = function(iterations, results_table, iface) {
+Grapher.prototype.display_blast_results = function(results, results_table, iface) {
   var self = this;
+  this._results = results;
 
   $('#results-container').show(); // Hidden by default at app start.
   $(results_table).find('tr').remove();
 
-  iterations.forEach(function(iteration) {
+  this._results.filtered_iterations.forEach(function(iteration) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
     // been filtered out via subject filter).
