@@ -1,9 +1,11 @@
+Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
+Write help sectoin
+Prevent highlighting text in SVG when panning
+
 Visualize coverage of all hits across sequence
 Normalize bit scores relative to highest score in filtered results, not all results
 Include query sequences with no hits in count of hits
   
-  
-
 Ivan's suggestions:
   Show alignment -- simple text is fine
   Allow zooming/panning on both axes, rather than just subject axis
