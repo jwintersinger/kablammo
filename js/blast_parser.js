@@ -242,6 +242,16 @@ BlastParser.prototype._parse_iterations = function(doc) {
       hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
       var unsegregated_hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
         var hsp = $(this);
+
+        // Possible values for query_frame and subject frame:
+        //   (See //   ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+        //   for details. Code snippets from this file are included below.)
+        //
+        //   frame ε {1, 2, 3}: hit lies on original query or subject strand.
+        //     frame = (start - 1) % 3 + 1; // Using 1-offset coordinates
+        //   frame ε {-1, -2, -3}: hit lies on reverse complement of original query or subject strand
+        //     frame = -((seq_length - end) % 3 + 1);
+        //   frame = 0: corresponding sequence was composed of amino acids, not nucleic acids
         var hsp_attribs = {
           query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
           query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
