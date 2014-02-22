@@ -244,7 +244,7 @@ BlastParser.prototype._parse_iterations = function(doc) {
         var hsp = $(this);
 
         // Possible values for query_frame and subject frame:
-        //   (See //   ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+        //   (See ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
         //   for details. Code snippets from this file are included below.)
         //
         //   frame ε {1, 2, 3}: hit lies on original query or subject strand.
@@ -252,6 +252,33 @@ BlastParser.prototype._parse_iterations = function(doc) {
         //   frame ε {-1, -2, -3}: hit lies on reverse complement of original query or subject strand
         //     frame = -((seq_length - end) % 3 + 1);
         //   frame = 0: corresponding sequence was composed of amino acids, not nucleic acids
+        //
+        // Suppose your query or subject (or both) is a nucleic acid sequence.
+        // If your search translates the NA seq to an AA seq, the corresponding
+        // frame value may be one of {1, 2, 3} or {-1, -2, -3}. If, however, no
+        // translation occurred, frame will *always* be 1 or -1 -- i.e., its
+        // value indicates only strandedness, not a reading frame as such. To
+        // see how this occurs, search
+        // ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+        // for "kTranslated".
+        //
+        // Examples: I haven't verified what follows, but I believe it is correct.
+        // BLAST type reference: http://www.bios.niu.edu/johns/bioinform/blast_info.htm
+        //   blastn:
+        //     Query frame:   1 or -1
+        //     Subject frame: 1 or -1
+        //   blastp:
+        //     Query frame:   0
+        //     Subject frame: 0
+        //   blastx:
+        //     Query frame:   {-3, -2, -1, 1, 2, 3}
+        //     Subject frame: 0
+        //   tblastn:
+        //     Query frame:   0
+        //     Subject frame: {-3, -2, -1, 1, 2, 3}
+        //   tblastx:
+        //     Query frame:   {-3, -2, -1, 1, 2, 3}
+        //     Subject frame: {-3, -2, -1, 1, 2, 3}
         var hsp_attribs = {
           query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
           query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
