@@ -33,3 +33,4 @@ Verify that results are valid based on strandedness, etc.
 Allow user to set colour of graph
 Have "tour" on homepage
 Add loading animation
+Disable "display" button when no valid selection
