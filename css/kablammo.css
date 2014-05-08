@@ -85,6 +85,16 @@ a {
 
 .subject svg {
   margin-bottom: 1em;
+
+  /* Prevent selecting axis labels and other text, which may happen
+   * accidentally as user is clicking and dragging mouse to pan the SVG. */
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .subject-info ul {
