@@ -46,65 +46,81 @@
     </div>
 
     <div class="container-fluid" id="control-panels">
-      <div class="row">
-        <div class="control-panel col-sm-12" id="control-panel-filter">
-        </div>
-
-        <div class="control-panel col-sm-12" id="control-panel-load">
-          <div class="row">
-            <div class="col-sm-6">
-              <ul class="nav nav-tabs">
-                <li class="active"><a href="#load-local" data-toggle="tab">Load results from your computer</a></li>
-                <li><a href="#load-server" data-toggle="tab">Load results from server</a></li>
-              </ul>
-
-              <div class="tab-content">
-                <div class="tab-pane active" id="load-local">
-                  <div class="alert alert-info">
-                    Upload BLAST results in XML format.
-                    <a href="#">(How do I do this?)</a>
-                  </div>
-
-                  <input type="file" id="local-file-chooser" accept="text/xml" />
-                  <button type="button" class="btn btn-primary" id="choose-file">Choose file ...</button>
-                  <p class="file-label">Pants.</p>
-                </div>
-                <div class="tab-pane" id="load-server">
-                  <select id="server-results-chooser" class="form-control">
-                    <option value="toxodb_8.1_rrna_hits.xml">
-                      toxodb_8.1_rrna_hits.xml
-                    </option>
-                    <option value="enriched-rd-genes.uniprot_sprot.blast.xml">
-                      enriched-rd-genes.uniprot_sprot.blast.xml
-                    </option>
-                  </select>
-                </div>
+      <form id="load-results-form">
+        <div class="row">
+          <div class="control-panel col-sm-12" id="control-panel-filter">
+            <div class="control-group">
+              <label class="control-label" for="query-filter">Query filter:</label>
+              <div class="controls">
+                <input id="query-filter" type="text" placeholder="chr..." />
               </div>
             </div>
 
-            <div class="col-sm-6" id="max-result-controls">
-              <ul class="nav nav-tabs">
-                <li class="active"><a href="#">Display parameters</a></li>
-              </ul>
-
-              <div class="tab-pane">
-                <p>Show up to <input id="max-query-seqs" class="form-control" type="number" min="1" value="10" /> query sequences</p>
-                <p>Show up to <input id="max-hits-per-query-seq" class="form-control" type="number" min="1" value="5" /> hits per query</p>
-            </div>
-
-          </div>
-
-          <div class="row">
-            <div class="col-sm-12" id="display-results-container">
-              <button type="submit" class="btn btn-lg btn-primary">Display results</button>
+            <div class="control-group">
+              <label class="control-label" for="subject-filter">Subject filter:</label>
+              <div class="controls">
+                <input id="subject-filter" type="text" placeholder="Toxoplasma..." />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div style="height: 400px" class="control-panel col-sm-12" id="control-panel-about">
-          Pants.
+          <div class="control-panel col-sm-12" id="control-panel-load">
+            <div class="row">
+              <div class="col-sm-6">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#load-local" data-toggle="tab">Load results from your computer</a></li>
+                  <li><a href="#load-server" data-toggle="tab">Load results from server</a></li>
+                </ul>
+
+                <div class="tab-content">
+                  <div class="tab-pane active" id="load-local">
+                    <div class="alert alert-info">
+                      Upload BLAST results in XML format.
+                      <a href="#">(How do I do this?)</a>
+                    </div>
+
+                    <input type="file" id="local-file-chooser" accept="text/xml" />
+                    <button type="button" class="btn btn-primary" id="choose-file">Choose file ...</button>
+                    <p class="file-label">Pants.</p>
+                  </div>
+                  <div class="tab-pane" id="load-server">
+                    <select id="server-results-chooser" class="form-control">
+                      <option value="toxodb_8.1_rrna_hits.xml">
+                        toxodb_8.1_rrna_hits.xml
+                      </option>
+                      <option value="enriched-rd-genes.uniprot_sprot.blast.xml">
+                        enriched-rd-genes.uniprot_sprot.blast.xml
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-6" id="max-result-controls">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#">Display parameters</a></li>
+                </ul>
+
+                <div class="tab-pane">
+                  <p>Show up to <input id="max-query-seqs" class="form-control" type="number" min="1" value="10" /> query sequences</p>
+                  <p>Show up to <input id="max-hits-per-query-seq" class="form-control" type="number" min="1" value="5" /> hits per query</p>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12" id="display-results-container">
+                <button type="submit" class="btn btn-lg btn-primary">Display results</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="height: 400px" class="control-panel col-sm-12" id="control-panel-about">
+            Pants.
+          </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <!--<div class="container">
@@ -135,7 +151,7 @@
 
       <div class="row">
         <div class="subject col-sm-11 col-sm-offset-1">
-          <img src="example_output.png" />
+          <img src="example_output.png" alt="Example output" />
 
           <div class="subject-info">
             <div class="btn-group-vertical subject-buttons">
