@@ -25,7 +25,7 @@ a {
   background-color: #f7ca18;
 }
 
-.nav {
+.navbar-nav {
   margin-top: 42px;
 }
 
@@ -98,11 +98,6 @@ a {
   float: left;
   margin-left: 2em;
   margin-right: 2em;
-}
-
-.subject-buttons button {
-  display: block;
-  margin-bottom: 0.5em;
 }
 
 .subject-info span {

@@ -84,9 +84,18 @@
           <img src="example_output.png" />
 
           <div class="subject-info">
-            <div class="subject-buttons">
-              <button type="button" class="btn btn-primary">Export image</button>
-              <button type="button" class="btn btn-primary">View alignment</button>
+            <div class="btn-group-vertical subject-buttons">
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                  Export image
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="#">Export to SVG</a></li>
+                  <li><a href="#">Export to PNG</a></li>
+                </ul>
+              </div>
+              <button type="button" class="btn btn-default">View alignment</button>
             </div>
 
             <ul>
