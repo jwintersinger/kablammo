@@ -2,10 +2,54 @@
 
 function Interface(server_results_chooser) {
   var self = this;
+  this._navbar_elements = $('.navbar .nav li');
+  this._configure_nav();
   this._form = $('#load-results-form');
+
   this._server_results_chooser = $('#server-results-chooser');
   $.getJSON('data/blast_results.json', function(data) {
     self._populate_blast_results_chooser(data.blast_results);
+  });
+}
+
+Interface.prototype._configure_nav = function() {
+  var self = this;
+
+  this._navbar_elements.click(function() {
+    if($(this).hasClass('disabled-nav'))
+      return;
+
+    if($(this).hasClass('active')) {
+      self._deactivate_active_panel();
+    } else {
+      self._activate_panel(this);
+    }
+  });
+}
+
+Interface.prototype._resolve_panel_for_nav = function(nav_elem) {
+  var target = nav_elem.children('a').attr('href').substring(1);
+  return $('#control-panel-' + target);
+}
+
+Interface.prototype._activate_panel = function(nav_target) {
+  nav_target = $(nav_target);
+
+  $('.control-panel').slideUp();
+  this._navbar_elements.removeClass('active');
+
+  nav_target.addClass('active');
+  this._resolve_panel_for_nav(nav_target).slideDown();
+}
+
+Interface.prototype._deactivate_active_panel = function() {
+  var active_nav = this._navbar_elements.filter('.active');
+  var panel = this._resolve_panel_for_nav(active_nav);
+
+  panel.slideUp({
+    complete: function() {
+      active_nav.removeClass('active');
+    }
   });
 }
 
@@ -13,10 +57,12 @@ Interface.prototype.update_results_info = function(blast_results) {
   // Don't also update "max query seqs" form field's max value, as if user
   // chooses different BLAST result set, she may want to also input a max value
   // higher than the number of sequences in the current data set.
-  $('#query-seqs-count').text(blast_results.iterations_count);
+
+  // TODO: reintroduce these in new interface
+  /*$('#query-seqs-count').text(blast_results.iterations_count);
   $('#filtered-query-seqs-count').text(blast_results.filtered_iterations_count);
   $('#hits-count').text(blast_results.hits_count);
-  $('#filtered-hits-count').text(blast_results.filtered_hits_count);
+  $('#filtered-hits-count').text(blast_results.filtered_hits_count);*/
 }
 
 Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
@@ -29,15 +75,13 @@ Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
   });
 }
 
-Interface.prototype.create_header = function(table, label) {
-  var tr = d3.select(table).append('tr');
-  tr.append('th').text('Subject');
-
+Interface.prototype.create_query_header = function(container, label) {
   // Don't show label if no valid one present.
   if(label === 'No definition line')
     label = '';
-
-  tr.append('th').text('Hits for query ' + label);
+  var header = $('#example-query-header').clone().removeAttr('id');
+  header.find('.query-name').text(label);
+  $(container).append(header);
 }
 
 Interface.prototype.configure_query_form = function(on_load_from_server, on_load_local_file) {
@@ -55,21 +99,24 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     label.text(label_text);
   });
 
+  var self = this;
   this._form.submit(function(evt) {
     evt.preventDefault();
     var active_id = $(this).find('.tab-pane.active').attr('id');
 
-    if(active_id === 'load-from-server') {
+    if(active_id === 'load-server') {
       var server_results_chooser = $('#server-results-chooser');
       var blast_results_filename = server_results_chooser.val();
+      self._deactivate_active_panel();
       Interface.show_curtain(function() {
         on_load_from_server(blast_results_filename);
       });
-    } else if (active_id === 'load-local-file') {
+    } else if (active_id === 'load-local') {
       var file = local_chooser.get(0).files[0];
       // User hasn't selected file.
       if(!file)
         return;
+      self._deactivate_active_panel();
       Interface.show_curtain(function() {
         on_load_local_file(file);
       });
@@ -88,8 +135,7 @@ Interface.error = function(msg) {
   Interface.hide_curtain();
 
   var container = $('#errors');
-  var error = container.find('.alert-error').first().clone();
-  error.removeClass('example');
+  var error = $('#example-error').clone().removeAttr('id');
   error.find('.message').text(msg);
   container.append(error);
 }

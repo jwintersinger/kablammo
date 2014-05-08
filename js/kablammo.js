@@ -1,6 +1,5 @@
 "use strict";
 
-
 function Kablammo() {
   var self = this;
 
@@ -8,7 +7,6 @@ function Kablammo() {
   this._grapher       = new Grapher();
   this._parser        = new BlastParser();
   this._loader        = new BlastResultsLoader(this._parser);
-  this._results_table = '#hits';
 
   this._iface.configure_query_form(function(blast_results_filename) {
     self._loader.load_from_server(blast_results_filename, function(results) {
@@ -25,10 +23,11 @@ function Kablammo() {
 }
 
 Kablammo.prototype._display_results = function(results) {
-  this._grapher.display_blast_results(results, this._results_table, this._iface);
+  this._grapher.display_blast_results(results, '#results-container', this._iface);
   this._iface.update_results_info(results);
   Interface.hide_curtain();
-  Interface.scroll_to('#results-container');
+  // TODO: keep below?
+  //Interface.scroll_to('#results-container');
 }
 
 function main() {

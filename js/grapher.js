@@ -335,7 +335,7 @@ Grapher.prototype._configure_zooming = function(svg, hsps, scales) {
   svg.on('wheel',      handle_mouse_wheel); // Firefox, IE
 }
 
-Grapher.prototype._create_graph = function(query_length, subject_length, hsps, table_row) {
+Grapher.prototype._create_graph = function(query_length, subject_length, hsps, svg_container) {
   var self = this;
 
   var padding_x = 20;
@@ -343,10 +343,9 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, t
   var canvas_width = 500;
   var canvas_height = 330;
 
-  var svg = table_row.append('td')
-                     .append('svg')
-                     .attr('width', canvas_width)
-                     .attr('height', canvas_height);
+  var svg = svg_container.insert('svg', ':first-child') // Prepend to svg_container
+                         .attr('width', canvas_width)
+                         .attr('height', canvas_height);
   var scales = this._create_scales(padding_x, padding_y, canvas_width,
                                    canvas_height, query_length, subject_length, hsps);
   this._render_graph(svg, hsps, scales);
@@ -355,12 +354,13 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, t
   this._configure_zooming(svg, hsps, scales);
 }
 
-Grapher.prototype.display_blast_results = function(results, results_table, iface) {
+Grapher.prototype.display_blast_results = function(results, results_container, iface) {
   var self = this;
   this._results = results;
 
-  $('#results-container').show(); // Hidden by default at app start.
-  $(results_table).find('tr').remove();
+  // TODO: determine whether to keep below line.
+  //$('#results-container').show(); // Hidden by default at app start.
+  $(results_container).children('.row').remove();
 
   this._results.filtered_iterations.forEach(function(iteration) {
     var hits = iteration.filtered_hits;
@@ -369,20 +369,23 @@ Grapher.prototype.display_blast_results = function(results, results_table, iface
     if(hits.length === 0)
       return;
 
-    iface.create_header(results_table, iteration.query_def);
+    iface.create_query_header(results_container, iteration.query_def);
     hits.forEach(function(hit) {
       Object.keys(hit.hsps).forEach(function(strand_pair) {
-        var table_row = d3.select(results_table).append('tr');
-        var label_cell = table_row.append('td')
-        label_cell.html('<strong>ID:</strong> ' + hit.subject_id +
-          '<br /><strong>Def:</strong> ' + hit.subject_def);
+        var subj_header = $('#example-subject-header').clone().removeAttr('id');
+        subj_header.find('.subject-name').text(hit.subject_def);
+
+        var subj_result = $('#example-subject-result').clone().removeAttr('id');
+        var svg_container = d3.select(subj_result.find('.subject').get(0));
 
         self._create_graph(
           iteration.query_length,
           hit.subject_length,
           hit.hsps[strand_pair],
-          table_row
+          svg_container
         );
+
+        $(results_container).append(subj_header).append(subj_result);
       });
     });
   });
