@@ -105,11 +105,36 @@ a {
 }
 
 #control-panels .control-panel {
-  height: 300px;
-  background-color: #f7ca18;
+  background-color: white;
+  padding-top: 15px;
+  padding-bottom: 30px;
   top: 92px;
   left: 0;
   z-index: 9999;
   position: fixed;
   display: none;
+  border-bottom: 1px solid #999;
+  height: 300px;
+}
+
+#control-panels .tab-pane {
+  padding: 15px;
+  border-left: 1px solid #ddd;
+}
+
+#local-file-chooser {
+  display: none;
+}
+
+#max-result-controls input {
+  display: inline;
+  width: 5em;
+}
+
+.file-label {
+  margin-top: 1em;
+}
+
+#display-results-container {
+  text-align: center;
 }

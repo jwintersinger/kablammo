@@ -47,9 +47,63 @@
 
     <div class="container-fluid" id="control-panels">
       <div class="row">
-        <div class="control-panel col-sm-12" id="control-panel-filter"></div>
-        <div class="control-panel col-sm-12" id="control-panel-load"></div>
-        <div style="height: 600px; background-color: red" class="control-panel col-sm-12" id="control-panel-about"></div>
+        <div class="control-panel col-sm-12" id="control-panel-filter">
+        </div>
+
+        <div class="control-panel col-sm-12" id="control-panel-load">
+          <div class="row">
+            <div class="col-sm-6">
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#load-local" data-toggle="tab">Load results from your computer</a></li>
+                <li><a href="#load-server" data-toggle="tab">Load results from server</a></li>
+              </ul>
+
+              <div class="tab-content">
+                <div class="tab-pane active" id="load-local">
+                  <div class="alert alert-info">
+                    Upload BLAST results in XML format.
+                    <a href="#">(How do I do this?)</a>
+                  </div>
+
+                  <input type="file" id="local-file-chooser" accept="text/xml" />
+                  <button type="button" class="btn btn-primary" id="choose-file">Choose file ...</button>
+                  <p class="file-label">Pants.</p>
+                </div>
+                <div class="tab-pane" id="load-server">
+                  <select id="server-results-chooser" class="form-control">
+                    <option value="toxodb_8.1_rrna_hits.xml">
+                      toxodb_8.1_rrna_hits.xml
+                    </option>
+                    <option value="enriched-rd-genes.uniprot_sprot.blast.xml">
+                      enriched-rd-genes.uniprot_sprot.blast.xml
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6" id="max-result-controls">
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#">Display parameters</a></li>
+              </ul>
+
+              <div class="tab-pane">
+                <p>Show up to <input id="max-query-seqs" class="form-control" type="number" min="1" value="10" /> query sequences</p>
+                <p>Show up to <input id="max-hits-per-query-seq" class="form-control" type="number" min="1" value="5" /> hits per query</p>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12" id="display-results-container">
+              <button type="submit" class="btn btn-lg btn-primary">Display results</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 400px" class="control-panel col-sm-12" id="control-panel-about">
+          Pants.
+        </div>
       </div>
     </div>
 
