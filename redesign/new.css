@@ -1,0 +1,120 @@
+body {
+  padding-top: 130px;
+}
+
+a {
+  outline: none !important;
+}
+
+.navbar {
+  background-color: #1e8bc3;
+}
+
+.navbar .disabled-nav {
+  opacity: 0.5;
+}
+
+.navbar .navbar-nav.nav li a {
+  color: white;
+  background-color: transparent;
+  font-size: 20px;
+}
+
+.navbar .navbar-nav.nav li.active a, .navbar .navbar-nav.nav li:hover:not(.disabled-nav) a {
+  color: black;
+  background-color: #f7ca18;
+}
+
+.nav {
+  margin-top: 42px;
+}
+
+.navbar-header h1 {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url('kablammo_logo.svg');
+  width: 300px;
+  height: 60.92px;
+}
+
+.navbar-header span {
+  display: none;
+}
+
+#results {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+#results > .row {
+  margin-bottom: 22px;
+}
+
+.query-header, .subject-header {
+  background-color: #69b2d7;
+  color: white;
+  text-align: right;
+  padding: 8px;
+  position: relative;
+}
+
+.query-header > h2, .subject-header > h3 {
+  float: left;
+  background-color: #1e8bc3;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin-bottom: 0;
+  padding: 8px 15px 8px 15px;
+}
+
+.query-header > p, .subject-header > p {
+  background-color: #69b2d7;
+  display: block;
+}
+
+.subject {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: top;
+}
+
+.subject img, .subject-info {
+  float: left;
+}
+
+.subject img{
+  margin-bottom: 1em;
+}
+
+.subject-info ul {
+  list-style: none;
+  padding-left: 0;
+  float: left;
+}
+
+.subject-buttons {
+  margin-bottom: 1.5em;
+  float: left;
+  margin-left: 2em;
+  margin-right: 2em;
+}
+
+.subject-buttons button {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+.subject-info span {
+  font-weight: bold;
+}
+
+#control-panels .control-panel {
+  height: 300px;
+  background-color: #f7ca18;
+  top: 92px;
+  left: 0;
+  z-index: 9999;
+  position: fixed;
+  display: none;
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Jeff Wintersinger">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>Kablammo</title>
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
+    <link rel="stylesheet" href="new.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+
+          <h1><span>Kablammo</span></h1>
+        </div>
+
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="disabled-nav"><a href="#filter"><span class="glyphicon glyphicon-filter"></span> Filter results</a></li>
+            <li><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
+            <li><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" id="control-panels">
+      <div class="row">
+        <div class="control-panel col-sm-12" id="control-panel-filter"></div>
+        <div class="control-panel col-sm-12" id="control-panel-load"></div>
+        <div style="height: 600px; background-color: red" class="control-panel col-sm-12" id="control-panel-about"></div>
+      </div>
+    </div>
+
+    <!--<div class="container">
+      <div class="jumbotron">
+        <h1>Navbar example</h1>
+        <p>This example is a quick exercise to illustrate how the default, static and fixed to top navbar work. It includes the responsive CSS and HTML, so it also adapts to your viewport and device.</p>
+        <p>To see the difference between static and fixed top navbars, just scroll.</p>
+        <p>
+          <a class="btn btn-lg btn-primary" href="../../components/#navbar" role="button">View navbar docs &raquo;</a>
+        </p>
+      </div>
+    </div>-->
+
+    <div class="container-fluid" id="results">
+      <div class="row">
+        <div class="query-header col-sm-12">
+          <h2>Query 1 of 34</h2>
+          gi|414084|emb|X75453.1| T.gondii (strain P) rDNA for 17s,5.8s,26s,and 5s ribosomal RNA
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="subject-header col-sm-11 col-sm-offset-1">
+          <h3>Subject 1 of 4</h3>
+          tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="subject col-sm-11 col-sm-offset-1">
+          <img src="example_output.png" />
+
+          <div class="subject-info">
+            <div class="subject-buttons">
+              <button type="button" class="btn btn-primary">Export image</button>
+              <button type="button" class="btn btn-primary">View alignment</button>
+            </div>
+
+            <ul>
+              <li><span>Subject ID:</span> Pants</li>
+              <li><span>Bit score:</span> Pants</li>
+              <li><span>E value:</span> Pants</li>
+              <li><span>Query coords:</span> Pants and socks</li>
+              <li><span>Subject coords:</span> Pants</li>
+              <li><span>Alignment length:</span> Pants</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="new.js"></script>
+  </body>
+</html>
