@@ -116,6 +116,29 @@ Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) 
     existing_scale.domain(new_domain);
 }
 
+Grapher.prototype._rgba_to_rgb = function(rgba, matte_rgb) {
+  // Algorithm taken from http://stackoverflow.com/a/2049362/1691611.
+  var normalize = function(colour) {
+    return colour.map(function(channel) { return channel / 255; });
+  };
+  var denormalize = function(colour) {
+    return colour.map(function(channel) { return Math.round(Math.min(255, channel * 255)); });
+  };
+
+  var norm = normalize(rgba.slice(0, 3));
+  matte_rgb = normalize(matte_rgb);
+  var alpha = rgba[3] / 255;
+
+  var rgb = [
+    (alpha * norm[0]) + (1 - alpha) * matte_rgb[0],
+    (alpha * norm[1]) + (1 - alpha) * matte_rgb[1],
+    (alpha * norm[2]) + (1 - alpha) * matte_rgb[2],
+  ];
+
+  console.log([rgba.join(','), denormalize(rgb).join(',')]);
+  return denormalize(rgb);
+}
+
 Grapher.prototype._render_polygons = function(svg, hsps, scales) {
   var self = this;
 
@@ -129,9 +152,11 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      .append('polygon')
      .attr('class', 'hit')
      .attr('fill', function(hsp) {
-       var val = parseInt(255*(1 - hsp.normalized_bit_score), 10);
-       var colour = 'rgba(' + [val, val, val].join(',') + ',1.0)';
-       return colour;
+       var rgb = self._rgba_to_rgb(
+         [30, 139, 195, 255 * hsp.normalized_bit_score],
+         [255, 255, 255]
+       );
+       return 'rgb(' + rgb.join(',') + ')';
      }).attr('points', function(hsp) {
        // We create query_x_points such that the 0th element will *always* be
        // on the left of the 1st element, regardless of whether the axis is
