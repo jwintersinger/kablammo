@@ -135,8 +135,15 @@ Grapher.prototype._rgba_to_rgb = function(rgba, matte_rgb) {
     (alpha * norm[2]) + (1 - alpha) * matte_rgb[2],
   ];
 
-  console.log([rgba.join(','), denormalize(rgb).join(',')]);
   return denormalize(rgb);
+}
+
+Grapher.prototype._determine_colour = function(level) {
+  var rgb = this._rgba_to_rgb(
+   [30, 139, 195, 255 * level],
+   [255, 255, 255]
+  );
+  return 'rgb(' + rgb.join(',') + ')';
 }
 
 Grapher.prototype._render_polygons = function(svg, hsps, scales) {
@@ -152,11 +159,7 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      .append('polygon')
      .attr('class', 'hit')
      .attr('fill', function(hsp) {
-       var rgb = self._rgba_to_rgb(
-         [30, 139, 195, 255 * hsp.normalized_bit_score],
-         [255, 255, 255]
-       );
-       return 'rgb(' + rgb.join(',') + ')';
+       return self._determine_colour(hsp.normalized_bit_score);
      }).attr('points', function(hsp) {
        // We create query_x_points such that the 0th element will *always* be
        // on the left of the 1st element, regardless of whether the axis is
