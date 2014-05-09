@@ -83,6 +83,10 @@ a {
   float: left;
 }
 
+.subject-params {
+  display: none;
+}
+
 .subject svg {
   margin-bottom: 1em;
 

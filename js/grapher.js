@@ -3,44 +3,11 @@
 function Grapher() {
 }
 
-Grapher.prototype._find_topmost_point = function(point_list) {
-  var points = point_list.split(' ').map(function(point) {
-    return point.split(',').map(function(coord) {
-      return parseFloat(coord);
-    });
-  });
-
-  var top_x = points[0][0];
-  var top_y = points[0][1];
-  points.forEach(function(point) {
-    var x = point[0];
-    var y = point[1];
-
-    if(
-      y < top_y ||
-      (y === top_y && x < top_x)
-    ) {
-      top_x = x;
-      top_y = y;
-    }
-  });
-
-  return {
-    x: top_x,
-    y: top_y
-  };
-};
-
-Grapher.prototype._show_tooltip = function(svg, polygon, hsp) {
+Grapher.prototype._show_subject_params = function(svg, hsp) {
   svg = $(svg);
-  polygon = $(polygon);
-
-  var svg_pos = svg.offset();
-  var topmost_polygon_point = this._find_topmost_point(polygon.attr('points'));
-
   var position_formatter = d3.format(',d');
 
-  var tooltip_info = [
+  var subject_params = [
     ['Bit score', hsp.bit_score],
     ['E value', hsp.evalue],
     ['Query start', position_formatter(hsp.query_start)],
@@ -51,28 +18,19 @@ Grapher.prototype._show_tooltip = function(svg, polygon, hsp) {
     ['Alignment length', position_formatter(hsp.alignment_length)],
     ['Subject frame', hsp.subject_frame],
   ];
-  var tooltip_contents = tooltip_info.map(function(info) {
-    var key = info[0];
-    var value = info[1];
+  var sp_contents = subject_params.map(function(param) {
+    var key = param[0];
+    var value = param[1];
     return '<li><span class="key">' + key + ':</span> ' + value + '</li>';
   }).join('\n');
 
-  var tooltip_container = d3.select('#tooltip');
-  var tooltip = tooltip_container.select('.list');
-
-  tooltip.html(tooltip_contents);
-  tooltip_container.style('left', svg_pos.left + svg.width() + 'px')
-                   .style('top', svg_pos.top + topmost_polygon_point.y + 'px')
-                   .transition()
-                   .duration(200)
-                   .style('opacity', 0.9);
+  svg.parents('.subject')
+     .find('.subject-params')
+     .html(sp_contents).show();
 }
 
-Grapher.prototype._hide_tooltip = function() {
-  var tooltip = d3.select('#tooltip');
-  tooltip.transition()
-         .duration(200)
-         .style('opacity', 0);
+Grapher.prototype._hide_subject_params = function(svg) {
+  $(svg).parents('.subject').find('.subject-params').hide();
 }
 
 Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
@@ -199,10 +157,10 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
         return point[0] + ',' + point[1];
        }).join(' ');
      }).on('mouseover', function(hovered_hsp, hovered_index) {
-       self._show_tooltip(svg[0][0], this, hovered_hsp);
+       self._show_subject_params(svg[0][0], hovered_hsp);
        self._fade_other_polygons(svg, hovered_index, 0.1);
      }).on('mouseout', function(hovered_hsp, hovered_index) {
-       self._hide_tooltip.apply(this, arguments);
+       self._hide_subject_params(svg[0][0])
        self._fade_other_polygons(svg, hovered_index, 1);
      });
 }
@@ -392,7 +350,8 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
     hits.forEach(function(hit) {
       Object.keys(hit.hsps).forEach(function(strand_pair) {
         var subj_header = $('#example-subject-header').clone().removeAttr('id');
-        subj_header.find('.subject-name').text(hit.subject_def);
+        subj_header.find('.subject-name').text(hit.subject_def +
+          ' (' + hit.subject_id + ')');
         subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
 
         var subj_result = $('#example-subject-result').clone().removeAttr('id');
