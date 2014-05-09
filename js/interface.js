@@ -75,12 +75,13 @@ Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
   });
 }
 
-Interface.prototype.create_query_header = function(container, label) {
+Interface.prototype.create_query_header = function(container, label, query_index, num_queries) {
   // Don't show label if no valid one present.
   if(label === 'No definition line')
     label = '';
   var header = $('#example-query-header').clone().removeAttr('id');
   header.find('.query-name').text(label);
+  header.find('.query-index').text('Query ' + query_index + ' of ' + num_queries);
   $(container).append(header);
 }
 

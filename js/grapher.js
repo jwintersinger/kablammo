@@ -354,6 +354,15 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   this._configure_zooming(svg, hsps, scales);
 }
 
+Grapher.prototype._count_total_hits = function(hits) {
+  var num_strand_pairs = hits.map(function(hit) {
+    return Object.keys(hit.hsps).length;
+  });
+  return num_strand_pairs.reduce(function(a, b) {
+    return a + b;
+  });
+}
+
 Grapher.prototype.display_blast_results = function(results, results_container, iface) {
   var self = this;
   this._results = results;
@@ -362,18 +371,29 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
   //$('#results-container').show(); // Hidden by default at app start.
   $(results_container).children('.row').remove();
 
-  this._results.filtered_iterations.forEach(function(iteration) {
+  var iterations = this._results.filtered_iterations;
+  iterations.forEach(function(iteration, iteration_idx) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
     // been filtered out via subject filter).
     if(hits.length === 0)
       return;
 
-    iface.create_query_header(results_container, iteration.query_def);
+    iface.create_query_header(
+      results_container,
+      iteration.query_def,
+      iteration_idx + 1,
+      iterations.length
+    );
+
+    var hit_idx = 1;
+    var total_hits = self._count_total_hits(hits);
+
     hits.forEach(function(hit) {
       Object.keys(hit.hsps).forEach(function(strand_pair) {
         var subj_header = $('#example-subject-header').clone().removeAttr('id');
         subj_header.find('.subject-name').text(hit.subject_def);
+        subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
 
         var subj_result = $('#example-subject-result').clone().removeAttr('id');
         var svg_container = d3.select(subj_result.find('.subject').get(0));
