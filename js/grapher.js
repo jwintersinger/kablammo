@@ -139,12 +139,14 @@ Grapher.prototype._rgba_to_rgb = function(rgba, matte_rgb) {
 }
 
 Grapher.prototype._determine_colour = function(level) {
-  var num_quanta = 9;
-  var num_colours = 5;
-  var quantized = Math.floor(level * (num_colours - 1));
-  var ret = colorbrewer.BuGn[num_quanta][quantized + (num_quanta - num_colours)];
-  console.log([level, ret]);
-  return ret;
+  var min_opacity = 0.3;
+
+  var opacity = ((1 - min_opacity) * level) + min_opacity;
+  var rgb = this._rgba_to_rgb(
+   [30, 139, 195, 255 * opacity],
+   [255, 255, 255]
+  );
+  return 'rgb(' + rgb.join(',') + ')';
 }
 
 Grapher.prototype._render_polygons = function(svg, hsps, scales) {
