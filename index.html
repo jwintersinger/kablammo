@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet" href="css/kablammo.css">
-    <link rel="stylesheet" href="css/svg.css">
+    <!-- svg-css class indicates that this stylesheet should have its rules included in exported SVGs. -->
+    <link rel="stylesheet" href="css/svg.css" class="svg-css">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -209,8 +210,8 @@
                   <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a href="#">Export to SVG</a></li>
-                  <li><a href="#">Export to PNG</a></li>
+                  <li><a href="#" class="export-to-svg">Export to SVG</a></li>
+                  <li><a href="#" class="export-to-png">Export to PNG</a></li>
                 </ul>
               </div>
               <button type="button" class="btn btn-default">View alignment</button>
@@ -246,6 +247,7 @@
     <script type="text/javascript" src="js/blast_parser.js"></script>
     <script type="text/javascript" src="js/blast_results_loader.js"></script>
     <script type="text/javascript" src="js/interface.js"></script>
+    <script type="text/javascript" src="js/exporter.js"></script>
     <script type="text/javascript" src="js/kablammo.js"></script>
   </body>
 </html>

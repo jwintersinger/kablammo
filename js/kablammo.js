@@ -7,6 +7,7 @@ function Kablammo() {
   this._grapher       = new Grapher();
   this._parser        = new BlastParser();
   this._loader        = new BlastResultsLoader(this._parser);
+  this._exporter      = new Exporter('#results-container', '.export-to-svg', '.export-to-png');
 
   this._iface.configure_query_form(function(blast_results_filename) {
     self._loader.load_from_server(blast_results_filename, function(results) {
