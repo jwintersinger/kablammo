@@ -1,23 +1,13 @@
-Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
-Write help sectoin
-Prevent highlighting text in SVG when panning
-
 Visualize coverage of all hits across sequence
+  Considering all hits, which parts of query sequence have no hits?
 Normalize bit scores relative to highest score in filtered results, not all results
 Include query sequences with no hits in count of hits
 
-Add "export to SVG" function that exports SVG alongside CSS
-  Add "export to PNG" as well
-  Convert SVG to PNG: http://stackoverflow.com/a/21318963/1691611
-    Alternative: https://developer.mozilla.org/en-US/docs/HTML/Canvas/Drawing_DOM_objects_into_a_canvas
-  
 Ivan's suggestions:
-  Show alignment -- simple text is fine
-  Allow zooming/panning on both axes, rather than just subject axis
   Display blown-up SVG for particular hit of interest
   Fix axis labels -- don't necessarily label with "b", given that some sequences may be for AAs
 
-  Export table format:
+  Allow user to export table with data -- format:
     Query ID
     Subject ID
     Bit score
@@ -26,12 +16,14 @@ Ivan's suggestions:
     Subject start/end
 
 Produce error on XML file that's not BLAST XML
-Provide instructions on how to generate and upload BLAST XML
 Provide script for augmenting JSON file listing XML
   Be sure to lock file when operating
 Verify that results are valid based on strandedness, etc.
-Allow user to set colour of graph
 Have "tour" on homepage
 Add loading animation
-Disable "display" button when no valid selection
 Display scale demonstrating what gradient means
+
+Enable result filtering
+Enable alignment viewing
+Write help section
+  Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
