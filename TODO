@@ -1,5 +1,3 @@
-Visualize coverage of all hits across sequence
-  Considering all hits, which parts of query sequence have no hits?
 Normalize bit scores relative to highest score in filtered results, not all results
 Include query sequences with no hits in count of hits
 
@@ -16,16 +14,28 @@ Ivan's suggestions:
     Subject start/end
 
 Produce error on XML file that's not BLAST XML
-Provide script for augmenting JSON file listing XML
-  Be sure to lock file when operating
 Verify that results are valid based on strandedness, etc.
-Have "tour" on homepage
 Add loading animation
 Display scale demonstrating what gradient means
 
+Add means of setting resolution of PNG export
+Support drag/drop file uploads
+Make long query/subject names render better
+
+Write bookmarklet to allow direct loading of Kablammo from NCBI BLast
+
+----------------------------
+Before submitting manuscript
+----------------------------
+When user is choosing local file, if he cancels out of dialogue, disable the "Display results" button
 Enable result filtering
+  Provide means of filtering by E value
 Enable alignment viewing
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
-Add means of setting resolution of PNG export
 Fix PNG/SVG export in IE
+Have "tour" on homepage
+Provide script for augmenting JSON file listing XML
+  Be sure to lock file when operating
+Visualize coverage of all hits across sequence
+  Considering all hits, which parts of query sequence have no hits?
