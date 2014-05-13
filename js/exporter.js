@@ -3,9 +3,11 @@ function Exporter(container_selector, export_svg_selector, export_png_selector) 
   var handle_click = function(export_callback) {
     return function() {
       var svg = $(this).parents('.subject').find('svg');
+      var styles = self._get_styles(window.document);
+      var serialized = self._serialize_svg(svg.get(0), styles);
 
       var subject_label = $(this).parents('.row').prev().find('.subject-name').text();
-      export_callback.call(self, svg, subject_label);
+      export_callback.call(self, svg, serialized, subject_label);
     };
   };
 
@@ -121,20 +123,22 @@ Exporter.prototype._serialize_svg = function(svg, styles) {
   return doctype + source;
 }
 
-Exporter.prototype._export_svg = function(svg, filename_prefix) {
-  var styles = Exporter.prototype._get_styles(window.document);
-  var serialized = this._serialize_svg(svg.get(0), styles);
-
-  var filename = this._sanitize_filename(filename_prefix) + '.svg';
-  var blob = new Blob([serialized], { type: 'text/xml' });
-  var url = window.URL.createObjectURL(blob);
+Exporter.prototype._download_file = function(url, filename) {
   var a = d3.select('body')
             .append('a')
             .style('display', 'none')
             .attr('download', filename)
             .attr('href', url);
   a.node().click();
+  return a;
+}
 
+Exporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) {
+  var blob = new Blob([serialized_svg], { type: 'text/xml' });
+  var url = window.URL.createObjectURL(blob);
+  var filename = this._sanitize_filename(filename_prefix) + '.svg';
+
+  var a = this._download_file(url, filename);
   // If URL revoked immediately, download doesn't work.
   setTimeout(function() {
     a.remove();
@@ -142,6 +146,25 @@ Exporter.prototype._export_svg = function(svg, filename_prefix) {
   }, 100);
 }
 
-Exporter.prototype._export_png = function(svg, filename_prefix) {
-  console.log('png');
+Exporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) {
+  var canvas = document.getElementById('png-exporter');
+  svg = $(svg);
+  var raster_scale_factor = 5;
+  canvas.width  = svg.width()  * raster_scale_factor;
+  canvas.height = svg.height() * raster_scale_factor;
+
+  var img = new Image();
+  var self = this;
+  img.onload = function() {
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    var url = canvas.toDataURL('image/png');
+    var a = self._download_file(url, 'pants.png');
+    setTimeout(function() {
+      a.remove();
+    }, 100);
+  };
+
+  img.src = 'data:image/svg+xml;base64,' + window.btoa(serialized_svg);
 }
