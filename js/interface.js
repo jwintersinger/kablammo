@@ -8,10 +8,40 @@ function Interface(grapher) {
   this._form = $('#load-results-form');
   this._server_results_chooser = $('#server-results-chooser');
 
+  this._valid_data_loaded = false;
+  this._local_file_chosen = false;
+  this._configure_tab_switching();
+
   var self = this;
   $.getJSON('data/blast_results.json', function(data) {
     self._populate_blast_results_chooser(data.blast_results);
   });
+}
+
+Interface.prototype._configure_tab_switching = function() {
+  var self = this;
+  $('#control-panel-load [data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    var active_tab = $(e.target).attr('href').substring(1);
+    if(active_tab === 'load-server') {
+      self._set_valid_data_loaded(true);
+    } else {
+      // This ensures that if user chooses file, switches to "load server" tab,
+      // then switches back to "load local" tab, the button will remain
+      // enabled.
+      self._set_valid_data_loaded(self._local_file_chosen);
+    }
+  });
+}
+
+Interface.prototype._set_valid_data_loaded = function(valid) {
+  this._valid_data_loaded = valid;
+  var submit_control = this._form.find('[type=submit]');
+
+  if(valid) {
+    submit_control.removeClass('disabled');
+  } else {
+    submit_control.addClass('disabled');
+  }
 }
 
 Interface.prototype._configure_colour_picker = function() {
@@ -106,11 +136,13 @@ Interface.prototype.create_query_header = function(container, label, query_index
 
 Interface.prototype.configure_query_form = function(on_load_from_server, on_load_local_file) {
   var local_chooser = $('#local-file-chooser');
+  var self = this;
 
   $('#choose-file').click(function(evt) {
     evt.preventDefault();
     local_chooser.click();
   })
+
   local_chooser.change(function() {
     var label = $(this).parent().find('.file-label');
     var file = local_chooser.get(0).files[0];
@@ -118,11 +150,21 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     var label_text = file ? file.name : '';
     // Before setting text, remove any elements contained within.
     label.html('').text(label_text);
+
+    self._local_file_chosen = true;
+    self._set_valid_data_loaded(true);
   });
 
-  var self = this;
   this._form.submit(function(evt) {
     evt.preventDefault();
+
+    // This ensures that if user submitted form by pressing enter in control
+    // instead of clicking button, further processing will occur only if valid
+    // data has been loaded. (The "Display results" button is enabled/disabled
+    // separately.)
+    if(!self._valid_data_loaded)
+      return;
+
     var active_id = $(this).find('.tab-pane.active').attr('id');
 
     if(active_id === 'load-server') {

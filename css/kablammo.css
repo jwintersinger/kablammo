@@ -180,6 +180,7 @@ a {
   right: 50px;
   width: 300px;
   z-index: 99999;
+  overflow: hidden;
 }
 
 .colpick {
