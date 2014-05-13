@@ -203,16 +203,6 @@ Interface.error = function(msg) {
   container.append(error);
 }
 
-Interface.scroll_to = function(elem) {
-  elem = $(elem);
-  $('html, body').animate({
-    scrollTop: $(elem).offset().top
-  }, {
-    duration: 700,
-    complete: function() { }
-  });
-}
-
 Interface.show_curtain = function(on_done) {
   $('#curtain').fadeIn(500, on_done);
 }

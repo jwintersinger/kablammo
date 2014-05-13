@@ -27,8 +27,7 @@ Kablammo.prototype._display_results = function(results) {
   this._grapher.display_blast_results(results, '#results-container', this._iface);
   this._iface.update_results_info(results);
   Interface.hide_curtain();
-  // TODO: keep below?
-  //Interface.scroll_to('#results-container');
+  $('html, body').scrollTop(0);
 }
 
 function main() {
