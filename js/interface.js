@@ -1,14 +1,33 @@
 "use strict";
 
-function Interface(server_results_chooser) {
-  var self = this;
+function Interface(grapher) {
+  this._grapher = grapher;
   this._navbar_elements = $('.navbar .nav li');
   this._configure_nav();
+  this._configure_colour_picker();
   this._form = $('#load-results-form');
-
   this._server_results_chooser = $('#server-results-chooser');
+
+  var self = this;
   $.getJSON('data/blast_results.json', function(data) {
     self._populate_blast_results_chooser(data.blast_results);
+  });
+}
+
+Interface.prototype._configure_colour_picker = function() {
+  var container = $('#choose-graph-colour');
+  var default_colour = this._grapher.get_graph_colour();
+  var colour_example = $('#graph-colour-example');
+  colour_example.css('color', '#' + $.colpick.rgbToHex(default_colour));
+
+  var self = this;
+  var picker = container.colpick({
+    onChange: function(hsb, hex, rgb, cont) {
+      self._grapher.set_graph_colour(rgb);
+      colour_example.css('color', '#' + hex);
+    },
+    submit: false,
+    color: default_colour,
   });
 }
 

@@ -3,8 +3,8 @@
 function Kablammo() {
   var self = this;
 
-  this._iface         = new Interface();
   this._grapher       = new Grapher();
+  this._iface         = new Interface(this._grapher);
   this._parser        = new BlastParser();
   this._loader        = new BlastResultsLoader(this._parser);
   this._exporter      = new Exporter('#results-container', '.export-to-svg', '.export-to-png');

@@ -178,7 +178,11 @@ a {
   top: 50px;
   right: 50px;
   width: 300px;
-  z-index: 9999;
+  z-index: 99999;
+}
+
+.colpick {
+  z-index: 99998;
 }
 
 #snippets {

@@ -1,6 +1,17 @@
 "use strict";
 
 function Grapher() {
+  this._graph_colour = { r: 30, g: 139, b: 195 };
+  this._matte_colour = { r: 255, g: 255, b: 255 };
+  this._min_opacity  = 0.3;
+}
+
+Grapher.prototype.get_graph_colour = function() {
+  return this._graph_colour;
+}
+
+Grapher.prototype.set_graph_colour = function(graph_colour) {
+  this._graph_colour = graph_colour;
 }
 
 Grapher.prototype._show_subject_params = function(svg, hsp) {
@@ -139,13 +150,17 @@ Grapher.prototype._rgba_to_rgb = function(rgba, matte_rgb) {
 }
 
 Grapher.prototype._determine_colour = function(level) {
-  var min_opacity = 0.3;
-
-  var opacity = ((1 - min_opacity) * level) + min_opacity;
-  var rgb = this._rgba_to_rgb(
-   [30, 139, 195, 255 * opacity],
-   [255, 255, 255]
-  );
+  var opacity = ((1 - this._min_opacity) * level) + this._min_opacity;
+  var rgb = this._rgba_to_rgb([
+    this._graph_colour.r,
+    this._graph_colour.g,
+    this._graph_colour.b,
+    255 * opacity
+  ], [
+     this._matte_colour.r,
+     this._matte_colour.g,
+     this._matte_colour.b,
+  ]);
   return 'rgb(' + rgb.join(',') + ')';
 }
 
