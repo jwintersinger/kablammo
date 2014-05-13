@@ -147,6 +147,7 @@ a {
 
 .file-label {
   margin-top: 1em;
+  overflow: hidden;
 }
 
 #display-results-container {

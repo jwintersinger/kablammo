@@ -116,7 +116,8 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     var file = local_chooser.get(0).files[0];
 
     var label_text = file ? file.name : '';
-    label.text(label_text);
+    // Before setting text, remove any elements contained within.
+    label.html('').text(label_text);
   });
 
   var self = this;
