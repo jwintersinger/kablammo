@@ -18,13 +18,13 @@ Interface.prototype._configure_colour_picker = function() {
   var container = $('#choose-graph-colour');
   var default_colour = this._grapher.get_graph_colour();
   var colour_example = $('#graph-colour-example');
-  colour_example.css('color', '#' + $.colpick.rgbToHex(default_colour));
+  colour_example.css('backgroundColor', '#' + $.colpick.rgbToHex(default_colour));
 
   var self = this;
   var picker = container.colpick({
     onChange: function(hsb, hex, rgb, cont) {
       self._grapher.set_graph_colour(rgb);
-      colour_example.css('color', '#' + hex);
+      colour_example.css('backgroundColor', '#' + hex);
     },
     submit: false,
     color: default_colour,
