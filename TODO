@@ -27,3 +27,5 @@ Enable result filtering
 Enable alignment viewing
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
+Add means of setting resolution of PNG export
+Fix PNG/SVG export in IE
