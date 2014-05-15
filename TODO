@@ -31,6 +31,8 @@ When user is choosing local file, if he cancels out of dialogue, disable the "Di
 Enable result filtering
   Provide means of filtering by E value
 Enable alignment viewing
+  Show raw alignment for individual HSP
+  Enable exporting the subject or query sequence corresponding to that portion of the alignment
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
 Fix PNG/SVG export in IE
@@ -39,3 +41,7 @@ Provide script for augmenting JSON file listing XML
   Be sure to lock file when operating
 Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
+Fix page scrolling to top in Firefox after exporting SVG or PNG
+Fix exported filename is always "pants.png" when exporting PNG
+Fix colour display next to "Choose graph colour" being inaccurate due to disabled state
+Fix exported SVG rendering improperly in Inkscape
