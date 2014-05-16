@@ -150,11 +150,16 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     var label = $(this).parent().find('.file-label');
     var file = local_chooser.get(0).files[0];
 
-    var label_text = file ? file.name : '';
+    if(file) {
+      var label_text = file.name;
+      self._set_local_file_chosen(true);
+    } else {
+      var label_text = '';
+      self._set_local_file_chosen(false);
+    }
+
     // Before setting text, remove any elements contained within.
     label.html('').text(label_text);
-
-    self._set_local_file_chosen(true);
   });
 
   this._form.submit(function(evt) {

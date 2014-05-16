@@ -27,7 +27,6 @@ Write bookmarklet to allow direct loading of Kablammo from NCBI BLast
 ----------------------------
 Before submitting manuscript
 ----------------------------
-When user is choosing local file, if he cancels out of dialogue, disable the "Display results" button
 Enable result filtering
   Provide means of filtering by E value
 Enable alignment viewing
