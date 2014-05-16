@@ -50,30 +50,34 @@
     </div>
 
     <div class="container-fluid" id="control-panels">
-      <form id="load-results-form">
-        <div class="row">
-          <div class="control-panel col-sm-12" id="control-panel-filter">
-            <div class="control-group">
-              <label class="control-label" for="query-filter">Query filter:</label>
-              <div class="controls">
-                <input id="query-filter" type="text" placeholder="chr..." />
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label" for="subject-filter">Subject filter:</label>
-              <div class="controls">
-                <input id="subject-filter" type="text" placeholder="Toxoplasma..." />
-              </div>
+      <div class="row">
+        <div class="control-panel col-sm-12" id="control-panel-filter">
+          <div class="control-group">
+            <label class="control-label" for="query-filter">Query filter:</label>
+            <div class="controls">
+              <input id="query-filter" type="text" placeholder="chr..." />
             </div>
           </div>
 
-          <div class="control-panel col-sm-12" id="control-panel-load">
+          <div class="control-group">
+            <label class="control-label" for="subject-filter">Subject filter:</label>
+            <div class="controls">
+              <input id="subject-filter" type="text" placeholder="Toxoplasma..." />
+            </div>
+          </div>
+        </div>
+
+        <div class="control-panel col-sm-12" id="control-panel-load">
+          <form id="load-results-form">
             <div class="row">
               <div class="col-sm-6">
                 <ul class="nav nav-tabs">
-                  <li class="active"><a href="#load-local" data-toggle="tab">Load results from your computer</a></li>
-                  <li><a href="#load-server" data-toggle="tab">Load results from server</a></li>
+                  <li class="active">
+                    <a id="load-local-nav" href="#load-local" data-toggle="tab">Load results from your computer</a>
+                  </li>
+                  <li>
+                    <a id="load-server-nav" href="#load-server" data-toggle="tab">Load results from server</a>
+                  </li>
                 </ul>
 
                 <div class="tab-content">
@@ -85,6 +89,7 @@
                     <input type="file" id="local-file-chooser" accept="text/xml" />
                     <button type="button" class="btn btn-primary" id="choose-file">Choose file ...</button>
                   </div>
+
                   <div class="tab-pane" id="load-server">
                     <select id="server-results-chooser" class="form-control"></select>
                   </div>
@@ -112,13 +117,13 @@
                 <button type="submit" class="btn btn-lg btn-primary disabled">Display results</button>
               </div>
             </div>
-          </div>
-
-          <div style="height: 400px" class="control-panel col-sm-12" id="control-panel-about">
-            Pants.
-          </div>
+          </form>
         </div>
-      </form>
+
+        <div style="height: 400px" class="control-panel col-sm-12" id="control-panel-about">
+          Pants.
+        </div>
+      </div>
     </div>
 
     <!--<div class="container">

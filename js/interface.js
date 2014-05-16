@@ -8,8 +8,7 @@ function Interface(grapher) {
   this._form = $('#load-results-form');
   this._server_results_chooser = $('#server-results-chooser');
 
-  this._valid_data_loaded = false;
-  this._local_file_chosen = false;
+  this._is_local_file_chosen = false;
   this._configure_tab_switching();
 
   var self = this;
@@ -20,28 +19,32 @@ function Interface(grapher) {
 
 Interface.prototype._configure_tab_switching = function() {
   var self = this;
-  $('#control-panel-load [data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    var active_tab = $(e.target).attr('href').substring(1);
-    if(active_tab === 'load-server') {
-      self._set_valid_data_loaded(true);
+  $('#control-panel-load [data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    var active_tab = $(e.target).attr('id');
+
+    if(active_tab === 'load-server-nav') {
+      self._enable_form_submission(true);
     } else {
       // This ensures that if user chooses file, switches to "load server" tab,
       // then switches back to "load local" tab, the button will remain
       // enabled.
-      self._set_valid_data_loaded(self._local_file_chosen);
+      self._enable_form_submission(self._is_local_file_chosen);
     }
   });
 }
 
-Interface.prototype._set_valid_data_loaded = function(valid) {
-  this._valid_data_loaded = valid;
+Interface.prototype._enable_form_submission = function(enable) {
   var submit_control = this._form.find('[type=submit]');
-
-  if(valid) {
+  if(enable) {
     submit_control.removeClass('disabled');
   } else {
     submit_control.addClass('disabled');
   }
+}
+
+Interface.prototype._set_local_file_chosen = function(is_file_chosen) {
+  this._is_local_file_chosen = is_file_chosen;
+  this._enable_form_submission(is_file_chosen);
 }
 
 Interface.prototype._configure_colour_picker = function() {
@@ -151,19 +154,11 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     // Before setting text, remove any elements contained within.
     label.html('').text(label_text);
 
-    self._local_file_chosen = true;
-    self._set_valid_data_loaded(true);
+    self._set_local_file_chosen(true);
   });
 
   this._form.submit(function(evt) {
     evt.preventDefault();
-
-    // This ensures that if user submitted form by pressing enter in control
-    // instead of clicking button, further processing will occur only if valid
-    // data has been loaded. (The "Display results" button is enabled/disabled
-    // separately.)
-    if(!self._valid_data_loaded)
-      return;
 
     var active_id = $(this).find('.tab-pane.active').attr('id');
 
@@ -175,6 +170,13 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
         on_load_from_server(blast_results_filename);
       });
     } else if (active_id === 'load-local') {
+      // This ensures that if user submitted form by pressing enter in control
+      // instead of clicking button, further processing will occur only if valid
+      // data has been loaded. (The "Display results" button is enabled/disabled
+      // separately.)
+      if(!self._is_local_file_chosen)
+        return;
+
       var file = local_chooser.get(0).files[0];
       // User hasn't selected file.
       if(!file)
@@ -189,7 +191,8 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
   });
 }
 
-Interface.prototype.display_results = function() {
+// Display first set of results listed as residing on server.
+Interface.prototype.display_servers_first_results = function() {
   this._form.submit();
 }
 

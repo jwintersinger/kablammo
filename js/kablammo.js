@@ -20,7 +20,7 @@ function Kablammo() {
   });
 
   // Uncomment the line below to load results from server when application first launches.
-  //self._iface.display_results();
+  self._iface.display_servers_first_results();
 }
 
 Kablammo.prototype._display_results = function(results) {
