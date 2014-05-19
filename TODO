@@ -41,5 +41,4 @@ Provide script for augmenting JSON file listing XML
 Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
 Fix page scrolling to top in Firefox after exporting SVG or PNG
-Fix colour display next to "Choose graph colour" being inaccurate due to disabled state
 Fix exported SVG rendering improperly in Inkscape
