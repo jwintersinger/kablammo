@@ -49,6 +49,8 @@ Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
       .filter(function(hit, index) {
         return index !== hovered_index;
       })
+      .transition()
+      .duration(200)
       .style('opacity', opacity);
 }
 
@@ -192,10 +194,10 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
          subject_x_points.reverse();
 
        var points = [
-         [query_x_points[0],   scales.query.height   + 1],
+         [query_x_points[0],   scales.query.height   + 2],
          [subject_x_points[0], scales.subject.height - 1],
          [subject_x_points[1], scales.subject.height - 1],
-         [query_x_points[1],   scales.query.height   + 1],
+         [query_x_points[1],   scales.query.height   + 2],
        ];
 
        return points.map(function(point) {
