@@ -1,11 +1,13 @@
 "use strict";
 
-function Interface(grapher) {
+function Interface(grapher, loader) {
   this._grapher = grapher;
+  this._loader = loader;
   this._navbar_elements = $('.navbar .nav li');
   this._configure_nav();
   this._configure_colour_picker();
   this._form = $('#load-results-form');
+  this._local_chooser = $('#local-file-chooser');
   this._server_results_chooser = $('#server-results-chooser');
 
   this._is_local_file_chosen = false;
@@ -15,6 +17,9 @@ function Interface(grapher) {
   $.getJSON('data/blast_results.json', function(data) {
     self._populate_blast_results_chooser(data.blast_results);
   });
+
+  this._configure_file_chooser();
+  this._configure_query_form();
 }
 
 Interface.prototype._configure_tab_switching = function() {
@@ -137,18 +142,17 @@ Interface.prototype.create_query_header = function(container, label, query_index
   $(container).append(header);
 }
 
-Interface.prototype.configure_query_form = function(on_load_from_server, on_load_local_file) {
-  var local_chooser = $('#local-file-chooser');
+Interface.prototype._configure_file_chooser = function() {
   var self = this;
 
   $('#choose-file').click(function(evt) {
     evt.preventDefault();
-    local_chooser.click();
+    self._local_chooser.click();
   })
 
-  local_chooser.change(function() {
+  self._local_chooser.change(function() {
     var label = $(this).parent().find('.file-label');
-    var file = local_chooser.get(0).files[0];
+    var file = self._local_chooser.get(0).files[0];
 
     if(file) {
       var label_text = file.name;
@@ -161,6 +165,45 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     // Before setting text, remove any elements contained within.
     label.html('').text(label_text);
   });
+}
+
+Interface.prototype._on_load_server = function() {
+  this._deactivate_active_panel();
+
+  var self = this;
+  Interface.show_curtain(function() {
+    var server_results_chooser = $('#server-results-chooser');
+    var blast_results_filename = server_results_chooser.val();
+    self._loader.load_from_server(blast_results_filename, function(results) {
+      self._display_results(results);
+    });
+  });
+}
+
+Interface.prototype._on_load_local = function() {
+  // This ensures that if user submitted form by pressing enter in control
+  // instead of clicking button, further processing will occur only if valid
+  // data has been loaded. (The "Display results" button is enabled/disabled
+  // separately.)
+  if(!this._is_local_file_chosen)
+    return;
+
+  var file = this._local_chooser.get(0).files[0];
+  // User hasn't selected file.
+  if(!file)
+    return;
+
+  this._deactivate_active_panel();
+  var self = this;
+  Interface.show_curtain(function() {
+    self._loader.load_local_file(file, function(results) {
+      self._display_results(results);
+    });
+  });
+}
+
+Interface.prototype._configure_query_form = function() {
+  var self = this;
 
   this._form.submit(function(evt) {
     evt.preventDefault();
@@ -168,28 +211,9 @@ Interface.prototype.configure_query_form = function(on_load_from_server, on_load
     var active_id = $(this).find('.tab-pane.active').attr('id');
 
     if(active_id === 'load-server') {
-      var server_results_chooser = $('#server-results-chooser');
-      var blast_results_filename = server_results_chooser.val();
-      self._deactivate_active_panel();
-      Interface.show_curtain(function() {
-        on_load_from_server(blast_results_filename);
-      });
-    } else if (active_id === 'load-local') {
-      // This ensures that if user submitted form by pressing enter in control
-      // instead of clicking button, further processing will occur only if valid
-      // data has been loaded. (The "Display results" button is enabled/disabled
-      // separately.)
-      if(!self._is_local_file_chosen)
-        return;
-
-      var file = local_chooser.get(0).files[0];
-      // User hasn't selected file.
-      if(!file)
-        return;
-      self._deactivate_active_panel();
-      Interface.show_curtain(function() {
-        on_load_local_file(file);
-      });
+      self._on_load_server();
+    } else if(active_id === 'load-local') {
+      self._on_load_local();
     } else {
       throw 'Invalid active tab ID: ' + active_id;
     }
@@ -217,4 +241,11 @@ Interface.show_curtain = function(on_done) {
 
 Interface.hide_curtain = function(on_done) {
   $('#curtain').fadeOut(500, on_done);
+}
+
+Interface.prototype._display_results = function(results) {
+  this._grapher.display_blast_results(results, '#results-container', this);
+  this.update_results_info(results);
+  Interface.hide_curtain();
+  $('html, body').scrollTop(0);
 }
