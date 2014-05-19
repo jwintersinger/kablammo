@@ -1,46 +1,24 @@
 "use strict";
 
 function Grapher() {
+  this._graph_colour = { r: 30, g: 139, b: 195 };
+  this._matte_colour = { r: 255, g: 255, b: 255 };
+  this._min_opacity  = 0.3;
 }
 
-Grapher.prototype._find_topmost_point = function(point_list) {
-  var points = point_list.split(' ').map(function(point) {
-    return point.split(',').map(function(coord) {
-      return parseFloat(coord);
-    });
-  });
+Grapher.prototype.get_graph_colour = function() {
+  return this._graph_colour;
+}
 
-  var top_x = points[0][0];
-  var top_y = points[0][1];
-  points.forEach(function(point) {
-    var x = point[0];
-    var y = point[1];
+Grapher.prototype.set_graph_colour = function(graph_colour) {
+  this._graph_colour = graph_colour;
+}
 
-    if(
-      y < top_y ||
-      (y === top_y && x < top_x)
-    ) {
-      top_x = x;
-      top_y = y;
-    }
-  });
-
-  return {
-    x: top_x,
-    y: top_y
-  };
-};
-
-Grapher.prototype._show_tooltip = function(svg, polygon, hsp) {
+Grapher.prototype._show_subject_params = function(svg, hsp) {
   svg = $(svg);
-  polygon = $(polygon);
-
-  var svg_pos = svg.offset();
-  var topmost_polygon_point = this._find_topmost_point(polygon.attr('points'));
-
   var position_formatter = d3.format(',d');
 
-  var tooltip_info = [
+  var subject_params = [
     ['Bit score', hsp.bit_score],
     ['E value', hsp.evalue],
     ['Query start', position_formatter(hsp.query_start)],
@@ -51,35 +29,27 @@ Grapher.prototype._show_tooltip = function(svg, polygon, hsp) {
     ['Alignment length', position_formatter(hsp.alignment_length)],
     ['Subject frame', hsp.subject_frame],
   ];
-  var tooltip_contents = tooltip_info.map(function(info) {
-    var key = info[0];
-    var value = info[1];
+  var sp_contents = subject_params.map(function(param) {
+    var key = param[0];
+    var value = param[1];
     return '<li><span class="key">' + key + ':</span> ' + value + '</li>';
   }).join('\n');
 
-  var tooltip_container = d3.select('#tooltip');
-  var tooltip = tooltip_container.select('.list');
-
-  tooltip.html(tooltip_contents);
-  tooltip_container.style('left', svg_pos.left + svg.width() + 'px')
-                   .style('top', svg_pos.top + topmost_polygon_point.y + 'px')
-                   .transition()
-                   .duration(200)
-                   .style('opacity', 0.9);
+  svg.parents('.subject')
+     .find('.subject-params')
+     .html(sp_contents).show();
 }
 
-Grapher.prototype._hide_tooltip = function() {
-  var tooltip = d3.select('#tooltip');
-  tooltip.transition()
-         .duration(200)
-         .style('opacity', 0);
+Grapher.prototype._hide_subject_params = function(svg) {
+  $(svg).parents('.subject').find('.subject-params').hide();
 }
 
 Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
    svg.selectAll('.hit')
       .filter(function(hit, index) {
         return index !== hovered_index;
-      }).transition()
+      })
+      .transition()
       .duration(200)
       .style('opacity', opacity);
 }
@@ -158,6 +128,43 @@ Grapher.prototype._pan_scale = function(existing_scale, original_domain, delta) 
     existing_scale.domain(new_domain);
 }
 
+Grapher.prototype._rgba_to_rgb = function(rgba, matte_rgb) {
+  // Algorithm taken from http://stackoverflow.com/a/2049362/1691611.
+  var normalize = function(colour) {
+    return colour.map(function(channel) { return channel / 255; });
+  };
+  var denormalize = function(colour) {
+    return colour.map(function(channel) { return Math.round(Math.min(255, channel * 255)); });
+  };
+
+  var norm = normalize(rgba.slice(0, 3));
+  matte_rgb = normalize(matte_rgb);
+  var alpha = rgba[3] / 255;
+
+  var rgb = [
+    (alpha * norm[0]) + (1 - alpha) * matte_rgb[0],
+    (alpha * norm[1]) + (1 - alpha) * matte_rgb[1],
+    (alpha * norm[2]) + (1 - alpha) * matte_rgb[2],
+  ];
+
+  return denormalize(rgb);
+}
+
+Grapher.prototype._determine_colour = function(level) {
+  var opacity = ((1 - this._min_opacity) * level) + this._min_opacity;
+  var rgb = this._rgba_to_rgb([
+    this._graph_colour.r,
+    this._graph_colour.g,
+    this._graph_colour.b,
+    255 * opacity
+  ], [
+     this._matte_colour.r,
+     this._matte_colour.g,
+     this._matte_colour.b,
+  ]);
+  return 'rgb(' + rgb.join(',') + ')';
+}
+
 Grapher.prototype._render_polygons = function(svg, hsps, scales) {
   var self = this;
 
@@ -171,9 +178,7 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      .append('polygon')
      .attr('class', 'hit')
      .attr('fill', function(hsp) {
-       var val = parseInt(255*(1 - hsp.normalized_bit_score), 10);
-       var colour = 'rgba(' + [val, val, val].join(',') + ',1.0)';
-       return colour;
+       return self._determine_colour(hsp.normalized_bit_score);
      }).attr('points', function(hsp) {
        // We create query_x_points such that the 0th element will *always* be
        // on the left of the 1st element, regardless of whether the axis is
@@ -189,20 +194,20 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
          subject_x_points.reverse();
 
        var points = [
-         [query_x_points[0],   scales.query.height   + 1],
+         [query_x_points[0],   scales.query.height   + 2],
          [subject_x_points[0], scales.subject.height - 1],
          [subject_x_points[1], scales.subject.height - 1],
-         [query_x_points[1],   scales.query.height   + 1],
+         [query_x_points[1],   scales.query.height   + 2],
        ];
 
        return points.map(function(point) {
         return point[0] + ',' + point[1];
        }).join(' ');
      }).on('mouseover', function(hovered_hsp, hovered_index) {
-       self._show_tooltip(svg[0][0], this, hovered_hsp);
+       self._show_subject_params(svg[0][0], hovered_hsp);
        self._fade_other_polygons(svg, hovered_index, 0.1);
      }).on('mouseout', function(hovered_hsp, hovered_index) {
-       self._hide_tooltip.apply(this, arguments);
+       self._hide_subject_params(svg[0][0])
        self._fade_other_polygons(svg, hovered_index, 1);
      });
 }
@@ -335,7 +340,7 @@ Grapher.prototype._configure_zooming = function(svg, hsps, scales) {
   svg.on('wheel',      handle_mouse_wheel); // Firefox, IE
 }
 
-Grapher.prototype._create_graph = function(query_length, subject_length, hsps, table_row) {
+Grapher.prototype._create_graph = function(query_length, subject_length, hsps, svg_container) {
   var self = this;
 
   var padding_x = 20;
@@ -343,10 +348,9 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, t
   var canvas_width = 500;
   var canvas_height = 330;
 
-  var svg = table_row.append('td')
-                     .append('svg')
-                     .attr('width', canvas_width)
-                     .attr('height', canvas_height);
+  var svg = svg_container.insert('svg', ':first-child') // Prepend to svg_container
+                         .attr('width', canvas_width)
+                         .attr('height', canvas_height);
   var scales = this._create_scales(padding_x, padding_y, canvas_width,
                                    canvas_height, query_length, subject_length, hsps);
   this._render_graph(svg, hsps, scales);
@@ -355,34 +359,59 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, t
   this._configure_zooming(svg, hsps, scales);
 }
 
-Grapher.prototype.display_blast_results = function(results, results_table, iface) {
+Grapher.prototype._count_total_hits = function(hits) {
+  var num_strand_pairs = hits.map(function(hit) {
+    return Object.keys(hit.hsps).length;
+  });
+  return num_strand_pairs.reduce(function(a, b) {
+    return a + b;
+  });
+}
+
+Grapher.prototype.display_blast_results = function(results, results_container, iface) {
   var self = this;
   this._results = results;
 
-  $('#results-container').show(); // Hidden by default at app start.
-  $(results_table).find('tr').remove();
+  // TODO: determine whether to keep below line.
+  //$('#results-container').show(); // Hidden by default at app start.
+  $(results_container).children().remove();
 
-  this._results.filtered_iterations.forEach(function(iteration) {
+  var iterations = this._results.filtered_iterations;
+  iterations.forEach(function(iteration, iteration_idx) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
     // been filtered out via subject filter).
     if(hits.length === 0)
       return;
 
-    iface.create_header(results_table, iteration.query_def);
+    iface.create_query_header(
+      results_container,
+      iteration.query_def,
+      iteration_idx + 1,
+      iterations.length
+    );
+
+    var hit_idx = 1;
+    var total_hits = self._count_total_hits(hits);
+
     hits.forEach(function(hit) {
       Object.keys(hit.hsps).forEach(function(strand_pair) {
-        var table_row = d3.select(results_table).append('tr');
-        var label_cell = table_row.append('td')
-        label_cell.html('<strong>ID:</strong> ' + hit.subject_id +
-          '<br /><strong>Def:</strong> ' + hit.subject_def);
+        var subj_header = $('#example-subject-header').clone().removeAttr('id');
+        subj_header.find('.subject-name').text(hit.subject_def +
+          ' (' + hit.subject_id + ')');
+        subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
+
+        var subj_result = $('#example-subject-result').clone().removeAttr('id');
+        var svg_container = d3.select(subj_result.find('.subject').get(0));
 
         self._create_graph(
           iteration.query_length,
           hit.subject_length,
           hit.hsps[strand_pair],
-          table_row
+          svg_container
         );
+
+        $(results_container).append(subj_header).append(subj_result);
       });
     });
   });

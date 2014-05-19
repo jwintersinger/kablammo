@@ -1,77 +1,157 @@
-/* HTML rules. */
-svg {
+body {
+  padding-top: 130px;
 }
 
-#content {
-  margin: 3em auto 5em auto;
-  max-width: 950px;
+a {
+  outline: none !important;
 }
 
-#tooltip {
-  position: absolute;
+.navbar {
+  background-color: #1e8bc3;
+}
+
+.navbar .disabled-nav {
+  opacity: 0.5;
+}
+
+.navbar .navbar-nav.nav li a {
+  color: white;
+  background-color: transparent;
+  font-size: 20px;
+}
+
+.navbar .navbar-nav.nav li.active a, .navbar .navbar-nav.nav li:hover:not(.disabled-nav) a {
+  color: black;
+  background-color: #f7ca18;
+}
+
+.navbar-nav {
+  margin-top: 42px;
+}
+
+.navbar-header h1 {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url('../img/kablammo_logo.svg');
+  width: 300px;
+  height: 60.92px;
+}
+
+.navbar-header span {
+  display: none;
+}
+
+#results-container {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+#results-container > .row {
+  margin-bottom: 22px;
+}
+
+.query-header, .subject-header {
+  background-color: #69b2d7;
+  color: white;
+  text-align: right;
   padding: 8px;
-  background: lightsteelblue;
-  border-radius: 8px;
-  pointer-events: none;
-  opacity: 0;
+  position: relative;
 }
 
-#tooltip .list {
-  list-style-type: none;
-  margin: 0.3em;
+.query-header > h2, .subject-header > h3 {
+  float: left;
+  background-color: #1e8bc3;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin-bottom: 0;
+  padding: 8px 15px 8px 15px;
 }
 
-#tooltip .list .key {
+.query-header > p, .subject-header > p {
+  background-color: #69b2d7;
+  display: block;
+}
+
+.subject {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: top;
+}
+
+.subject svg, .subject-info {
+  float: left;
+}
+
+.subject-params {
+  display: none;
+}
+
+.subject svg {
+  margin-bottom: 1em;
+
+  /* Prevent selecting axis labels and other text, which may happen
+   * accidentally as user is clicking and dragging mouse to pan the SVG. */
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.subject-info ul {
+  list-style: none;
+  padding-left: 0;
+  float: left;
+}
+
+.subject-buttons {
+  margin-bottom: 1.5em;
+  float: left;
+  margin-left: 2em;
+  margin-right: 2em;
+}
+
+.subject-info span {
   font-weight: bold;
 }
 
-#header {
-  text-align: center;
-  margin-bottom: 1em;
+#control-panels .control-panel {
+  background-color: white;
+  padding-top: 15px;
+  padding-bottom: 30px;
+  top: 92px;
+  left: 0;
+  z-index: 9999;
+  position: fixed;
+  display: none;
+  border-bottom: 1px solid #999;
 }
 
-/* Hide default file selector so that we can create our own and customize its appearance. */
-#local-file-chooser          { display: none; }
-#load-local-file .file-label { margin-top: 10px; }
+#control-panels .tab-pane {
+  padding: 15px;
+  border-left: 1px solid #ddd;
+}
 
-#secondary-params {
-  border-left: 1px solid #e5e5e5;
+#local-file-chooser {
+  display: none;
+}
+
+#max-result-controls input {
+  display: inline;
+  width: 5em;
+}
+
+.file-label {
+  margin-top: 1em;
+  overflow: hidden;
 }
 
 #display-results-container {
   text-align: center;
-  margin-top: 30px
-}
-
-#results-params .tab-pane {
-  text-align: center;
-}
-
-#errors {
-  position: fixed;
-  top: 50px;
-  right: 50px;
-  width: 300px;
-  z-index: 9999;
-}
-
-#errors .alert-error.example {
-  display: none;
-}
-
-#more-info section {
-  margin-bottom: 25px;
-}
-
-#more-info h4 {
-  font-size: 20px;
-  padding-bottom: 5px;
-  font-weight: normal;
-  border-bottom: 1px solid #b1b1b1;
-}
-
-#results-container {
-  display: none;
+  margin-top: 30px;
 }
 
 #curtain {
@@ -92,4 +172,49 @@ svg {
   border-radius: 10px;
   display: inline-block;
   margin-top: 20%;
+}
+
+#errors {
+  position: fixed;
+  top: 50px;
+  right: 50px;
+  width: 300px;
+  z-index: 99999;
+  overflow: hidden;
+}
+
+.colpick {
+  z-index: 99998;
+}
+
+#snippets {
+ display: none;
+}
+
+#png-exporter {
+  display: none;
+}
+
+#introduction {
+  text-align: center;
+}
+
+#introduction p {
+  font-size: 18px;
+}
+
+#introduction h1 {
+  font-size: 36px;
+}
+
+#introduction h1, #introduction p {
+  text-align: left;
+}
+
+#example-results {
+  width: 80%;
+}
+
+#show-example-results {
+  margin-top: 25px;
 }

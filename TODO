@@ -1,21 +1,45 @@
-Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
-Write help sectoin
-Prevent highlighting text in SVG when panning
-
-Visualize coverage of all hits across sequence
 Normalize bit scores relative to highest score in filtered results, not all results
 Include query sequences with no hits in count of hits
-  
+
 Ivan's suggestions:
-  Show alignment -- simple text is fine
-  Allow zooming/panning on both axes, rather than just subject axis
   Display blown-up SVG for particular hit of interest
   Fix axis labels -- don't necessarily label with "b", given that some sequences may be for AAs
 
-  Export table format:
+  Allow user to export table with data -- format:
     Query ID
     Subject ID
     Bit score
     E value
     Query start/end
     Subject start/end
+
+Produce error on XML file that's not BLAST XML
+Verify that results are valid based on strandedness, etc.
+Add loading animation
+Display scale demonstrating what gradient means
+
+Add means of setting resolution of PNG export
+Support drag/drop file uploads
+Make long query/subject names render better
+
+Write bookmarklet to allow direct loading of Kablammo from NCBI BLast
+
+----------------------------
+Before submitting manuscript
+----------------------------
+Enable result filtering
+  Provide means of filtering by E value
+Enable alignment viewing
+  Show raw alignment for individual HSP
+  Enable exporting the subject or query sequence corresponding to that portion of the alignment
+Write help section
+  Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
+Fix PNG/SVG export in IE
+Have "tour" on homepage
+Provide script for augmenting JSON file listing XML
+  Be sure to lock file when operating
+Visualize coverage of all hits across sequence
+  Considering all hits, which parts of query sequence have no hits?
+Fix page scrolling to top in Firefox after exporting SVG or PNG
+Fix colour display next to "Choose graph colour" being inaccurate due to disabled state
+Fix exported SVG rendering improperly in Inkscape
