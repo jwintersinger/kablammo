@@ -373,7 +373,7 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
 
   // TODO: determine whether to keep below line.
   //$('#results-container').show(); // Hidden by default at app start.
-  $(results_container).children('.row').remove();
+  $(results_container).children().remove();
 
   var iterations = this._results.filtered_iterations;
   iterations.forEach(function(iteration, iteration_idx) {

@@ -20,6 +20,7 @@ function Interface(grapher, loader) {
 
   this._configure_file_chooser();
   this._configure_query_form();
+  this._configure_example_results_display();
 }
 
 Interface.prototype._configure_tab_switching = function() {
@@ -101,8 +102,11 @@ Interface.prototype._activate_panel = function(nav_target) {
 
 Interface.prototype._deactivate_active_panel = function() {
   var active_nav = this._navbar_elements.filter('.active');
-  var panel = this._resolve_panel_for_nav(active_nav);
+  // If no navigation active, then no panel should be closed.
+  if(active_nav.length === 0)
+    return;
 
+  var panel = this._resolve_panel_for_nav(active_nav);
   panel.slideUp({
     complete: function() {
       active_nav.removeClass('active');
@@ -220,9 +224,14 @@ Interface.prototype._configure_query_form = function() {
   });
 }
 
-// Display first set of results listed as residing on server.
-Interface.prototype.display_servers_first_results = function() {
-  this._form.submit();
+Interface.prototype._configure_example_results_display = function() {
+  var self = this;
+  $('#show-example-results').click(function() {
+    // Switch to this tab in the (hidden) navigation, so that if user opens "load
+    // results," the tab corresponding to the displayed results will be shown.
+    $('#load-server-nav').tab('show');
+    self._on_load_server();
+  });
 }
 
 Interface.error = function(msg) {
