@@ -48,8 +48,7 @@ Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
    svg.selectAll('.hit')
       .filter(function(hit, index) {
         return index !== hovered_index;
-      }).transition()
-      .duration(200)
+      })
       .style('opacity', opacity);
 }
 

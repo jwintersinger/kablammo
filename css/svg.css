@@ -11,12 +11,9 @@
 }
 
 .hit {
-  transition: all 0.3s;
 }
 
 .hit:hover {
-  /*stroke: rgba(255,0,0,1);
-  stroke-width: 2;*/
 }
 
 .axis-label {
