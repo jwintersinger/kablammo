@@ -194,3 +194,27 @@ a {
 #png-exporter {
   display: none;
 }
+
+#introduction {
+  text-align: center;
+}
+
+#introduction p {
+  font-size: 18px;
+}
+
+#introduction h1 {
+  font-size: 36px;
+}
+
+#introduction h1, #introduction p {
+  text-align: left;
+}
+
+#example-results {
+  width: 80%;
+}
+
+#show-example-results {
+  margin-top: 25px;
+}
