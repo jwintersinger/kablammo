@@ -101,7 +101,11 @@ a {
   user-select: none;
 }
 
-.subject-info ul {
+.subject-info {
+  margin-left: 2em;
+}
+
+.subject-params {
   list-style: none;
   padding-left: 0;
   float: left;
@@ -109,9 +113,6 @@ a {
 
 .subject-buttons {
   margin-bottom: 1.5em;
-  float: left;
-  margin-left: 2em;
-  margin-right: 2em;
 }
 
 .subject-info span {
@@ -226,4 +227,8 @@ a {
 
 #alignment-viewer .midline-seq {
   color: rgb(120, 120, 120);
+}
+
+#alignment-viewer .modal-dialog {
+  width: 80%;
 }
