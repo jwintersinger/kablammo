@@ -288,7 +288,10 @@ BlastParser.prototype._parse_iterations = function(doc) {
           subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
           alignment_length: parseInt(hsp.find('Hsp_align-len').text(), 10),
           bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
-          evalue: parseFloat(hsp.find('Hsp_evalue').text())
+          evalue: parseFloat(hsp.find('Hsp_evalue').text()),
+          query_seq: hsp.find('Hsp_qseq').text(),
+          subject_seq: hsp.find('Hsp_hseq').text(),
+          midline_seq: hsp.find('Hsp_midline').text()
         };
 
         self._reorder_hit_positions(hsp_attribs);

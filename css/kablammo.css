@@ -218,3 +218,12 @@ a {
 #show-example-results {
   margin-top: 25px;
 }
+
+#alignment-viewer pre {
+  white-space: pre;
+  word-wrap: normal;
+}
+
+#alignment-viewer .midline-seq {
+  color: rgb(120, 120, 120);
+}

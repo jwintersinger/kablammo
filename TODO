@@ -31,8 +31,8 @@ Before submitting manuscript
 ----------------------------
 Enable result filtering
   Provide means of filtering by E value
-Enable alignment viewing
-  Show raw alignment for individual HSP
+Improve alignment viewing
+  Show summation of alignment instead of simple scrollbar, a la Benchling
   Enable exporting the subject or query sequence corresponding to that portion of the alignment
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
@@ -47,3 +47,4 @@ Fix exported SVG rendering improperly in Inkscape
 When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
 Colour edges of each polygon -- white, but with translucency
 Change terminology: "subject" -> "hit"
+Fix formatting on wide names

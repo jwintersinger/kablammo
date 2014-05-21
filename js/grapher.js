@@ -1,9 +1,10 @@
 "use strict";
 
-function Grapher() {
+function Grapher(alignment_viewer) {
   this._graph_colour = { r: 30, g: 139, b: 195 };
   this._matte_colour = { r: 255, g: 255, b: 255 };
   this._min_opacity  = 0.3;
+  this._alignment_viewer = alignment_viewer;
 }
 
 Grapher.prototype.get_graph_colour = function() {
@@ -209,6 +210,8 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      }).on('mouseout', function(hovered_hsp, hovered_index) {
        self._hide_subject_params(svg[0][0])
        self._fade_other_polygons(svg, hovered_index, 1);
+     }).on('click', function(clicked_hsp) {
+       self._alignment_viewer.view_alignment(clicked_hsp);
      });
 }
 
