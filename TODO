@@ -39,3 +39,7 @@ Provide script for augmenting JSON file listing XML
   Be sure to lock file when operating
 Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
+Tell user via tooltips about zoom via mouse wheel
+  Add zoom buttons & pinch-to-zoom for non-desktop devices
+Show sequence alignments in ClustalW-like display -- see how Benchling displays alignments
+Fix tblastx alignments being coloured as NT seqs, not AA seqs (filename: RV5ABP...xml)
