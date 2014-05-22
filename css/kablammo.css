@@ -223,6 +223,8 @@ a {
 #alignment-viewer pre {
   white-space: pre;
   word-wrap: normal;
+  font-weight: bold;
+  font-size: 15px;
 }
 
 #alignment-viewer .midline-seq {
@@ -232,3 +234,23 @@ a {
 #alignment-viewer .modal-dialog {
   width: 80%;
 }
+
+.query-seq span, .midline-seq span, .subject-seq span {
+  padding: 2px;
+}
+
+/* AA colours taken from http://www.bioinformatics.nl/~berndb/aacolour.html. */
+.aa-g, .aa-a, .aa-s, .aa-t                                    { background-color: #c7cdfd; } /* Blue */
+.aa-c, .aa-v, .aa-i, .aa-l, .aa-p, .aa-f, .aa-y, .aa-m, .aa-w { background-color: #c7fddd; } /* Green */
+.aa-n, .aa-q, .aa-h                                           { background-color: #fdfdc7; } /* Yellow */
+.aa-d, .aa-e                                                  { background-color: #fdc7e9; } /* Pink */
+.aa-k, .aa-r                                                  { background-color: #c7fcfd; } /* Teal */
+
+.na-a { background-color: #c7cdfd; } /* Blue */
+.na-c { background-color: #c7fddd; } /* Green */
+.na-g { background-color: #fdfdc7; } /* Yellow */
+.na-t { background-color: #fdc7e9; } /* Pink */
+
+.ml-diff    { background-color: rgb(204,0,0); } /* Red */
+.ml-similar { background-color: rgb(204,204,0); } /* Yellow */
+.ml-match   { }

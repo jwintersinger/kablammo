@@ -211,7 +211,11 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        self._hide_subject_params(svg[0][0])
        self._fade_other_polygons(svg, hovered_index, 1);
      }).on('click', function(clicked_hsp) {
-       self._alignment_viewer.view_alignment(clicked_hsp);
+       self._alignment_viewer.view_alignment(
+         clicked_hsp,
+         self._results.query_seq_type,
+         self._results.subject_seq_type
+       );
      });
 }
 
