@@ -23,14 +23,16 @@ Support drag/drop file uploads
 Make long query/subject names render better
 
 Write bookmarklet to allow direct loading of Kablammo from NCBI BLast
+Refactor -- replace jQuery XML parsing with native to speed up this step
+Enable pinch-to-zoom on touch devices
 
 ----------------------------
 Before submitting manuscript
 ----------------------------
 Enable result filtering
   Provide means of filtering by E value
-Enable alignment viewing
-  Show raw alignment for individual HSP
+Improve alignment viewing
+  Show summation of alignment instead of simple scrollbar, a la Benchling
   Enable exporting the subject or query sequence corresponding to that portion of the alignment
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
@@ -42,3 +44,7 @@ Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
 Fix page scrolling to top in Firefox after exporting SVG or PNG
 Fix exported SVG rendering improperly in Inkscape
+When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
+Colour edges of each polygon -- white, but with translucency
+Change terminology: "subject" -> "hit"
+Fix formatting on wide names

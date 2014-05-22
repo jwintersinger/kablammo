@@ -101,7 +101,11 @@ a {
   user-select: none;
 }
 
-.subject-info ul {
+.subject-info {
+  margin-left: 2em;
+}
+
+.subject-params {
   list-style: none;
   padding-left: 0;
   float: left;
@@ -109,9 +113,6 @@ a {
 
 .subject-buttons {
   margin-bottom: 1.5em;
-  float: left;
-  margin-left: 2em;
-  margin-right: 2em;
 }
 
 .subject-info span {
@@ -218,3 +219,38 @@ a {
 #show-example-results {
   margin-top: 25px;
 }
+
+#alignment-viewer pre {
+  white-space: pre;
+  word-wrap: normal;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+#alignment-viewer .midline-seq {
+  color: rgb(120, 120, 120);
+}
+
+#alignment-viewer .modal-dialog {
+  width: 80%;
+}
+
+.query-seq span, .midline-seq span, .subject-seq span {
+  padding: 2px;
+}
+
+/* AA colours taken from http://www.bioinformatics.nl/~berndb/aacolour.html. */
+.aa-g, .aa-a, .aa-s, .aa-t                                    { background-color: #c7cdfd; } /* Blue */
+.aa-c, .aa-v, .aa-i, .aa-l, .aa-p, .aa-f, .aa-y, .aa-m, .aa-w { background-color: #c7fddd; } /* Green */
+.aa-n, .aa-q, .aa-h                                           { background-color: #fdfdc7; } /* Yellow */
+.aa-d, .aa-e                                                  { background-color: #fdc7e9; } /* Pink */
+.aa-k, .aa-r                                                  { background-color: #c7fcfd; } /* Teal */
+
+.na-a { background-color: #c7cdfd; } /* Blue */
+.na-c { background-color: #c7fddd; } /* Green */
+.na-g { background-color: #fdfdc7; } /* Yellow */
+.na-t { background-color: #fdc7e9; } /* Pink */
+
+.ml-diff    { background-color: rgb(204,0,0); } /* Red */
+.ml-similar { background-color: rgb(204,204,0); } /* Yellow */
+.ml-match   { }
