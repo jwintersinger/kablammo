@@ -160,7 +160,8 @@ Exporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     var url = canvas.toDataURL('image/png');
-    var a = self._download_file(url, 'pants.png');
+    var filename = self._sanitize_filename(filename_prefix) + '.png';
+    var a = self._download_file(url, filename);
     setTimeout(function() {
       a.remove();
     }, 100);

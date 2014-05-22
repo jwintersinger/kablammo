@@ -27,10 +27,11 @@ Write bookmarklet to allow direct loading of Kablammo from NCBI BLast
 ----------------------------
 Before submitting manuscript
 ----------------------------
-When user is choosing local file, if he cancels out of dialogue, disable the "Display results" button
 Enable result filtering
   Provide means of filtering by E value
 Enable alignment viewing
+  Show raw alignment for individual HSP
+  Enable exporting the subject or query sequence corresponding to that portion of the alignment
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
 Fix PNG/SVG export in IE
@@ -43,3 +44,7 @@ Tell user via tooltips about zoom via mouse wheel
   Add zoom buttons & pinch-to-zoom for non-desktop devices
 Show sequence alignments in ClustalW-like display -- see how Benchling displays alignments
 Fix tblastx alignments being coloured as NT seqs, not AA seqs (filename: RV5ABP...xml)
+Fix page scrolling to top in Firefox after exporting SVG or PNG
+  Reset ho;rizontal scroll of alignments in Firefox when switching alignments
+Fix colour display next to "Choose graph colour" being inaccurate due to disabled state
+Fix exported SVG rendering improperly in Inkscape

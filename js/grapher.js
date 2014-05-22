@@ -48,7 +48,8 @@ Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
    svg.selectAll('.hit')
       .filter(function(hit, index) {
         return index !== hovered_index;
-      }).transition()
+      })
+      .transition()
       .duration(200)
       .style('opacity', opacity);
 }
@@ -193,10 +194,10 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
          subject_x_points.reverse();
 
        var points = [
-         [query_x_points[0],   scales.query.height   + 1],
+         [query_x_points[0],   scales.query.height   + 2],
          [subject_x_points[0], scales.subject.height - 1],
          [subject_x_points[1], scales.subject.height - 1],
-         [query_x_points[1],   scales.query.height   + 1],
+         [query_x_points[1],   scales.query.height   + 2],
        ];
 
        return points.map(function(point) {
@@ -373,7 +374,7 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
 
   // TODO: determine whether to keep below line.
   //$('#results-container').show(); // Hidden by default at app start.
-  $(results_container).children('.row').remove();
+  $(results_container).children().remove();
 
   var iterations = this._results.filtered_iterations;
   iterations.forEach(function(iteration, iteration_idx) {

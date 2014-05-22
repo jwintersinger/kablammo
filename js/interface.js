@@ -1,47 +1,56 @@
 "use strict";
 
-function Interface(grapher) {
+function Interface(grapher, loader) {
   this._grapher = grapher;
+  this._loader = loader;
   this._navbar_elements = $('.navbar .nav li');
   this._configure_nav();
   this._configure_colour_picker();
   this._form = $('#load-results-form');
+  this._local_chooser = $('#local-file-chooser');
   this._server_results_chooser = $('#server-results-chooser');
 
-  this._valid_data_loaded = false;
-  this._local_file_chosen = false;
+  this._is_local_file_chosen = false;
   this._configure_tab_switching();
 
   var self = this;
   $.getJSON('data/blast_results.json', function(data) {
     self._populate_blast_results_chooser(data.blast_results);
   });
+
+  this._configure_file_chooser();
+  this._configure_query_form();
+  this._configure_example_results_display();
 }
 
 Interface.prototype._configure_tab_switching = function() {
   var self = this;
-  $('#control-panel-load [data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    var active_tab = $(e.target).attr('href').substring(1);
-    if(active_tab === 'load-server') {
-      self._set_valid_data_loaded(true);
+  $('#control-panel-load [data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    var active_tab = $(e.target).attr('id');
+
+    if(active_tab === 'load-server-nav') {
+      self._enable_form_submission(true);
     } else {
       // This ensures that if user chooses file, switches to "load server" tab,
       // then switches back to "load local" tab, the button will remain
       // enabled.
-      self._set_valid_data_loaded(self._local_file_chosen);
+      self._enable_form_submission(self._is_local_file_chosen);
     }
   });
 }
 
-Interface.prototype._set_valid_data_loaded = function(valid) {
-  this._valid_data_loaded = valid;
+Interface.prototype._enable_form_submission = function(enable) {
   var submit_control = this._form.find('[type=submit]');
-
-  if(valid) {
+  if(enable) {
     submit_control.removeClass('disabled');
   } else {
     submit_control.addClass('disabled');
   }
+}
+
+Interface.prototype._set_local_file_chosen = function(is_file_chosen) {
+  this._is_local_file_chosen = is_file_chosen;
+  this._enable_form_submission(is_file_chosen);
 }
 
 Interface.prototype._configure_colour_picker = function() {
@@ -93,8 +102,11 @@ Interface.prototype._activate_panel = function(nav_target) {
 
 Interface.prototype._deactivate_active_panel = function() {
   var active_nav = this._navbar_elements.filter('.active');
-  var panel = this._resolve_panel_for_nav(active_nav);
+  // If no navigation active, then no panel should be closed.
+  if(active_nav.length === 0)
+    return;
 
+  var panel = this._resolve_panel_for_nav(active_nav);
   panel.slideUp({
     complete: function() {
       active_nav.removeClass('active');
@@ -134,63 +146,92 @@ Interface.prototype.create_query_header = function(container, label, query_index
   $(container).append(header);
 }
 
-Interface.prototype.configure_query_form = function(on_load_from_server, on_load_local_file) {
-  var local_chooser = $('#local-file-chooser');
+Interface.prototype._configure_file_chooser = function() {
   var self = this;
 
   $('#choose-file').click(function(evt) {
     evt.preventDefault();
-    local_chooser.click();
+    self._local_chooser.click();
   })
 
-  local_chooser.change(function() {
+  self._local_chooser.change(function() {
     var label = $(this).parent().find('.file-label');
-    var file = local_chooser.get(0).files[0];
+    var file = self._local_chooser.get(0).files[0];
 
-    var label_text = file ? file.name : '';
+    if(file) {
+      var label_text = file.name;
+      self._set_local_file_chosen(true);
+    } else {
+      var label_text = '';
+      self._set_local_file_chosen(false);
+    }
+
     // Before setting text, remove any elements contained within.
     label.html('').text(label_text);
-
-    self._local_file_chosen = true;
-    self._set_valid_data_loaded(true);
   });
+}
+
+Interface.prototype._on_load_server = function() {
+  this._deactivate_active_panel();
+
+  var self = this;
+  Interface.show_curtain(function() {
+    var server_results_chooser = $('#server-results-chooser');
+    var blast_results_filename = server_results_chooser.val();
+    self._loader.load_from_server(blast_results_filename, function(results) {
+      self._display_results(results);
+    });
+  });
+}
+
+Interface.prototype._on_load_local = function() {
+  // This ensures that if user submitted form by pressing enter in control
+  // instead of clicking button, further processing will occur only if valid
+  // data has been loaded. (The "Display results" button is enabled/disabled
+  // separately.)
+  if(!this._is_local_file_chosen)
+    return;
+
+  var file = this._local_chooser.get(0).files[0];
+  // User hasn't selected file.
+  if(!file)
+    return;
+
+  this._deactivate_active_panel();
+  var self = this;
+  Interface.show_curtain(function() {
+    self._loader.load_local_file(file, function(results) {
+      self._display_results(results);
+    });
+  });
+}
+
+Interface.prototype._configure_query_form = function() {
+  var self = this;
 
   this._form.submit(function(evt) {
     evt.preventDefault();
 
-    // This ensures that if user submitted form by pressing enter in control
-    // instead of clicking button, further processing will occur only if valid
-    // data has been loaded. (The "Display results" button is enabled/disabled
-    // separately.)
-    if(!self._valid_data_loaded)
-      return;
-
     var active_id = $(this).find('.tab-pane.active').attr('id');
 
     if(active_id === 'load-server') {
-      var server_results_chooser = $('#server-results-chooser');
-      var blast_results_filename = server_results_chooser.val();
-      self._deactivate_active_panel();
-      Interface.show_curtain(function() {
-        on_load_from_server(blast_results_filename);
-      });
-    } else if (active_id === 'load-local') {
-      var file = local_chooser.get(0).files[0];
-      // User hasn't selected file.
-      if(!file)
-        return;
-      self._deactivate_active_panel();
-      Interface.show_curtain(function() {
-        on_load_local_file(file);
-      });
+      self._on_load_server();
+    } else if(active_id === 'load-local') {
+      self._on_load_local();
     } else {
       throw 'Invalid active tab ID: ' + active_id;
     }
   });
 }
 
-Interface.prototype.display_results = function() {
-  this._form.submit();
+Interface.prototype._configure_example_results_display = function() {
+  var self = this;
+  $('#show-example-results').click(function() {
+    // Switch to this tab in the (hidden) navigation, so that if user opens "load
+    // results," the tab corresponding to the displayed results will be shown.
+    $('#load-server-nav').tab('show');
+    self._on_load_server();
+  });
 }
 
 Interface.error = function(msg) {
@@ -209,4 +250,11 @@ Interface.show_curtain = function(on_done) {
 
 Interface.hide_curtain = function(on_done) {
   $('#curtain').fadeOut(500, on_done);
+}
+
+Interface.prototype._display_results = function(results) {
+  this._grapher.display_blast_results(results, '#results-container', this);
+  this.update_results_info(results);
+  Interface.hide_curtain();
+  $('html, body').scrollTop(0);
 }
