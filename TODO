@@ -48,3 +48,7 @@ When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 
 Colour edges of each polygon -- white, but with translucency
 Change terminology: "subject" -> "hit"
 Fix formatting on wide names
+Show more interesting results for example results -- e.g., the 494 Kb Haemonchus results
+Fix counting of number of hits when filtering
+  If multiple hits (e.g., ones from both strands), the number the user enters filters only hits *before* they're split across strands
+    Consequence: the user may ask to show only 30 hits per query, but instead sees 58 -- see test case in test-cases directory
