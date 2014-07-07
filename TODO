@@ -53,4 +53,5 @@ Fix counting of number of hits when filtering
   If multiple hits (e.g., ones from both strands), the number the user enters filters only hits *before* they're split across strands
     Consequence: the user may ask to show only 30 hits per query, but instead sees 58 -- see test case in test-cases directory
   Also, fix sorting -- now, hits to both strands of given subject *always* displayed immediately next to one another, even if hits in one are extremely weeak
+    Make clearer when you're displaying reverse complement of given strand -- now, just looks like separate result
 Prepend hit name to exported filename so that files will sort in same order as graphs were displayed

@@ -172,6 +172,10 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
   // Remove all existing child elements.
   svg.selectAll('*').remove();
 
+  hsps = hsps.filter(function(hsp) {
+    return hsp.bit_score >= 2000;
+  });
+
   // Add polygons.
   svg.selectAll('polygon')
      .data(hsps)
@@ -403,6 +407,13 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
 
     hits.forEach(function(hit) {
       Object.keys(hit.hsps).forEach(function(strand_pair) {
+        var total_hsp_len = hit.hsps[strand_pair].reduce(function(prev, curr) {
+          return prev + curr.alignment_length;
+        }, 0);
+        if(total_hsp_len < iteration.query_length*0.05)
+          return;
+        console.log(total_hsp_len / iteration.query_length);
+
         var subj_header = $('#example-subject-header').clone().removeAttr('id');
         subj_header.find('.subject-name').text(hit.subject_def +
           ' (' + hit.subject_id + ')');
