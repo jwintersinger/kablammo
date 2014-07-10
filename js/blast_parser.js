@@ -1,6 +1,8 @@
 "use strict";
 
-function BlastParser() {
+function BlastParser(use_complement_coords) {
+  this._use_complement_coords = use_complement_coords;
+
   // Specify types of query and subject sequences given in each program.
   //
   // This list is taken from http://en.wikipedia.org/wiki/BLAST#Program. I
@@ -39,7 +41,58 @@ function BlastParser() {
 // the subject's reverse complement, the subject coordinates may be ordered
 // [end, start], depending on which BLAST variant you're using. Here, we
 // correct this inconsistency to simplify downstream use of the parsed data.
-BlastParser.prototype._reorder_hit_positions = function(hsp) {
+//
+// Furthermore, if this._use_complement_coords == true, we recalculate the
+// coordinates for nucleotide sequences that were found on the complement of
+// the original strand used, regardless of whether this corresponds to the
+// subject and/or query sequences. Suppose you're doing a blastn search, such
+// that the query sequence falls on the original strand, but the hit (subject)
+// sequence falls on the complement of a sequence in the DB. To ensure proper
+// visual representation, you have two choices:
+//
+// 1. Retain the hit coordinates reported by BLAST, but swap them if necessary
+//    to ensure start < end. (This makes consumption of the results simpler, as
+//    one can always operate on the assumption start < end. Note also that
+//    while blastn reports coordinates with end < start for complementary
+//    sequences, the same is not true with, for example, blastx, which reports
+//    the query's nucleotide coordinates with start < end even for hits that
+//    lie on the query's complement. Thus, enforcing start < end ensures
+//    consistency for this code's clients.) Render the hit axis with its 5' end
+//    on the right and 3' end on the left.
+//
+// 2. Recalculate the hit coordinates so they refer to positions on the
+//    complement of the subject sequence. (Also perform the swapping so start <
+//    end.) Render the hit axis with its 5' end on the left and 3' end on the
+//    right.
+//
+// The first approach has the advantage that sequenence coordinates are not
+// recalculated relative to those reported by BLAST (and presumably by other
+// tools using its output), so that Kablammo's reported coordinates will be
+// consistent with others'. It also has the advantage that complementary
+// sequences are rendered right-to-left, which is a convention used by BLAST
+// and other software.
+//
+// The second approach, hwoever, is clearer in showing you the alignment's
+// composition. Imagine you have two HSPs -- one in the first half of the
+// query, and one in the second half. Then, both the query and subject axes
+// will run left-to-right for 5' to 3', with the nucleotides represented by the
+// subject axis corresponding exactly to the aligned nucleotides on the query
+// axis.
+//
+// On the whole, consistency with other tools and conventions is more important
+// than clarity, so I prefer option #1. Option #2 is still supported, however,
+// primarily to demonstrate that I've carefully considered this tool's output
+// to ensure its accuracy. (Note the rendered polygons are identical -- both
+// options produce correct visualizations, differing only in whether
+// complementary sequences' coordinates have been recalculated, and the
+// directions of their axes.) If you opt to use option #1 in the scenario
+// above, it helps to imagine an invisible complementary axis floating
+// immediately above the rendered subject axis, with hits going to this axis
+// instead.
+//
+// The above applies to blastx (nculeotide query, protein subject) as well as
+// blastn.
+BlastParser.prototype._correct_hit_positions = function(hsp, frame_key, start_key, end_key, length) {
   // In blastn results, for a given sequence (whether subject or query), if the
   // sequence's reading frame is negative (meaning that the subject or query
   // corresponds to the reverse complement of the actual sequence), then the
@@ -59,15 +112,26 @@ BlastParser.prototype._reorder_hit_positions = function(hsp) {
   // coordinates here to guarantee that start < end. You can then look at
   // hsp.{query,subject}_frame to determine whether the coordinates refer to
   // the original or reverse-complement sequence.
-  if(hsp.query_start > hsp.query_end) {
-    var tmp = hsp.query_start;
-    hsp.query_start = hsp.query_end;
-    hsp.query_end = tmp;
-  }
-  if(hsp.subject_start > hsp.subject_end) {
-    var tmp = hsp.subject_start;
-    hsp.subject_start = hsp.subject_end;
-    hsp.subject_end = tmp;
+
+  if(hsp[frame_key] < 0) {
+    var start = hsp[start_key],
+        end   = hsp[end_key];
+    // Ensure start < end always holds -- swap values if necessary.
+    if(start > end) {
+      var tmp = start;
+      start = end;
+      end = tmp;
+    }
+
+    if(this._use_complement_coords) {
+      // Use complementary coordinates, allowing us to *always* render the
+      // sequence with its 5' end on the left, and 3' end on the right.
+      hsp[end_key]   = length - start + 1;
+      hsp[start_key] = length - end   + 1;
+    } else {
+      hsp[start_key ] = start;
+      hsp[end_key]    = end;
+    }
   }
 }
 
@@ -232,8 +296,14 @@ BlastParser.prototype._parse_iterations = function(doc) {
     if(hits.length === 0)
       return null;
 
+    var query_attribs = {
+      query_id: iteration.find('Iteration_query-ID').text(),
+      query_def: iteration.find('Iteration_query-def').text(),
+      query_length: parseInt(iteration.find('Iteration_query-len').text(), 10)
+    };
+
     // In Chrome, the below function call is inordinately slow.
-    hits = hits.map(function() {
+    query_attribs.hits = hits.map(function() {
       var hit = $(this);
 
       var hit_attribs = {};
@@ -294,7 +364,11 @@ BlastParser.prototype._parse_iterations = function(doc) {
           midline_seq: hsp.find('Hsp_midline').text()
         };
 
-        self._reorder_hit_positions(hsp_attribs);
+        self._correct_hit_positions(hsp_attribs, 'query_frame',
+          'query_start',   'query_end',   query_attribs.query_length);
+        self._correct_hit_positions(hsp_attribs, 'subject_frame',
+          'subject_start', 'subject_end', hit_attribs.subject_length);
+
         return hsp_attribs;
       }).get();
 
@@ -302,13 +376,7 @@ BlastParser.prototype._parse_iterations = function(doc) {
 
       return hit_attribs;
     }).get();
-
-    return {
-      query_id: iteration.find('Iteration_query-ID').text(),
-      query_def: iteration.find('Iteration_query-def').text(),
-      query_length: parseInt(iteration.find('Iteration_query-len').text(), 10),
-      hits: hits,
-    }
+    return query_attribs;
   }).get();
 
   iterations = iterations.filter(function(iteration) {

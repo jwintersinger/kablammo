@@ -1,10 +1,11 @@
 "use strict";
 
-function Grapher(alignment_viewer) {
+function Grapher(alignment_viewer, use_complement_coords) {
   this._graph_colour = { r: 30, g: 139, b: 195 };
   this._matte_colour = { r: 255, g: 255, b: 255 };
   this._min_opacity  = 0.3;
   this._alignment_viewer = alignment_viewer;
+  this._use_complement_coords = use_complement_coords;
 }
 
 Grapher.prototype.get_graph_colour = function() {
@@ -188,11 +189,17 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        // decide on this ordering based on the reading frame, because it
        // determines whether our axis will be reversed or not.
        var query_x_points = [scales.query.scale(hsp.query_start), scales.query.scale(hsp.query_end)];
-       if(hsp.query_frame < 0)
-         query_x_points.reverse();
        var subject_x_points = [scales.subject.scale(hsp.subject_start), scales.subject.scale(hsp.subject_end)];
-       if(hsp.subject_frame < 0)
-         subject_x_points.reverse();
+
+       // Axis will be rendered with 5' end on right and 3' end on left, so we
+       // must reverse the order of vertices for the plygon we will render to
+       // prevent the polygon from "crossing over" itself.
+       if(false && !self._use_complement_coords) {
+         if(hsp.query_frame < 0)
+           query_x_points.reverse();
+         if(hsp.subject_frame < 0)
+           subject_x_points.reverse();
+       }
 
        var points = [
          [query_x_points[0],   scales.query.height   + 2],
@@ -269,10 +276,28 @@ Grapher.prototype._create_scales = function(padding_x, padding_y, canvas_width, 
   var query_range   = [padding_x, canvas_width - padding_x];
   var subject_range = [padding_x, canvas_width - padding_x];
 
-  if(hsps[0].query_frame < 0)
-    query_range.reverse();
-  if(hsps[0].subject_frame < 0)
-    subject_range.reverse();
+  // If we wish to show the HSPs relative to the original (input or DB)
+  // sequence rather than its complement (i.e., use_complement_coords = false),
+  // even when the HSPs lie on the complement, then we must display the axis
+  // with its 5' end on the right and 3' end on the left. In this case, you can
+  // imagine the invisible complementary strand (with its 5' end on left and 3'
+  // end on right) floating above the rendered original strand, with the hits
+  // actually falling on the complementary strand.
+  //
+  // If we show the HSPs relative to the complementary strand (i.e.,
+  // use_complement_coords = true), then we *always* wish to show the axis with
+  // its 5' end on the left and 3' end on the right.
+  //
+  // Regardless of whether this value is true or falase, the rendered polygons
+  // will be precisely the same (meaning down to the pixel -- they will be
+  // *identical*). Only the direction of the axis, and the coordinates of
+  // points falling along it, change.
+  if(!this._use_complement_coords) {
+    if(hsps[0].query_frame < 0)
+      query_range.reverse();
+    if(hsps[0].subject_frame < 0)
+      subject_range.reverse();
+  }
 
   var query_scale = d3.scale.linear()
                          .domain([0, query_length])
