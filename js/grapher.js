@@ -349,7 +349,7 @@ Grapher.prototype._configure_zooming = function(svg, hsps, scales) {
     var evt = d3.event;
     evt.preventDefault();
 
-    var scale_by = 2;
+    var scale_by = 1.4;
     var direction = (evt.deltaY < 0 || evt.wheelDelta > 0) ? 1 : -1;
     if(direction < 0)
       scale_by = 1/scale_by;
