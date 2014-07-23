@@ -55,3 +55,8 @@ Fix counting of number of hits when filtering
   Also, fix sorting -- now, hits to both strands of given subject *always* displayed immediately next to one another, even if hits in one are extremely weeak
     Make clearer when you're displaying reverse complement of given strand -- now, just looks like separate result
 Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
+
+Provide means to filter low-quality HSPs -- e.g., I only want HSPs with e value >= whatever
+  This was useful in filtering the Haemonchus X chr BAC -- want to get rid of lots of tiny hits, to see only best ones
+Implement "choose optimal HSP set" algorithm
+For given set of queries/subjects, generate Circos diagram showing HSPs between them
