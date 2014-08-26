@@ -1,8 +1,6 @@
 "use strict";
 
 function Kablammo() {
-  var self = this;
-
   // When hit is to complement of nucleotide sequence (whether for query or
   // subject), we will show the HSPs relative to the coordinates of the
   // original (i.e., input or DB) sequence if this value is false, or relative

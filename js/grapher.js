@@ -192,9 +192,9 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        var subject_x_points = [scales.subject.scale(hsp.subject_start), scales.subject.scale(hsp.subject_end)];
 
        // Axis will be rendered with 5' end on right and 3' end on left, so we
-       // must reverse the order of vertices for the plygon we will render to
+       // must reverse the order of vertices for the polygon we will render to
        // prevent the polygon from "crossing over" itself.
-       if(false && !self._use_complement_coords) {
+       if(!self._use_complement_coords) {
          if(hsp.query_frame < 0)
            query_x_points.reverse();
          if(hsp.subject_frame < 0)
@@ -228,10 +228,10 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
 
 Grapher.prototype._render_axes = function(svg, scales) {
   var query_axis   = this._create_axis(svg, scales.query.scale,   'top',
-                                       scales.query.height,   'start', '0.8em', '1em',
+                                       scales.query.height,   'start', '9px', '11px',
                                        this._results.query_seq_type);
   var subject_axis = this._create_axis(svg, scales.subject.scale, 'bottom',
-                                       scales.subject.height, 'end',   '-1em',  '-0.4em',
+                                       scales.subject.height, 'end',   '-11px',  '-4px',
                                        this._results.subject_seq_type);
 
   // Create axis labels.
@@ -239,7 +239,7 @@ Grapher.prototype._render_axes = function(svg, scales) {
      .attr('class', 'query axis-label')
      .attr('text-anchor', 'end')
      .attr('x', 0.5*svg.attr('width'))
-     .attr('y', '1.1em')
+     .attr('y', '12px')
      .text('Query');
   svg.append('text')
      .attr('class', 'subject axis-label')
