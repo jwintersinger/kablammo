@@ -13,7 +13,6 @@ Ivan's suggestions:
     Query start/end
     Subject start/end
 
-Produce error on XML file that's not BLAST XML
 Verify that results are valid based on strandedness, etc.
 Add loading animation
 Display scale demonstrating what gradient means
@@ -29,34 +28,37 @@ Enable pinch-to-zoom on touch devices
 ----------------------------
 Before submitting manuscript
 ----------------------------
-Enable result filtering
-  Provide means of filtering by E value
 Improve alignment viewing
   Show summation of alignment instead of simple scrollbar, a la Benchling
   Enable exporting the subject or query sequence corresponding to that portion of the alignment
-Write help section
-  Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
 Fix PNG/SVG export in IE
 Have "tour" on homepage
 Provide script for augmenting JSON file listing XML
   Be sure to lock file when operating
 Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
-Fix page scrolling to top in Firefox after exporting SVG or PNG
-Fix exported SVG rendering improperly in Inkscape
-When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
 Colour edges of each polygon -- white, but with translucency
 Change terminology: "subject" -> "hit"
-Fix formatting on wide names
-Show more interesting results for example results -- e.g., the 494 Kb Haemonchus results
+Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
+
+Provide means to filter low-quality HSPs -- e.g., I only want HSPs with e value >= whatever
+  This was useful in filtering the Haemonchus X chr BAC -- want to get rid of lots of tiny hits, to see only best ones
+For given set of queries/subjects, generate Circos diagram showing HSPs between them
+
 Fix counting of number of hits when filtering
   If multiple hits (e.g., ones from both strands), the number the user enters filters only hits *before* they're split across strands
     Consequence: the user may ask to show only 30 hits per query, but instead sees 58 -- see test case in test-cases directory
   Also, fix sorting -- now, hits to both strands of given subject *always* displayed immediately next to one another, even if hits in one are extremely weeak
     Make clearer when you're displaying reverse complement of given strand -- now, just looks like separate result
-Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
-
-Provide means to filter low-quality HSPs -- e.g., I only want HSPs with e value >= whatever
-  This was useful in filtering the Haemonchus X chr BAC -- want to get rid of lots of tiny hits, to see only best ones
+Enable result filtering
+  Provide means of filtering by E value
+Fix page scrolling to top in Firefox after exporting SVG or PNG
+When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
+Fix formatting on wide names
+Produce error on XML file that's not BLAST XML
+Show tooltips on first load -- "can use mousewheel to scroll!"
+Write help section
+  Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
+Fix exported SVG rendering improperly in Inkscape
+Show more interesting results for example results -- e.g., the 494 Kb Haemonchus results
 Implement "choose optimal HSP set" algorithm
-For given set of queries/subjects, generate Circos diagram showing HSPs between them
