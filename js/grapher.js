@@ -58,9 +58,17 @@ Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
 
 Grapher.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
   text.style('text-anchor', text_anchor)
-      .attr('dx', dx)
-      .attr('dy', dy)
+      .attr('x', dx)
+      .attr('y', dy)
+      // When axis orientation is "bottom", d3 automataically applies a 0.71em
+      // dy offset to labels. As Inkscape does not seem to properly interpret
+      // such values, force them to be zero. When calling this function, then,
+      // you must compensate by adding 0.71em worth of offset to the dy value
+      // you provide.
+      .attr('dx', 0)
+      .attr('dy', 0)
       .attr('transform', 'rotate(-90)');
+
 }
 
 Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy, seq_type) {
@@ -228,10 +236,10 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
 
 Grapher.prototype._render_axes = function(svg, scales) {
   var query_axis   = this._create_axis(svg, scales.query.scale,   'top',
-                                       scales.query.height,   'start', '9px', '11px',
+                                       scales.query.height,   'start', '9px', '2px',
                                        this._results.query_seq_type);
   var subject_axis = this._create_axis(svg, scales.subject.scale, 'bottom',
-                                       scales.subject.height, 'end',   '-11px',  '-4px',
+                                       scales.subject.height, 'end',   '-11px',  '3px',
                                        this._results.subject_seq_type);
 
   // Create axis labels.
