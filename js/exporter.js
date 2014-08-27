@@ -134,11 +134,13 @@ Exporter.prototype._download_file = function(url, filename) {
   return a;
 }
 
-Exporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) {
-  var blob = new Blob([serialized_svg], { type: 'text/xml' });
-  var url = window.URL.createObjectURL(blob);
-  var filename = this._sanitize_filename(filename_prefix) + '.svg';
+Exporter.prototype._download_blob = function(blob, filename) {
+  if(typeof window.navigator.msSaveOrOpenBlob !== 'undefined') {
+    window.navigator.msSaveOrOpenBlob(blob, filename);
+    return;
+  }
 
+  var url = window.URL.createObjectURL(blob);
   var a = this._download_file(url, filename);
   // If URL revoked immediately, download doesn't work.
   setTimeout(function() {
@@ -147,7 +149,25 @@ Exporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) 
   }, 100);
 }
 
+Exporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) {
+  var blob = new Blob([serialized_svg], { type: 'text/xml' });
+  var filename = this._sanitize_filename(filename_prefix) + '.svg';
+  this._download_blob(blob, filename);
+}
+
 Exporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) {
+  // In future, when all browsers support canvas.toBlob() and
+  // canvas.toBlobHD(), we should be able to use it. Currently, however, Chrome
+  // and IE do not support it. Furthermore, IE 11 doesn't support my current
+  // method of exporting PNGs (i.e., using a data URL to download the PNG
+  // representing the rasterized canvas -- IE doesn't support data URLs for
+  // navigation, only for loading assets), so use this hack to detect IE and
+  // display an error.
+  if(typeof window.navigator.msSaveOrOpenBlob !== 'undefined') {
+    alert('Exporting PNG images is not supported in Internet Explorer. Please use Chrome or Firefox.');
+    return;
+  }
+
   var canvas = document.getElementById('png-exporter');
   svg = $(svg);
   var raster_scale_factor = 5;
@@ -160,8 +180,8 @@ Exporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) 
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    var url = canvas.toDataURL('image/png');
     var filename = self._sanitize_filename(filename_prefix) + '.png';
+    var url = canvas.toDataURL('image/png');
     var a = self._download_file(url, filename);
     setTimeout(function() {
       a.remove();
