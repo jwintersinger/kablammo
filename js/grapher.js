@@ -435,24 +435,22 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
     var total_hits = self._count_total_hits(hits);
 
     hits.forEach(function(hit) {
-      Object.keys(hit.hsps).forEach(function(strand_pair) {
-        var subj_header = $('#example-subject-header').clone().removeAttr('id');
-        subj_header.find('.subject-name').text(hit.subject_def +
-          ' (' + hit.subject_id + ')');
-        subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
+      var subj_header = $('#example-subject-header').clone().removeAttr('id');
+      subj_header.find('.subject-name').text(hit.subject_def +
+        ' (' + hit.subject_id + ')');
+      subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
 
-        var subj_result = $('#example-subject-result').clone().removeAttr('id');
-        var svg_container = d3.select(subj_result.find('.subject').get(0));
+      var subj_result = $('#example-subject-result').clone().removeAttr('id');
+      var svg_container = d3.select(subj_result.find('.subject').get(0));
 
-        self._create_graph(
-          iteration.query_length,
-          hit.subject_length,
-          hit.hsps[strand_pair],
-          svg_container
-        );
+      self._create_graph(
+        iteration.query_length,
+        hit.subject_length,
+        hit.hsps,
+        svg_container
+      );
 
-        $(results_container).append(subj_header).append(subj_result);
-      });
+      $(results_container).append(subj_header).append(subj_result);
     });
   });
 }

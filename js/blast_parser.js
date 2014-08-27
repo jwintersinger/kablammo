@@ -135,16 +135,8 @@ BlastParser.prototype._correct_hit_positions = function(hsp, frame_key, start_ke
   }
 }
 
-BlastParser.prototype._collect_all_hsps = function(stranded_hsps) {
-  return Object.keys(stranded_hsps).map(function(strand_pair) {
-    return stranded_hsps[strand_pair];
-  }).reduce(function(accumulated, additional) {
-    return accumulated.concat(additional);
-  });
-}
-
 BlastParser.prototype._find_max_bit_score_for_hit = function(hit) {
-  return d3.max(this._collect_all_hsps(hit.hsps), function(hsp) {
+  return d3.max(hit.hsps, function(hsp) {
     return hsp.bit_score;
   });
 }
@@ -165,7 +157,7 @@ BlastParser.prototype._add_normalized_bit_scores = function(iterations) {
 
   iterations.forEach(function(iteration) {
     iteration.hits.forEach(function(hit) {
-      self._collect_all_hsps(hit.hsps).forEach(function(hsp) {
+      hit.hsps.forEach(function(hsp) {
         hsp.normalized_bit_score = hsp.bit_score / max_global_bit_score;
       });
     });
@@ -192,16 +184,6 @@ BlastParser.prototype._sort_by_score = function(iterations) {
   };
   // Sort hits within each iteration, so that each iteration's first hit will
   // be the one with the highest-scoring HSP.
-  //
-  // Note that strand pairs *aren't* sorted such that strand pair containing
-  // highest-scoring hit will come first. As strand pair information is most
-  // logically represented through a dictionary, I elected to use this data
-  // structure at the cost of being able to sort the stranded sets of HSPs
-  // corresponding to a single hit on a subject sequence. In practice, since
-  // multiple groups of HSPs with different strandedness are rare for a given
-  // hit, this does not substantially inconvenience the user. Even in cases
-  // when it does occur, it simply means that two or three successive graphs
-  // may not be displayed in the proper order.
   iterations.forEach(_sort_hits);
 
   // Sort iterations by hit scores (so that first iteration has highest-scoring
@@ -216,6 +198,7 @@ BlastParser.prototype._sort_by_score = function(iterations) {
 }
 
 BlastParser.prototype._filter_blast_iterations = function(iterations) {
+  // TODO: eliminate dependence on DOM. Pass filter values as parameters.
   var query_filter = $('#query-filter').val().toLowerCase();
   var subject_filter = $('#subject-filter').val().toLowerCase();
 
@@ -245,6 +228,7 @@ BlastParser.prototype._filter_blast_iterations = function(iterations) {
 }
 
 BlastParser.prototype._slice_blast_iterations = function(iterations) {
+  // TODO: eliminate dependence on DOM. Pass filter values as parameters.
   var max_query_seqs = parseInt($('#max-query-seqs').val(), 10);
   var max_hits_per_query_seq = parseInt($('#max-hits-per-query-seq').val(), 10);
 
@@ -282,6 +266,84 @@ BlastParser.prototype._segregate_hsps_by_strand = function(hsps) {
   return segregated;
 }
 
+BlastParser.prototype._parse_hsp = function(hsp, query_length, subject_length) {
+  hsp = $(hsp);
+
+  // Possible values for query_frame and subject frame:
+  //   (See ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+  //   for details. Code snippets from this file are included below.)
+  //
+  //   frame ε {1, 2, 3}: hit lies on original query or subject strand.
+  //     frame = (start - 1) % 3 + 1; // Using 1-offset coordinates
+  //   frame ε {-1, -2, -3}: hit lies on reverse complement of original query or subject strand
+  //     frame = -((seq_length - end) % 3 + 1);
+  //   frame = 0: corresponding sequence was composed of amino acids, not nucleic acids
+  //
+  // Suppose your query or subject (or both) is a nucleic acid sequence.
+  // If your search translates the NA seq to an AA seq, the corresponding
+  // frame value may be one of {1, 2, 3} or {-1, -2, -3}. If, however, no
+  // translation occurred, frame will *always* be 1 or -1 -- i.e., its
+  // value indicates only strandedness, not a reading frame as such. To
+  // see how this occurs, search
+  // ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+  // for "kTranslated".
+  //
+  // Examples: I haven't verified what follows, but I believe it is correct.
+  // BLAST type reference: http://www.bios.niu.edu/johns/bioinform/blast_info.htm
+  //   blastn:
+  //     Query frame:   1 or -1
+  //     Subject frame: 1 or -1
+  //   blastp:
+  //     Query frame:   0
+  //     Subject frame: 0
+  //   blastx:
+  //     Query frame:   {-3, -2, -1, 1, 2, 3}
+  //     Subject frame: 0
+  //   tblastn:
+  //     Query frame:   0
+  //     Subject frame: {-3, -2, -1, 1, 2, 3}
+  //   tblastx:
+  //     Query frame:   {-3, -2, -1, 1, 2, 3}
+  //     Subject frame: {-3, -2, -1, 1, 2, 3}
+  var hsp_attribs = {
+    query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
+    query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
+    query_frame: parseInt(hsp.find('Hsp_query-frame').text(), 10),
+    subject_start: parseInt(hsp.find('Hsp_hit-from').text(), 10),
+    subject_end: parseInt(hsp.find('Hsp_hit-to').text(), 10),
+    subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
+    alignment_length: parseInt(hsp.find('Hsp_align-len').text(), 10),
+    bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
+    evalue: parseFloat(hsp.find('Hsp_evalue').text()),
+    query_seq: hsp.find('Hsp_qseq').text(),
+    subject_seq: hsp.find('Hsp_hseq').text(),
+    midline_seq: hsp.find('Hsp_midline').text()
+  };
+
+  this._correct_hit_positions(hsp_attribs, 'query_frame',
+    'query_start', 'query_end', query_length);
+  this._correct_hit_positions(hsp_attribs, 'subject_frame',
+    'subject_start', 'subject_end', subject_length);
+
+  return hsp_attribs;
+}
+
+BlastParser.prototype._parse_hit = function(hit, query_length) {
+  var self = this;
+  var hit = $(hit);
+
+  var hit_attribs = {};
+  hit_attribs.subject_id = hit.children('Hit_id').text();
+  hit_attribs.subject_def = hit.children('Hit_def').text();
+  hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
+  var unsegregated_hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
+    return self._parse_hsp(this, query_length, hit_attribs.subject_length);
+  }).get();
+
+  hit_attribs.hsps = self._segregate_hsps_by_strand(unsegregated_hsps);
+  return hit_attribs;
+}
+
 BlastParser.prototype._parse_iterations = function(doc) {
   var self = this;
 
@@ -304,88 +366,57 @@ BlastParser.prototype._parse_iterations = function(doc) {
 
     // In Chrome, the below function call is inordinately slow.
     query_attribs.hits = hits.map(function() {
-      var hit = $(this);
-
-      var hit_attribs = {};
-      hit_attribs.subject_id = hit.children('Hit_id').text();
-      hit_attribs.subject_def = hit.children('Hit_def').text();
-      hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
-      var unsegregated_hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
-        var hsp = $(this);
-
-        // Possible values for query_frame and subject frame:
-        //   (See ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
-        //   for details. Code snippets from this file are included below.)
-        //
-        //   frame ε {1, 2, 3}: hit lies on original query or subject strand.
-        //     frame = (start - 1) % 3 + 1; // Using 1-offset coordinates
-        //   frame ε {-1, -2, -3}: hit lies on reverse complement of original query or subject strand
-        //     frame = -((seq_length - end) % 3 + 1);
-        //   frame = 0: corresponding sequence was composed of amino acids, not nucleic acids
-        //
-        // Suppose your query or subject (or both) is a nucleic acid sequence.
-        // If your search translates the NA seq to an AA seq, the corresponding
-        // frame value may be one of {1, 2, 3} or {-1, -2, -3}. If, however, no
-        // translation occurred, frame will *always* be 1 or -1 -- i.e., its
-        // value indicates only strandedness, not a reading frame as such. To
-        // see how this occurs, search
-        // ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
-        // for "kTranslated".
-        //
-        // Examples: I haven't verified what follows, but I believe it is correct.
-        // BLAST type reference: http://www.bios.niu.edu/johns/bioinform/blast_info.htm
-        //   blastn:
-        //     Query frame:   1 or -1
-        //     Subject frame: 1 or -1
-        //   blastp:
-        //     Query frame:   0
-        //     Subject frame: 0
-        //   blastx:
-        //     Query frame:   {-3, -2, -1, 1, 2, 3}
-        //     Subject frame: 0
-        //   tblastn:
-        //     Query frame:   0
-        //     Subject frame: {-3, -2, -1, 1, 2, 3}
-        //   tblastx:
-        //     Query frame:   {-3, -2, -1, 1, 2, 3}
-        //     Subject frame: {-3, -2, -1, 1, 2, 3}
-        var hsp_attribs = {
-          query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
-          query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
-          query_frame: parseInt(hsp.find('Hsp_query-frame').text(), 10),
-          subject_start: parseInt(hsp.find('Hsp_hit-from').text(), 10),
-          subject_end: parseInt(hsp.find('Hsp_hit-to').text(), 10),
-          subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
-          alignment_length: parseInt(hsp.find('Hsp_align-len').text(), 10),
-          bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
-          evalue: parseFloat(hsp.find('Hsp_evalue').text()),
-          query_seq: hsp.find('Hsp_qseq').text(),
-          subject_seq: hsp.find('Hsp_hseq').text(),
-          midline_seq: hsp.find('Hsp_midline').text()
-        };
-
-        self._correct_hit_positions(hsp_attribs, 'query_frame',
-          'query_start',   'query_end',   query_attribs.query_length);
-        self._correct_hit_positions(hsp_attribs, 'subject_frame',
-          'subject_start', 'subject_end', hit_attribs.subject_length);
-
-        return hsp_attribs;
-      }).get();
-
-      hit_attribs.hsps = self._segregate_hsps_by_strand(unsegregated_hsps);
-
-      return hit_attribs;
+      return self._parse_hit(this, query_attribs.query_length);
     }).get();
     return query_attribs;
   }).get();
 
   iterations = iterations.filter(function(iteration) {
+    if(iteration === null) console.log('Null iteration -- why?');
     return iteration !== null;
   });
 
+  iterations = this._flatten(iterations);
   this._sort_by_score(iterations);
   this._add_normalized_bit_scores(iterations);
 
+  return iterations;
+}
+
+// Change representation of results from
+//   Iterations (Queries) -> Subjects -> Strand pairs (++, +-, -+, --) -> Individual HSPs
+// to
+//   Iterations (Queries) -> Subjects ->  Individual HSPs.
+//
+// In the new format, there will be a separate Subject object for each strand
+// pair (i.e., a given subject is represented once for each combination of
+// query & subject strands). This format is best for downstream uses -- the
+// graphing code needs HSPs separated by strand, as HSPs for a query/subject
+// pair but on different combinations of query/subject strands should not be
+// rendered on the same graph. This way, the graphing code can treat each such
+// query/subject strand combination as a distinct subject. This ensures, for
+// example, that the sorting routines in this class work without having to
+// consider strandedness.
+BlastParser.prototype._flatten = function(iterations) {
+  iterations = iterations.map(function(iteration) {
+    var hits = iteration.hits.map(function(hit) {
+      var collected = [];
+      Object.keys(hit.hsps).forEach(function(strand_pair) {
+        var hsps = hit.hsps[strand_pair];
+        var cloned_hit = $.extend({}, hit);
+        cloned_hit.query_strand = strand_pair[0];
+        cloned_hit.subject_strand = strand_pair[1];
+        cloned_hit.hsps = hsps;
+        collected.push(cloned_hit);
+      });
+      return collected;
+    });
+
+    var flattened_hits = [];
+    flattened_hits = flattened_hits.concat.apply(flattened_hits, hits);
+    iteration.hits = flattened_hits;
+    return iteration;
+  });
   return iterations;
 }
 
