@@ -8,6 +8,7 @@ function Exporter(container_selector, export_svg_selector, export_png_selector) 
 
       var subject_label = $(this).parents('.row').prev().find('.subject-name').text();
       export_callback.call(self, svg, serialized, subject_label);
+      return false;
     };
   };
 
