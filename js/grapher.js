@@ -399,15 +399,6 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   this._configure_zooming(svg, hsps, scales);
 }
 
-Grapher.prototype._count_total_hits = function(hits) {
-  var num_strand_pairs = hits.map(function(hit) {
-    return Object.keys(hit.hsps).length;
-  });
-  return num_strand_pairs.reduce(function(a, b) {
-    return a + b;
-  });
-}
-
 Grapher.prototype.display_blast_results = function(results, results_container, iface) {
   var self = this;
   this._results = results;
@@ -417,6 +408,9 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
   $(results_container).children().remove();
 
   var iterations = this._results.filtered_iterations;
+  var num_filtered_iterations = iterations.length;
+  var num_total_iterations = self._results.iterations.length;
+
   iterations.forEach(function(iteration, iteration_idx) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
@@ -428,17 +422,24 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
       results_container,
       iteration.query_def,
       iteration_idx + 1,
-      iterations.length
+      num_filtered_iterations,
+      num_total_iterations
     );
 
     var hit_idx = 1;
-    var total_hits = self._count_total_hits(hits);
+    var num_filtered_hits = hits.length;
+    var num_total_hits = iteration.hits.length;
+    var num_hidden_hits = num_total_hits - num_filtered_hits;
 
     hits.forEach(function(hit) {
       var subj_header = $('#example-subject-header').clone().removeAttr('id');
       subj_header.find('.subject-name').text(hit.subject_def +
         ' (' + hit.subject_id + ')');
-      subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
+      var subject_label = 'Subject ' + hit_idx++ + ' of ' + hits.length;
+      if(num_hidden_hits > 0) {
+        subject_label += ' (' + num_hidden_hits + ' hidden)';
+      }
+      subj_header.find('.subject-index').text(subject_label);
 
       var subj_result = $('#example-subject-result').clone().removeAttr('id');
       var svg_container = d3.select(subj_result.find('.subject').get(0));
