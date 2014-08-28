@@ -113,16 +113,16 @@
                       Show only hits whose E value is at most
                       <div class="input-group">
                         <span class="input-group-addon">1e</span>
-                        <input id="evalue-threshold" class="form-control" type="number" value="10" />
+                        <input id="evalue-threshold" class="form-control" type="number" step="any" value="10" />
                       </div>
                     </div>
                   </p>
-                  <p>Show only hits whose bit score is at least <input id="bitscore-threshold" class="form-control" type="number" min="0" value="0" /></p>
+                  <p>Show only hits whose bit score is at least <input id="bitscore-threshold" class="form-control" type="number" step="any" min="0" value="0" /></p>
                   <p>
                     <div class="form-group">
                       Show only hits covering at least
                       <div class="input-group">
-                        <input id="hsp-coverage-threshold" class="form-control" type="number" value="0" min="0" max="100" />
+                        <input id="hsp-coverage-threshold" class="form-control" type="number" step="any" value="0" min="0" max="100" />
                         <span class="input-group-addon">%</span>
                       </div>
                       of their queries

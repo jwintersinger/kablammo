@@ -198,9 +198,9 @@ BlastParser.prototype._sort_by_score = function(iterations) {
 }
 
 BlastParser.prototype._filter_by_thresholds = function(iterations) {
-  var evalue_threshold = parseInt($('#evalue-threshold').val(), 10);
-  var bitscore_threshold = parseInt($('#bitscore-threshold').val(), 10);
-  var coverage_threshold = parseInt($('#hsp-coverage-threshold').val(), 10) / 100;
+  var evalue_threshold = parseFloat($('#evalue-threshold').val());
+  var bitscore_threshold = parseFloat($('#bitscore-threshold').val());
+  var coverage_threshold = parseFloat($('#hsp-coverage-threshold').val()) / 100;
 
   iterations = iterations.filter(function(iteration) {
     var query_length = iteration.query_length;
@@ -397,7 +397,9 @@ BlastParser.prototype._parse_iterations = function(doc) {
   // Remove any iterations that lack hits, as per above map() call. This means
   // that all iterations present in result set will have at least one hit, each
   // of which will have at least one HSP (or BLAST would not have included the
-  // hit in the result set).
+  // hit in the result set). Any filtering that occurs in slice_and_dice() is
+  // then independent of this -- even if you don't call slice_and_dice(), you
+  // are thus guaranteed that all iterations have at least one hit.
   iterations = iterations.filter(function(iteration) {
     return iteration !== null;
   });
