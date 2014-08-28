@@ -100,7 +100,8 @@ Interface.prototype._activate_panel = function(nav_target) {
   this._navbar_elements.removeClass('active');
 
   nav_target.addClass('active');
-  this._resolve_panel_for_nav(nav_target).slideDown();
+  var panel = this._resolve_panel_for_nav(nav_target);
+  panel.slideDown();
 }
 
 Interface.prototype._deactivate_active_panel = function() {
@@ -110,6 +111,13 @@ Interface.prototype._deactivate_active_panel = function() {
     return;
 
   var panel = this._resolve_panel_for_nav(active_nav);
+  // If user has scrolled within panel because it isn't fully visible given
+  // his viewport height, scroll back to top. Though the display "content"
+  // before sliding up, this is better than calling scrollTop(0) when the
+  // panel appears, since the user is less likely to be watching the panel
+  // closely after dismissing it. Curiously, calling it after the panel has
+  // already slid up does not work.
+  panel.scrollTop(0);
   panel.slideUp({
     complete: function() {
       active_nav.removeClass('active');

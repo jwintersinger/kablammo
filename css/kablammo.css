@@ -127,6 +127,8 @@ a {
   left: 0;
   z-index: 9999;
   position: fixed;
+  overflow-y: auto;
+  max-height: calc(100vh - 92px);
   display: none;
   border-bottom: 1px solid #999;
 }
@@ -153,6 +155,7 @@ a {
 #display-results-container {
   text-align: center;
   margin-top: 30px;
+  margin-bottom: 30px;
 }
 
 #curtain {
@@ -218,6 +221,7 @@ a {
 
 #show-example-results {
   margin-top: 25px;
+  margin-bottom: 30px;
 }
 
 #alignment-viewer pre {
