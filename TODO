@@ -28,16 +28,11 @@ Enable pinch-to-zoom on touch devices
 ----------------------------
 Before submitting manuscript
 ----------------------------
-Provide means to filter low-quality HSPs -- e.g., I only want HSPs with e value >= whatever
-  This was useful in filtering the Haemonchus X chr BAC -- want to get rid of lots of tiny hits, to see only best ones
-Enable result filtering
-  Provide means of filtering by E value, fraction of query length
 Change terminology: "subject" -> "hit"
 Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
 Add option to display sequence names in place of generic "Query"/"Subject" labels on graph
 
 When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
-Fix formatting on wide names
 Move count of "hidden" queries/subjects from headers to better place in interface
 Produce error on XML file that's not BLAST XML
 Show tooltips on first load -- "can use mousewheel to scroll!"
