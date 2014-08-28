@@ -197,7 +197,31 @@ BlastParser.prototype._sort_by_score = function(iterations) {
   });
 }
 
-BlastParser.prototype._filter_blast_iterations = function(iterations) {
+BlastParser.prototype._filter_by_thresholds = function(iterations) {
+  var evalue_threshold = parseInt($('#evalue-threshold').val(), 10);
+  var bitscore_threshold = parseInt($('#bitscore-threshold').val(), 10);
+  var coverage_threshold = parseInt($('#hsp-coverage-threshold').val(), 10) / 100;
+
+  iterations = iterations.filter(function(iteration) {
+    var query_length = iteration.query_length;
+
+    iteration.filtered_hits = iteration.filtered_hits.filter(function(hit) {
+      hit.filtered_hsps = hit.hsps.filter(function(hsp) {
+        var coverage = (hsp.query_end - hsp.query_start + 1) / query_length;
+        return hsp.evalue <= evalue_threshold &&
+          hsp.bit_score >= bitscore_threshold &&
+          coverage >= coverage_threshold;
+      });
+      // Exclude hits without any HSPs that pass filter.
+      return hit.filtered_hsps.length > 0;
+    });
+    return iteration.filtered_hits.length > 0;
+  });
+
+  return iterations;
+}
+
+BlastParser.prototype._filter_by_names = function(iterations) {
   // TODO: eliminate dependence on DOM. Pass filter values as parameters.
   var query_filter = $('#query-filter').val().toLowerCase();
   var subject_filter = $('#subject-filter').val().toLowerCase();
@@ -230,7 +254,7 @@ BlastParser.prototype._filter_blast_iterations = function(iterations) {
 BlastParser.prototype._slice_blast_iterations = function(iterations) {
   // TODO: eliminate dependence on DOM. Pass filter values as parameters.
   var max_query_seqs = parseInt($('#max-query-seqs').val(), 10);
-  var max_hits_per_query_seq = parseInt($('#max-hits-per-query-seq').val(), 10);
+  var max_hits_per_query_seq = parseInt($('#max-subjects-per-query-seq').val(), 10);
 
   var sliced_iterations = iterations.slice(0, max_query_seqs);
   sliced_iterations.forEach(function(iteration) {
@@ -370,9 +394,11 @@ BlastParser.prototype._parse_iterations = function(doc) {
     }).get();
     return query_attribs;
   }).get();
-
+  // Remove any iterations that lack hits, as per above map() call. This means
+  // that all iterations present in result set will have at least one hit, each
+  // of which will have at least one HSP (or BLAST would not have included the
+  // hit in the result set).
   iterations = iterations.filter(function(iteration) {
-    if(iteration === null) console.log('Null iteration -- why?');
     return iteration !== null;
   });
 
@@ -454,7 +480,9 @@ BlastParser.prototype.slice_and_dice = function(blast_results) {
   blast_results.hits_count = _calc_num_hits(iterations);
 
   // Filter iterations and hits.
-  iterations = this._filter_blast_iterations(iterations);
+  iterations = this._filter_by_names(iterations);
+  iterations = this._filter_by_thresholds(iterations);
+
   // Store filtered_iterations_count, as next step slices the variable
   // iterations, meaning the number of filtered iterations pre-slicing will
   // be lost.

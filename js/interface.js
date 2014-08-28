@@ -139,7 +139,7 @@ Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
   });
 }
 
-Interface.prototype.create_query_header = function(container, label, query_index, num_filtered_queries, num_total_queries) {
+Interface.prototype.create_query_header = function(container, label, query_index, num_filtered_queries, num_hidden_queries) {
   // Don't show label if no valid one present.
   if(label === 'No definition line')
     label = '';
@@ -147,7 +147,6 @@ Interface.prototype.create_query_header = function(container, label, query_index
   header.find('.query-name').text(label);
 
   var count_label = 'Query ' + query_index + ' of ' + num_filtered_queries;
-  var num_hidden_queries = num_total_queries - num_filtered_queries;
   if(num_hidden_queries > 0) {
     count_label += ' (' + num_hidden_queries + ' hidden)';
   }

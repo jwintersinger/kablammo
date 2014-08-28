@@ -10,7 +10,7 @@
 
     <title>Kablammo</title>
 
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet" href="css/ext/colpick.css">
 
@@ -70,7 +70,7 @@
         -->
 
         <div class="control-panel col-sm-12" id="control-panel-load">
-          <form id="load-results-form">
+          <form id="load-results-form" class="form-inline">
             <div class="row">
               <div class="col-sm-6">
                 <ul class="nav nav-tabs">
@@ -105,14 +105,33 @@
 
                 <div class="tab-pane">
                   <p>Show up to <input id="max-query-seqs" class="form-control" type="number" min="1" value="10" /> query sequences</p>
-                  <p>Show up to <input id="max-hits-per-query-seq" class="form-control" type="number" min="1" value="5" /> hits per query</p>
+                  <p>Show up to <input id="max-subjects-per-query-seq" class="form-control" type="number" min="1" value="5" /> subjects per query</p>
                   <p>Show only queries with <input id="query-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
                   <p>Show only subjects with <input id="subject-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
+                  <p>
+                    <div class="form-group">
+                      Show only hits whose E value is at most
+                      <div class="input-group">
+                        <span class="input-group-addon">1e</span>
+                        <input id="evalue-threshold" class="form-control" type="number" value="10" />
+                      </div>
+                    </div>
+                  </p>
+                  <p>Show only hits whose bit score is at least <input id="bitscore-threshold" class="form-control" type="number" min="0" value="0" /></p>
+                  <p>
+                    <div class="form-group">
+                      Show only hits covering at least
+                      <div class="input-group">
+                        <input id="hsp-coverage-threshold" class="form-control" type="number" value="0" min="0" max="100" />
+                        <span class="input-group-addon">%</span>
+                      </div>
+                      of their queries
+                    </div>
+                  </p>
                   <div class="input-group-btn">
                     <a id="graph-colour-example" class="btn btn-default" role="button">&nbsp;&nbsp;&nbsp;</a>
                     <a id="choose-graph-colour" class="btn btn-default" role="button">Choose graph colour</a>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -235,8 +254,8 @@
 
       <div id="example-error" class="alert alert-danger fade in">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <strong>Error:</strong>
-        <span class="message">This is an example error.</span>
+        <h4>Error</h4>
+        <p class="message">This is an example error.</p>
       </div>
     </div>
 
@@ -247,7 +266,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/ext/colpick.js"></script>
 
     <script type="text/javascript" src="js/grapher.js"></script>
