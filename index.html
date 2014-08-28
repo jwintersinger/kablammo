@@ -10,9 +10,9 @@
 
     <title>Kablammo</title>
 
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
-    <link rel="stylesheet" href="css/colpick.css">
+    <link rel="stylesheet" href="css/ext/colpick.css">
 
     <link rel="stylesheet" href="css/kablammo.css">
     <!-- svg-css class indicates that this stylesheet should have its rules included in exported SVGs. -->
@@ -41,7 +41,6 @@
 
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li class="disabled-nav"><a href="#filter"><span class="glyphicon glyphicon-filter"></span> Filter results</a></li>
             <li><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
             <li><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
           </ul>
@@ -51,24 +50,8 @@
 
     <div class="container-fluid" id="control-panels">
       <div class="row">
-        <div class="control-panel col-sm-12" id="control-panel-filter">
-          <div class="control-group">
-            <label class="control-label" for="query-filter">Query filter:</label>
-            <div class="controls">
-              <input id="query-filter" type="text" placeholder="chr..." />
-            </div>
-          </div>
-
-          <div class="control-group">
-            <label class="control-label" for="subject-filter">Subject filter:</label>
-            <div class="controls">
-              <input id="subject-filter" type="text" placeholder="Toxoplasma..." />
-            </div>
-          </div>
-        </div>
-
         <div class="control-panel col-sm-12" id="control-panel-load">
-          <form id="load-results-form">
+          <form id="load-results-form" class="form-inline">
             <div class="row">
               <div class="col-sm-6">
                 <ul class="nav nav-tabs">
@@ -103,7 +86,29 @@
 
                 <div class="tab-pane">
                   <p>Show up to <input id="max-query-seqs" class="form-control" type="number" min="1" value="10" /> query sequences</p>
-                  <p>Show up to <input id="max-hits-per-query-seq" class="form-control" type="number" min="1" value="5" /> hits per query</p>
+                  <p>Show up to <input id="max-subjects-per-query-seq" class="form-control" type="number" min="1" value="5" /> subjects per query</p>
+                  <p>Show only queries with <input id="query-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
+                  <p>Show only subjects with <input id="subject-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
+                  <p>
+                    <div class="form-group">
+                      Show only hits whose E value is at most
+                      <div class="input-group">
+                        <span class="input-group-addon">1e</span>
+                        <input id="evalue-threshold" class="form-control" type="number" step="any" value="10" />
+                      </div>
+                    </div>
+                  </p>
+                  <p>Show only hits whose bit score is at least <input id="bitscore-threshold" class="form-control" type="number" step="any" min="0" value="0" /></p>
+                  <p>
+                    <div class="form-group">
+                      Show only hits covering at least
+                      <div class="input-group">
+                        <input id="hsp-coverage-threshold" class="form-control" type="number" step="any" value="0" min="0" max="100" />
+                        <span class="input-group-addon">%</span>
+                      </div>
+                      of their queries
+                    </div>
+                  </p>
                   <div class="input-group-btn">
                     <a id="graph-colour-example" class="btn btn-default" role="button">&nbsp;&nbsp;&nbsp;</a>
                     <a id="choose-graph-colour" class="btn btn-default" role="button">Choose graph colour</a>
@@ -165,22 +170,18 @@
     </div>
 
     <div id="snippets">
-      <div class="row" id="example-query-header">
-        <div class="query-header col-sm-12">
-          <h2 class="query-index">Query 1 of 34</h2>
-          <span class="query-name">gi|414084|emb|X75453.1| T.gondii (strain P) rDNA for 17s,5.8s,26s,and 5s ribosomal RNA</span>
-        </div>
+      <div class="query-header row" id="example-query-header">
+        <div class="query-index">Query 1 of 4</div><div
+          class="query-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</div>
       </div>
 
-      <div class="row" id="example-subject-header">
-        <div class="subject-header col-sm-11 col-sm-offset-1">
-          <h3 class="subject-index">Subject 1 of 4</h3>
-          <span class="subject-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</span>
-        </div>
+      <div class="subject-header row" id="example-subject-header">
+        <div class="subject-index">Subject 1 of 4</div><div
+          class="subject-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</div>
       </div>
 
       <div class="row" id="example-subject-result">
-        <div class="subject col-sm-11 col-sm-offset-1">
+        <div class="subject">
           <!-- SVG inserted here via prepend(). -->
 
           <div class="subject-info">
@@ -195,7 +196,6 @@
                   <li><a href="#" class="export-to-png">Export to PNG</a></li>
                 </ul>
               </div>
-              <button type="button" class="btn btn-default">View alignment</button>
             </div>
 
             <ul class="subject-params">
@@ -208,12 +208,31 @@
             </ul>
           </div>
         </div>
+
+        <div class="modal fade" id="alignment-viewer" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Alignment viewer</h4>
+              </div>
+              <div class="modal-body">
+                <pre><div class="query-seq"></div><div
+                          class="midline-seq"></div><div
+                          class="subject-seq"></div></pre>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="example-error" class="alert alert-danger fade in">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <strong>Error:</strong>
-        <span class="message">This is an example error.</span>
+        <h4>Error</h4>
+        <p class="message">This is an example error.</p>
       </div>
     </div>
 
@@ -224,14 +243,15 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/colpick.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/ext/colpick.js"></script>
 
     <script type="text/javascript" src="js/grapher.js"></script>
     <script type="text/javascript" src="js/blast_parser.js"></script>
     <script type="text/javascript" src="js/blast_results_loader.js"></script>
     <script type="text/javascript" src="js/interface.js"></script>
     <script type="text/javascript" src="js/exporter.js"></script>
+    <script type="text/javascript" src="js/alignment_viewer.js"></script>
     <script type="text/javascript" src="js/kablammo.js"></script>
   </body>
 </html>

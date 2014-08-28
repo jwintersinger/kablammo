@@ -1,6 +1,8 @@
 "use strict";
 
-function BlastParser() {
+function BlastParser(use_complement_coords) {
+  this._use_complement_coords = use_complement_coords;
+
   // Specify types of query and subject sequences given in each program.
   //
   // This list is taken from http://en.wikipedia.org/wiki/BLAST#Program. I
@@ -39,7 +41,58 @@ function BlastParser() {
 // the subject's reverse complement, the subject coordinates may be ordered
 // [end, start], depending on which BLAST variant you're using. Here, we
 // correct this inconsistency to simplify downstream use of the parsed data.
-BlastParser.prototype._reorder_hit_positions = function(hsp) {
+//
+// Furthermore, if this._use_complement_coords == true, we recalculate the
+// coordinates for nucleotide sequences that were found on the complement of
+// the original strand used, regardless of whether this corresponds to the
+// subject and/or query sequences. Suppose you're doing a blastn search, such
+// that the query sequence falls on the original strand, but the hit (subject)
+// sequence falls on the complement of a sequence in the DB. To ensure proper
+// visual representation, you have two choices:
+//
+// 1. Retain the hit coordinates reported by BLAST, but swap them if necessary
+//    to ensure start < end. (This makes consumption of the results simpler, as
+//    one can always operate on the assumption start < end. Note also that
+//    while blastn reports coordinates with end < start for complementary
+//    sequences, the same is not true with, for example, blastx, which reports
+//    the query's nucleotide coordinates with start < end even for hits that
+//    lie on the query's complement. Thus, enforcing start < end ensures
+//    consistency for this code's clients.) Render the hit axis with its 5' end
+//    on the right and 3' end on the left.
+//
+// 2. Recalculate the hit coordinates so they refer to positions on the
+//    complement of the subject sequence. (Also perform the swapping so start <
+//    end.) Render the hit axis with its 5' end on the left and 3' end on the
+//    right.
+//
+// The first approach has the advantage that sequenence coordinates are not
+// recalculated relative to those reported by BLAST (and presumably by other
+// tools using its output), so that Kablammo's reported coordinates will be
+// consistent with others'. It also has the advantage that complementary
+// sequences are rendered right-to-left, which is a convention used by BLAST
+// and other software.
+//
+// The second approach, hwoever, is clearer in showing you the alignment's
+// composition. Imagine you have two HSPs -- one in the first half of the
+// query, and one in the second half. Then, both the query and subject axes
+// will run left-to-right for 5' to 3', with the nucleotides represented by the
+// subject axis corresponding exactly to the aligned nucleotides on the query
+// axis.
+//
+// On the whole, consistency with other tools and conventions is more important
+// than clarity, so I prefer option #1. Option #2 is still supported, however,
+// primarily to demonstrate that I've carefully considered this tool's output
+// to ensure its accuracy. (Note the rendered polygons are identical -- both
+// options produce correct visualizations, differing only in whether
+// complementary sequences' coordinates have been recalculated, and the
+// directions of their axes.) If you opt to use option #1 in the scenario
+// above, it helps to imagine an invisible complementary axis floating
+// immediately above the rendered subject axis, with hits going to this axis
+// instead.
+//
+// The above applies to blastx (nculeotide query, protein subject) as well as
+// blastn.
+BlastParser.prototype._correct_hit_positions = function(hsp, frame_key, start_key, end_key, length) {
   // In blastn results, for a given sequence (whether subject or query), if the
   // sequence's reading frame is negative (meaning that the subject or query
   // corresponds to the reverse complement of the actual sequence), then the
@@ -59,28 +112,31 @@ BlastParser.prototype._reorder_hit_positions = function(hsp) {
   // coordinates here to guarantee that start < end. You can then look at
   // hsp.{query,subject}_frame to determine whether the coordinates refer to
   // the original or reverse-complement sequence.
-  if(hsp.query_start > hsp.query_end) {
-    var tmp = hsp.query_start;
-    hsp.query_start = hsp.query_end;
-    hsp.query_end = tmp;
-  }
-  if(hsp.subject_start > hsp.subject_end) {
-    var tmp = hsp.subject_start;
-    hsp.subject_start = hsp.subject_end;
-    hsp.subject_end = tmp;
-  }
-}
 
-BlastParser.prototype._collect_all_hsps = function(stranded_hsps) {
-  return Object.keys(stranded_hsps).map(function(strand_pair) {
-    return stranded_hsps[strand_pair];
-  }).reduce(function(accumulated, additional) {
-    return accumulated.concat(additional);
-  });
+  if(hsp[frame_key] < 0) {
+    var start = hsp[start_key],
+        end   = hsp[end_key];
+    // Ensure start < end always holds -- swap values if necessary.
+    if(start > end) {
+      var tmp = start;
+      start = end;
+      end = tmp;
+    }
+
+    if(this._use_complement_coords) {
+      // Use complementary coordinates, allowing us to *always* render the
+      // sequence with its 5' end on the left, and 3' end on the right.
+      hsp[end_key]   = length - start + 1;
+      hsp[start_key] = length - end   + 1;
+    } else {
+      hsp[start_key ] = start;
+      hsp[end_key]    = end;
+    }
+  }
 }
 
 BlastParser.prototype._find_max_bit_score_for_hit = function(hit) {
-  return d3.max(this._collect_all_hsps(hit.hsps), function(hsp) {
+  return d3.max(hit.hsps, function(hsp) {
     return hsp.bit_score;
   });
 }
@@ -101,7 +157,7 @@ BlastParser.prototype._add_normalized_bit_scores = function(iterations) {
 
   iterations.forEach(function(iteration) {
     iteration.hits.forEach(function(hit) {
-      self._collect_all_hsps(hit.hsps).forEach(function(hsp) {
+      hit.hsps.forEach(function(hsp) {
         hsp.normalized_bit_score = hsp.bit_score / max_global_bit_score;
       });
     });
@@ -128,16 +184,6 @@ BlastParser.prototype._sort_by_score = function(iterations) {
   };
   // Sort hits within each iteration, so that each iteration's first hit will
   // be the one with the highest-scoring HSP.
-  //
-  // Note that strand pairs *aren't* sorted such that strand pair containing
-  // highest-scoring hit will come first. As strand pair information is most
-  // logically represented through a dictionary, I elected to use this data
-  // structure at the cost of being able to sort the stranded sets of HSPs
-  // corresponding to a single hit on a subject sequence. In practice, since
-  // multiple groups of HSPs with different strandedness are rare for a given
-  // hit, this does not substantially inconvenience the user. Even in cases
-  // when it does occur, it simply means that two or three successive graphs
-  // may not be displayed in the proper order.
   iterations.forEach(_sort_hits);
 
   // Sort iterations by hit scores (so that first iteration has highest-scoring
@@ -151,7 +197,32 @@ BlastParser.prototype._sort_by_score = function(iterations) {
   });
 }
 
-BlastParser.prototype._filter_blast_iterations = function(iterations) {
+BlastParser.prototype._filter_by_thresholds = function(iterations) {
+  var evalue_threshold = parseFloat($('#evalue-threshold').val());
+  var bitscore_threshold = parseFloat($('#bitscore-threshold').val());
+  var coverage_threshold = parseFloat($('#hsp-coverage-threshold').val()) / 100;
+
+  iterations = iterations.filter(function(iteration) {
+    var query_length = iteration.query_length;
+
+    iteration.filtered_hits = iteration.filtered_hits.filter(function(hit) {
+      hit.filtered_hsps = hit.hsps.filter(function(hsp) {
+        var coverage = (hsp.query_end - hsp.query_start + 1) / query_length;
+        return hsp.evalue <= evalue_threshold &&
+          hsp.bit_score >= bitscore_threshold &&
+          coverage >= coverage_threshold;
+      });
+      // Exclude hits without any HSPs that pass filter.
+      return hit.filtered_hsps.length > 0;
+    });
+    return iteration.filtered_hits.length > 0;
+  });
+
+  return iterations;
+}
+
+BlastParser.prototype._filter_by_names = function(iterations) {
+  // TODO: eliminate dependence on DOM. Pass filter values as parameters.
   var query_filter = $('#query-filter').val().toLowerCase();
   var subject_filter = $('#subject-filter').val().toLowerCase();
 
@@ -181,8 +252,9 @@ BlastParser.prototype._filter_blast_iterations = function(iterations) {
 }
 
 BlastParser.prototype._slice_blast_iterations = function(iterations) {
+  // TODO: eliminate dependence on DOM. Pass filter values as parameters.
   var max_query_seqs = parseInt($('#max-query-seqs').val(), 10);
-  var max_hits_per_query_seq = parseInt($('#max-hits-per-query-seq').val(), 10);
+  var max_hits_per_query_seq = parseInt($('#max-subjects-per-query-seq').val(), 10);
 
   var sliced_iterations = iterations.slice(0, max_query_seqs);
   sliced_iterations.forEach(function(iteration) {
@@ -218,6 +290,84 @@ BlastParser.prototype._segregate_hsps_by_strand = function(hsps) {
   return segregated;
 }
 
+BlastParser.prototype._parse_hsp = function(hsp, query_length, subject_length) {
+  hsp = $(hsp);
+
+  // Possible values for query_frame and subject frame:
+  //   (See ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+  //   for details. Code snippets from this file are included below.)
+  //
+  //   frame ε {1, 2, 3}: hit lies on original query or subject strand.
+  //     frame = (start - 1) % 3 + 1; // Using 1-offset coordinates
+  //   frame ε {-1, -2, -3}: hit lies on reverse complement of original query or subject strand
+  //     frame = -((seq_length - end) % 3 + 1);
+  //   frame = 0: corresponding sequence was composed of amino acids, not nucleic acids
+  //
+  // Suppose your query or subject (or both) is a nucleic acid sequence.
+  // If your search translates the NA seq to an AA seq, the corresponding
+  // frame value may be one of {1, 2, 3} or {-1, -2, -3}. If, however, no
+  // translation occurred, frame will *always* be 1 or -1 -- i.e., its
+  // value indicates only strandedness, not a reading frame as such. To
+  // see how this occurs, search
+  // ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
+  // for "kTranslated".
+  //
+  // Examples: I haven't verified what follows, but I believe it is correct.
+  // BLAST type reference: http://www.bios.niu.edu/johns/bioinform/blast_info.htm
+  //   blastn:
+  //     Query frame:   1 or -1
+  //     Subject frame: 1 or -1
+  //   blastp:
+  //     Query frame:   0
+  //     Subject frame: 0
+  //   blastx:
+  //     Query frame:   {-3, -2, -1, 1, 2, 3}
+  //     Subject frame: 0
+  //   tblastn:
+  //     Query frame:   0
+  //     Subject frame: {-3, -2, -1, 1, 2, 3}
+  //   tblastx:
+  //     Query frame:   {-3, -2, -1, 1, 2, 3}
+  //     Subject frame: {-3, -2, -1, 1, 2, 3}
+  var hsp_attribs = {
+    query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
+    query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
+    query_frame: parseInt(hsp.find('Hsp_query-frame').text(), 10),
+    subject_start: parseInt(hsp.find('Hsp_hit-from').text(), 10),
+    subject_end: parseInt(hsp.find('Hsp_hit-to').text(), 10),
+    subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
+    alignment_length: parseInt(hsp.find('Hsp_align-len').text(), 10),
+    bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
+    evalue: parseFloat(hsp.find('Hsp_evalue').text()),
+    query_seq: hsp.find('Hsp_qseq').text(),
+    subject_seq: hsp.find('Hsp_hseq').text(),
+    midline_seq: hsp.find('Hsp_midline').text()
+  };
+
+  this._correct_hit_positions(hsp_attribs, 'query_frame',
+    'query_start', 'query_end', query_length);
+  this._correct_hit_positions(hsp_attribs, 'subject_frame',
+    'subject_start', 'subject_end', subject_length);
+
+  return hsp_attribs;
+}
+
+BlastParser.prototype._parse_hit = function(hit, query_length) {
+  var self = this;
+  var hit = $(hit);
+
+  var hit_attribs = {};
+  hit_attribs.subject_id = hit.children('Hit_id').text();
+  hit_attribs.subject_def = hit.children('Hit_def').text();
+  hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
+  var unsegregated_hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
+    return self._parse_hsp(this, query_length, hit_attribs.subject_length);
+  }).get();
+
+  hit_attribs.hsps = self._segregate_hsps_by_strand(unsegregated_hsps);
+  return hit_attribs;
+}
+
 BlastParser.prototype._parse_iterations = function(doc) {
   var self = this;
 
@@ -232,89 +382,69 @@ BlastParser.prototype._parse_iterations = function(doc) {
     if(hits.length === 0)
       return null;
 
-    // In Chrome, the below function call is inordinately slow.
-    hits = hits.map(function() {
-      var hit = $(this);
-
-      var hit_attribs = {};
-      hit_attribs.subject_id = hit.children('Hit_id').text();
-      hit_attribs.subject_def = hit.children('Hit_def').text();
-      hit_attribs.subject_length = parseInt(hit.children('Hit_len').text(), 10);
-      var unsegregated_hsps = hit.children('Hit_hsps').children('Hsp').map(function() {
-        var hsp = $(this);
-
-        // Possible values for query_frame and subject frame:
-        //   (See ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
-        //   for details. Code snippets from this file are included below.)
-        //
-        //   frame ε {1, 2, 3}: hit lies on original query or subject strand.
-        //     frame = (start - 1) % 3 + 1; // Using 1-offset coordinates
-        //   frame ε {-1, -2, -3}: hit lies on reverse complement of original query or subject strand
-        //     frame = -((seq_length - end) % 3 + 1);
-        //   frame = 0: corresponding sequence was composed of amino acids, not nucleic acids
-        //
-        // Suppose your query or subject (or both) is a nucleic acid sequence.
-        // If your search translates the NA seq to an AA seq, the corresponding
-        // frame value may be one of {1, 2, 3} or {-1, -2, -3}. If, however, no
-        // translation occurred, frame will *always* be 1 or -1 -- i.e., its
-        // value indicates only strandedness, not a reading frame as such. To
-        // see how this occurs, search
-        // ncbi-blast-2.2.28+-src/c++/src/algo/blast/format/blastxml_format.cpp
-        // for "kTranslated".
-        //
-        // Examples: I haven't verified what follows, but I believe it is correct.
-        // BLAST type reference: http://www.bios.niu.edu/johns/bioinform/blast_info.htm
-        //   blastn:
-        //     Query frame:   1 or -1
-        //     Subject frame: 1 or -1
-        //   blastp:
-        //     Query frame:   0
-        //     Subject frame: 0
-        //   blastx:
-        //     Query frame:   {-3, -2, -1, 1, 2, 3}
-        //     Subject frame: 0
-        //   tblastn:
-        //     Query frame:   0
-        //     Subject frame: {-3, -2, -1, 1, 2, 3}
-        //   tblastx:
-        //     Query frame:   {-3, -2, -1, 1, 2, 3}
-        //     Subject frame: {-3, -2, -1, 1, 2, 3}
-        var hsp_attribs = {
-          query_start: parseInt(hsp.find('Hsp_query-from').text(), 10),
-          query_end: parseInt(hsp.find('Hsp_query-to').text(), 10),
-          query_frame: parseInt(hsp.find('Hsp_query-frame').text(), 10),
-          subject_start: parseInt(hsp.find('Hsp_hit-from').text(), 10),
-          subject_end: parseInt(hsp.find('Hsp_hit-to').text(), 10),
-          subject_frame: parseInt(hsp.find('Hsp_hit-frame').text(), 10),
-          alignment_length: parseInt(hsp.find('Hsp_align-len').text(), 10),
-          bit_score: parseFloat(hsp.find('Hsp_bit-score').text()),
-          evalue: parseFloat(hsp.find('Hsp_evalue').text())
-        };
-
-        self._reorder_hit_positions(hsp_attribs);
-        return hsp_attribs;
-      }).get();
-
-      hit_attribs.hsps = self._segregate_hsps_by_strand(unsegregated_hsps);
-
-      return hit_attribs;
-    }).get();
-
-    return {
+    var query_attribs = {
       query_id: iteration.find('Iteration_query-ID').text(),
       query_def: iteration.find('Iteration_query-def').text(),
-      query_length: parseInt(iteration.find('Iteration_query-len').text(), 10),
-      hits: hits,
-    }
-  }).get();
+      query_length: parseInt(iteration.find('Iteration_query-len').text(), 10)
+    };
 
+    // In Chrome, the below function call is inordinately slow.
+    query_attribs.hits = hits.map(function() {
+      return self._parse_hit(this, query_attribs.query_length);
+    }).get();
+    return query_attribs;
+  }).get();
+  // Remove any iterations that lack hits, as per above map() call. This means
+  // that all iterations present in result set will have at least one hit, each
+  // of which will have at least one HSP (or BLAST would not have included the
+  // hit in the result set). Any filtering that occurs in slice_and_dice() is
+  // then independent of this -- even if you don't call slice_and_dice(), you
+  // are thus guaranteed that all iterations have at least one hit.
   iterations = iterations.filter(function(iteration) {
     return iteration !== null;
   });
 
+  iterations = this._flatten(iterations);
   this._sort_by_score(iterations);
   this._add_normalized_bit_scores(iterations);
 
+  return iterations;
+}
+
+// Change representation of results from
+//   Iterations (Queries) -> Subjects -> Strand pairs (++, +-, -+, --) -> Individual HSPs
+// to
+//   Iterations (Queries) -> Subjects ->  Individual HSPs.
+//
+// In the new format, there will be a separate Subject object for each strand
+// pair (i.e., a given subject is represented once for each combination of
+// query & subject strands). This format is best for downstream uses -- the
+// graphing code needs HSPs separated by strand, as HSPs for a query/subject
+// pair but on different combinations of query/subject strands should not be
+// rendered on the same graph. This way, the graphing code can treat each such
+// query/subject strand combination as a distinct subject. This ensures, for
+// example, that the sorting routines in this class work without having to
+// consider strandedness.
+BlastParser.prototype._flatten = function(iterations) {
+  iterations = iterations.map(function(iteration) {
+    var hits = iteration.hits.map(function(hit) {
+      var collected = [];
+      Object.keys(hit.hsps).forEach(function(strand_pair) {
+        var hsps = hit.hsps[strand_pair];
+        var cloned_hit = $.extend({}, hit);
+        cloned_hit.query_strand = strand_pair[0];
+        cloned_hit.subject_strand = strand_pair[1];
+        cloned_hit.hsps = hsps;
+        collected.push(cloned_hit);
+      });
+      return collected;
+    });
+
+    var flattened_hits = [];
+    flattened_hits = flattened_hits.concat.apply(flattened_hits, hits);
+    iteration.hits = flattened_hits;
+    return iteration;
+  });
   return iterations;
 }
 
@@ -352,7 +482,9 @@ BlastParser.prototype.slice_and_dice = function(blast_results) {
   blast_results.hits_count = _calc_num_hits(iterations);
 
   // Filter iterations and hits.
-  iterations = this._filter_blast_iterations(iterations);
+  iterations = this._filter_by_names(iterations);
+  iterations = this._filter_by_thresholds(iterations);
+
   // Store filtered_iterations_count, as next step slices the variable
   // iterations, meaning the number of filtered iterations pre-slicing will
   // be lost.

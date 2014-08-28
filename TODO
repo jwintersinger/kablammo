@@ -13,7 +13,6 @@ Ivan's suggestions:
     Query start/end
     Subject start/end
 
-Produce error on XML file that's not BLAST XML
 Verify that results are valid based on strandedness, etc.
 Add loading animation
 Display scale demonstrating what gradient means
@@ -23,22 +22,32 @@ Support drag/drop file uploads
 Make long query/subject names render better
 
 Write bookmarklet to allow direct loading of Kablammo from NCBI BLast
+Refactor -- replace jQuery XML parsing with native to speed up this step
+Enable pinch-to-zoom on touch devices
 
 ----------------------------
 Before submitting manuscript
 ----------------------------
-Enable result filtering
-  Provide means of filtering by E value
-Enable alignment viewing
-  Show raw alignment for individual HSP
-  Enable exporting the subject or query sequence corresponding to that portion of the alignment
+Change terminology: "subject" -> "hit"
+Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
+Add option to display sequence names in place of generic "Query"/"Subject" labels on graph
+
+When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
+Move count of "hidden" queries/subjects from headers to better place in interface
+Produce error on XML file that's not BLAST XML
+Show tooltips on first load -- "can use mousewheel to scroll!"
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
-Fix PNG/SVG export in IE
 Have "tour" on homepage
+
+Improve alignment viewing
+  Show summation of alignment instead of simple scrollbar, a la Benchling
+  Enable exporting the subject or query sequence corresponding to that portion of the alignment
 Provide script for augmenting JSON file listing XML
   Be sure to lock file when operating
+
+Implement "choose optimal HSP set" algorithm
 Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
-Fix page scrolling to top in Firefox after exporting SVG or PNG
-Fix exported SVG rendering improperly in Inkscape
+For given set of queries/subjects, generate Circos diagram showing HSPs between them
+"Only show subjects that align to at least x% of the query" (i.e., length of HSP union)

@@ -100,7 +100,8 @@ Interface.prototype._activate_panel = function(nav_target) {
   this._navbar_elements.removeClass('active');
 
   nav_target.addClass('active');
-  this._resolve_panel_for_nav(nav_target).slideDown();
+  var panel = this._resolve_panel_for_nav(nav_target);
+  panel.slideDown();
 }
 
 Interface.prototype._deactivate_active_panel = function() {
@@ -110,6 +111,13 @@ Interface.prototype._deactivate_active_panel = function() {
     return;
 
   var panel = this._resolve_panel_for_nav(active_nav);
+  // If user has scrolled within panel because it isn't fully visible given
+  // his viewport height, scroll back to top. Though the display "content"
+  // before sliding up, this is better than calling scrollTop(0) when the
+  // panel appears, since the user is less likely to be watching the panel
+  // closely after dismissing it. Curiously, calling it after the panel has
+  // already slid up does not work.
+  panel.scrollTop(0);
   panel.slideUp({
     complete: function() {
       active_nav.removeClass('active');
@@ -139,13 +147,19 @@ Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
   });
 }
 
-Interface.prototype.create_query_header = function(container, label, query_index, num_queries) {
+Interface.prototype.create_query_header = function(container, label, query_index, num_filtered_queries, num_hidden_queries) {
   // Don't show label if no valid one present.
   if(label === 'No definition line')
     label = '';
   var header = $('#example-query-header').clone().removeAttr('id');
   header.find('.query-name').text(label);
-  header.find('.query-index').text('Query ' + query_index + ' of ' + num_queries);
+
+  var count_label = 'Query ' + query_index + ' of ' + num_filtered_queries;
+  if(num_hidden_queries > 0) {
+    count_label += ' (' + num_hidden_queries + ' hidden)';
+  }
+  header.find('.query-index').text(count_label);
+
   $(container).append(header);
 }
 

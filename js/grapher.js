@@ -1,9 +1,11 @@
 "use strict";
 
-function Grapher() {
+function Grapher(alignment_viewer, use_complement_coords) {
   this._graph_colour = { r: 30, g: 139, b: 195 };
   this._matte_colour = { r: 255, g: 255, b: 255 };
   this._min_opacity  = 0.3;
+  this._alignment_viewer = alignment_viewer;
+  this._use_complement_coords = use_complement_coords;
 }
 
 Grapher.prototype.get_graph_colour = function() {
@@ -56,9 +58,17 @@ Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
 
 Grapher.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
   text.style('text-anchor', text_anchor)
-      .attr('dx', dx)
-      .attr('dy', dy)
+      .attr('x', dx)
+      .attr('y', dy)
+      // When axis orientation is "bottom", d3 automataically applies a 0.71em
+      // dy offset to labels. As Inkscape does not seem to properly interpret
+      // such values, force them to be zero. When calling this function, then,
+      // you must compensate by adding 0.71em worth of offset to the dy value
+      // you provide.
+      .attr('dx', 0)
+      .attr('dy', 0)
       .attr('transform', 'rotate(-90)');
+
 }
 
 Grapher.prototype._create_axis = function(svg, scale, orientation, height, text_anchor, dx, dy, seq_type) {
@@ -187,11 +197,17 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        // decide on this ordering based on the reading frame, because it
        // determines whether our axis will be reversed or not.
        var query_x_points = [scales.query.scale(hsp.query_start), scales.query.scale(hsp.query_end)];
-       if(hsp.query_frame < 0)
-         query_x_points.reverse();
        var subject_x_points = [scales.subject.scale(hsp.subject_start), scales.subject.scale(hsp.subject_end)];
-       if(hsp.subject_frame < 0)
-         subject_x_points.reverse();
+
+       // Axis will be rendered with 5' end on right and 3' end on left, so we
+       // must reverse the order of vertices for the polygon we will render to
+       // prevent the polygon from "crossing over" itself.
+       if(!self._use_complement_coords) {
+         if(hsp.query_frame < 0)
+           query_x_points.reverse();
+         if(hsp.subject_frame < 0)
+           subject_x_points.reverse();
+       }
 
        var points = [
          [query_x_points[0],   scales.query.height   + 2],
@@ -209,15 +225,21 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      }).on('mouseout', function(hovered_hsp, hovered_index) {
        self._hide_subject_params(svg[0][0])
        self._fade_other_polygons(svg, hovered_index, 1);
+     }).on('click', function(clicked_hsp) {
+       self._alignment_viewer.view_alignment(
+         clicked_hsp,
+         self._results.query_seq_type,
+         self._results.subject_seq_type
+       );
      });
 }
 
 Grapher.prototype._render_axes = function(svg, scales) {
   var query_axis   = this._create_axis(svg, scales.query.scale,   'top',
-                                       scales.query.height,   'start', '0.8em', '1em',
+                                       scales.query.height,   'start', '9px', '2px',
                                        this._results.query_seq_type);
   var subject_axis = this._create_axis(svg, scales.subject.scale, 'bottom',
-                                       scales.subject.height, 'end',   '-1em',  '-0.4em',
+                                       scales.subject.height, 'end',   '-11px',  '3px',
                                        this._results.subject_seq_type);
 
   // Create axis labels.
@@ -225,7 +247,7 @@ Grapher.prototype._render_axes = function(svg, scales) {
      .attr('class', 'query axis-label')
      .attr('text-anchor', 'end')
      .attr('x', 0.5*svg.attr('width'))
-     .attr('y', '1.1em')
+     .attr('y', '12px')
      .text('Query');
   svg.append('text')
      .attr('class', 'subject axis-label')
@@ -262,10 +284,28 @@ Grapher.prototype._create_scales = function(padding_x, padding_y, canvas_width, 
   var query_range   = [padding_x, canvas_width - padding_x];
   var subject_range = [padding_x, canvas_width - padding_x];
 
-  if(hsps[0].query_frame < 0)
-    query_range.reverse();
-  if(hsps[0].subject_frame < 0)
-    subject_range.reverse();
+  // If we wish to show the HSPs relative to the original (input or DB)
+  // sequence rather than its complement (i.e., use_complement_coords = false),
+  // even when the HSPs lie on the complement, then we must display the axis
+  // with its 5' end on the right and 3' end on the left. In this case, you can
+  // imagine the invisible complementary strand (with its 5' end on left and 3'
+  // end on right) floating above the rendered original strand, with the hits
+  // actually falling on the complementary strand.
+  //
+  // If we show the HSPs relative to the complementary strand (i.e.,
+  // use_complement_coords = true), then we *always* wish to show the axis with
+  // its 5' end on the left and 3' end on the right.
+  //
+  // Regardless of whether this value is true or falase, the rendered polygons
+  // will be precisely the same (meaning down to the pixel -- they will be
+  // *identical*). Only the direction of the axis, and the coordinates of
+  // points falling along it, change.
+  if(!this._use_complement_coords) {
+    if(hsps[0].query_frame < 0)
+      query_range.reverse();
+    if(hsps[0].subject_frame < 0)
+      subject_range.reverse();
+  }
 
   var query_scale = d3.scale.linear()
                          .domain([0, query_length])
@@ -317,7 +357,7 @@ Grapher.prototype._configure_zooming = function(svg, hsps, scales) {
     var evt = d3.event;
     evt.preventDefault();
 
-    var scale_by = 2;
+    var scale_by = 1.4;
     var direction = (evt.deltaY < 0 || evt.wheelDelta > 0) ? 1 : -1;
     if(direction < 0)
       scale_by = 1/scale_by;
@@ -359,15 +399,6 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   this._configure_zooming(svg, hsps, scales);
 }
 
-Grapher.prototype._count_total_hits = function(hits) {
-  var num_strand_pairs = hits.map(function(hit) {
-    return Object.keys(hit.hsps).length;
-  });
-  return num_strand_pairs.reduce(function(a, b) {
-    return a + b;
-  });
-}
-
 Grapher.prototype.display_blast_results = function(results, results_container, iface) {
   var self = this;
   this._results = results;
@@ -377,10 +408,24 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
   $(results_container).children().remove();
 
   var iterations = this._results.filtered_iterations;
+  var num_filtered_iterations = iterations.length;
+  var num_total_iterations = self._results.iterations.length;
+  var num_hidden_iterations = num_total_iterations - num_filtered_iterations;
+
+  if(num_filtered_iterations === 0) {
+    var msg = 'No results to display.';
+    if(num_hidden_iterations > 0) {
+      msg += ' As there are ' + num_hidden_iterations + ' hidden results, you can adjust the filters applied to show these data.';
+    }
+    Interface.error(msg);
+  }
+
   iterations.forEach(function(iteration, iteration_idx) {
     var hits = iteration.filtered_hits;
     // Do not display iteration if it has no hits (e.g., because they've all
-    // been filtered out via subject filter).
+    // been filtered out via subject filter, or they were removed by BLAST
+    // parsing code because none of their HSPs passed evalue/bitscore/whatever
+    // filter).
     if(hits.length === 0)
       return;
 
@@ -388,31 +433,40 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
       results_container,
       iteration.query_def,
       iteration_idx + 1,
-      iterations.length
+      num_filtered_iterations,
+      num_hidden_iterations
     );
 
     var hit_idx = 1;
-    var total_hits = self._count_total_hits(hits);
+    var num_filtered_hits = hits.length;
+    var num_total_hits = iteration.hits.length;
+    var num_hidden_hits = num_total_hits - num_filtered_hits;
 
     hits.forEach(function(hit) {
-      Object.keys(hit.hsps).forEach(function(strand_pair) {
-        var subj_header = $('#example-subject-header').clone().removeAttr('id');
-        subj_header.find('.subject-name').text(hit.subject_def +
-          ' (' + hit.subject_id + ')');
-        subj_header.find('.subject-index').text('Subject ' + hit_idx++ + ' of ' + total_hits);
+      var hsps = hit.filtered_hsps;
+      if(hsps.length === 0)
+        return;
 
-        var subj_result = $('#example-subject-result').clone().removeAttr('id');
-        var svg_container = d3.select(subj_result.find('.subject').get(0));
+      var subj_header = $('#example-subject-header').clone().removeAttr('id');
+      subj_header.find('.subject-name').text(hit.subject_def +
+        ' (' + hit.subject_id + ')');
+      var subject_label = 'Subject ' + hit_idx++ + ' of ' + hits.length;
+      if(num_hidden_hits > 0) {
+        subject_label += ' (' + num_hidden_hits + ' hidden)';
+      }
+      subj_header.find('.subject-index').text(subject_label);
 
-        self._create_graph(
-          iteration.query_length,
-          hit.subject_length,
-          hit.hsps[strand_pair],
-          svg_container
-        );
+      var subj_result = $('#example-subject-result').clone().removeAttr('id');
+      var svg_container = d3.select(subj_result.find('.subject').get(0));
 
-        $(results_container).append(subj_header).append(subj_result);
-      });
+      self._create_graph(
+        iteration.query_length,
+        hit.subject_length,
+        hsps,
+        svg_container
+      );
+
+      $(results_container).append(subj_header).append(subj_result);
     });
   });
 }

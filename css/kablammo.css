@@ -51,36 +51,39 @@ a {
 }
 
 .query-header, .subject-header {
-  background-color: #69b2d7;
   color: white;
-  text-align: right;
-  padding: 8px;
-  position: relative;
+  vertical-align: bottom;
 }
 
-.query-header > h2, .subject-header > h3 {
-  float: left;
+.query-index, .subject-index {
+  display: inline-block;
   background-color: #1e8bc3;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  margin-bottom: 0;
   padding: 8px 15px 8px 15px;
+  font-size: 24px;
+  vertical-align: bottom;
+  text-align: left;
 }
 
-.query-header > p, .subject-header > p {
+.query-name, .subject-name {
+  display: inline-block;
   background-color: #69b2d7;
-  display: block;
+  vertical-align: bottom;
+  padding: 8px 15px 8px 15px;
+  text-align: right;
+  max-width: 60em;
+}
+
+.subject, .subject-header {
+  margin-left: 1em;
 }
 
 .subject {
   padding-left: 0;
   padding-right: 0;
-  text-align: top;
 }
 
-.subject svg, .subject-info {
-  float: left;
+.subject-info {
+  display: inline-block;
 }
 
 .subject-params {
@@ -88,6 +91,7 @@ a {
 }
 
 .subject svg {
+  float: left;
   margin-bottom: 1em;
 
   /* Prevent selecting axis labels and other text, which may happen
@@ -101,7 +105,11 @@ a {
   user-select: none;
 }
 
-.subject-info ul {
+.subject-info {
+  margin-left: 2em;
+}
+
+.subject-params {
   list-style: none;
   padding-left: 0;
   float: left;
@@ -109,9 +117,6 @@ a {
 
 .subject-buttons {
   margin-bottom: 1.5em;
-  float: left;
-  margin-left: 2em;
-  margin-right: 2em;
 }
 
 .subject-info span {
@@ -126,6 +131,8 @@ a {
   left: 0;
   z-index: 9999;
   position: fixed;
+  overflow-y: auto;
+  max-height: calc(100vh - 92px);
   display: none;
   border-bottom: 1px solid #999;
 }
@@ -152,6 +159,7 @@ a {
 #display-results-container {
   text-align: center;
   margin-top: 30px;
+  margin-bottom: 30px;
 }
 
 #curtain {
@@ -217,4 +225,40 @@ a {
 
 #show-example-results {
   margin-top: 25px;
+  margin-bottom: 30px;
 }
+
+#alignment-viewer pre {
+  white-space: pre;
+  word-wrap: normal;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+#alignment-viewer .midline-seq {
+  color: rgb(120, 120, 120);
+}
+
+#alignment-viewer .modal-dialog {
+  width: 80%;
+}
+
+.query-seq span, .midline-seq span, .subject-seq span {
+  padding: 2px;
+}
+
+/* AA colours taken from http://www.bioinformatics.nl/~berndb/aacolour.html. */
+.aa-g, .aa-a, .aa-s, .aa-t                                    { background-color: #c7cdfd; } /* Blue */
+.aa-c, .aa-v, .aa-i, .aa-l, .aa-p, .aa-f, .aa-y, .aa-m, .aa-w { background-color: #c7fddd; } /* Green */
+.aa-n, .aa-q, .aa-h                                           { background-color: #fdfdc7; } /* Yellow */
+.aa-d, .aa-e                                                  { background-color: #fdc7e9; } /* Pink */
+.aa-k, .aa-r                                                  { background-color: #c7fcfd; } /* Teal */
+
+.na-a { background-color: #c7cdfd; } /* Blue */
+.na-c { background-color: #c7fddd; } /* Green */
+.na-g { background-color: #fdfdc7; } /* Yellow */
+.na-t { background-color: #fdc7e9; } /* Pink */
+
+.ml-diff    { background-color: rgb(204,0,0); } /* Red */
+.ml-similar { background-color: rgb(204,204,0); } /* Yellow */
+.ml-match   { }
