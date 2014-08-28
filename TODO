@@ -28,28 +28,31 @@ Enable pinch-to-zoom on touch devices
 ----------------------------
 Before submitting manuscript
 ----------------------------
-Improve alignment viewing
-  Show summation of alignment instead of simple scrollbar, a la Benchling
-  Enable exporting the subject or query sequence corresponding to that portion of the alignment
-Have "tour" on homepage
-Provide script for augmenting JSON file listing XML
-  Be sure to lock file when operating
-Visualize coverage of all hits across sequence
-  Considering all hits, which parts of query sequence have no hits?
-Change terminology: "subject" -> "hit"
-Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
-
 Provide means to filter low-quality HSPs -- e.g., I only want HSPs with e value >= whatever
   This was useful in filtering the Haemonchus X chr BAC -- want to get rid of lots of tiny hits, to see only best ones
-For given set of queries/subjects, generate Circos diagram showing HSPs between them
-
 Enable result filtering
   Provide means of filtering by E value, fraction of query length
+Change terminology: "subject" -> "hit"
+Prepend hit name to exported filename so that files will sort in same order as graphs were displayed
+Add option to display sequence names in place of generic "Query"/"Subject" labels on graph
+
 When scale zoomed in, display decimal points on labels -- don't have "39 kb, 39 kb, 39 kb, ..."
 Fix formatting on wide names
+Move count of "hidden" queries/subjects from headers to better place in interface
 Produce error on XML file that's not BLAST XML
 Show tooltips on first load -- "can use mousewheel to scroll!"
 Write help section
   Show how to get BLAST XML file (via NCBI BLAST or CLI) in README and in help section
 Show more interesting results for example results -- e.g., the 494 Kb Haemonchus results
+Have "tour" on homepage
+
+Improve alignment viewing
+  Show summation of alignment instead of simple scrollbar, a la Benchling
+  Enable exporting the subject or query sequence corresponding to that portion of the alignment
+Provide script for augmenting JSON file listing XML
+  Be sure to lock file when operating
+
 Implement "choose optimal HSP set" algorithm
+Visualize coverage of all hits across sequence
+  Considering all hits, which parts of query sequence have no hits?
+For given set of queries/subjects, generate Circos diagram showing HSPs between them

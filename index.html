@@ -41,7 +41,7 @@
 
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li class="disabled-nav"><a href="#filter"><span class="glyphicon glyphicon-filter"></span> Filter results</a></li>
+            <li class=""><a href="#filter"><span class="glyphicon glyphicon-filter"></span> Filter results</a></li>
             <li><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
             <li><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
           </ul>
@@ -51,6 +51,7 @@
 
     <div class="container-fluid" id="control-panels">
       <div class="row">
+        <!--
         <div class="control-panel col-sm-12" id="control-panel-filter">
           <div class="control-group">
             <label class="control-label" for="query-filter">Query filter:</label>
@@ -66,6 +67,7 @@
             </div>
           </div>
         </div>
+        -->
 
         <div class="control-panel col-sm-12" id="control-panel-load">
           <form id="load-results-form">
@@ -104,10 +106,13 @@
                 <div class="tab-pane">
                   <p>Show up to <input id="max-query-seqs" class="form-control" type="number" min="1" value="10" /> query sequences</p>
                   <p>Show up to <input id="max-hits-per-query-seq" class="form-control" type="number" min="1" value="5" /> hits per query</p>
+                  <p>Show only queries with <input id="query-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
+                  <p>Show only subjects with <input id="subject-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
                   <div class="input-group-btn">
                     <a id="graph-colour-example" class="btn btn-default" role="button">&nbsp;&nbsp;&nbsp;</a>
                     <a id="choose-graph-colour" class="btn btn-default" role="button">Choose graph colour</a>
                   </div>
+
                 </div>
               </div>
             </div>
