@@ -142,7 +142,7 @@ a {
   left: 0;
   z-index: 1000;
   position: fixed;
-  overflow-y: auto;
+  overflow: auto;
   max-height: calc(100vh - 92px);
   display: none;
   border-bottom: 1px solid #999;

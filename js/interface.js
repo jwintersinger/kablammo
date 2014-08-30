@@ -21,6 +21,7 @@ function Interface(grapher, loader) {
   this._configure_file_chooser();
   this._configure_query_form();
   this._configure_tour();
+  this._configure_help();
 }
 
 Interface.prototype._configure_tab_switching = function() {
@@ -254,6 +255,12 @@ Interface.prototype._configure_tour = function() {
       var tour_guide = new TourGuide(self);
       tour_guide.start();
     });
+  });
+}
+
+Interface.prototype._configure_help = function() {
+  $('.show-help').click(function() {
+    $('#help').click();
   });
 }
 
