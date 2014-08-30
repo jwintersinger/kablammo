@@ -26,7 +26,12 @@ a {
 }
 
 .navbar-nav {
-  margin-top: 42px;
+  margin-top: 8px;
+}
+@media(min-width: 768px) {
+  .navbar-nav {
+    margin-top: 42px;
+  }
 }
 
 .navbar-header h1 {
@@ -35,6 +40,7 @@ a {
   background-image: url('../img/kablammo_logo.svg');
   width: 300px;
   height: 60.92px;
+  margin-left: 1em;
 }
 
 .navbar-header span {
@@ -129,7 +135,7 @@ a {
   padding-bottom: 30px;
   top: 92px;
   left: 0;
-  z-index: 9999;
+  z-index: 1000;
   position: fixed;
   overflow-y: auto;
   max-height: calc(100vh - 92px);
@@ -142,11 +148,22 @@ a {
   border-left: 1px solid #ddd;
 }
 
+#lab-logo-container {
+  text-align: center;
+}
+
+#lab-logo {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
 #local-file-chooser {
   display: none;
 }
 
-#max-result-controls input {
+#display-params input {
   display: inline;
   width: 5em;
 }
@@ -221,11 +238,17 @@ a {
 
 #example-results {
   width: 80%;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-#show-example-results {
-  margin-top: 25px;
+#start-tour {
   margin-bottom: 30px;
+}
+
+#alignment-viewer {
+  /* Appear in front of "tour" dialog. */
+  z-index: 1200;
 }
 
 #alignment-viewer pre {
@@ -245,6 +268,14 @@ a {
 
 .query-seq span, .midline-seq span, .subject-seq span {
   padding: 2px;
+}
+
+.navbar-toggle {
+  background-color: transparent !important;
+}
+
+.navbar-toggle .icon-bar {
+  background-color: white !important;
 }
 
 /* AA colours taken from http://www.bioinformatics.nl/~berndb/aacolour.html. */

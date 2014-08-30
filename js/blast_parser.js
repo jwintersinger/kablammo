@@ -208,7 +208,7 @@ BlastParser.prototype._filter_by_thresholds = function(iterations) {
     iteration.filtered_hits = iteration.filtered_hits.filter(function(hit) {
       hit.filtered_hsps = hit.hsps.filter(function(hsp) {
         var coverage = (hsp.query_end - hsp.query_start + 1) / query_length;
-        return hsp.evalue <= evalue_threshold &&
+        return hsp.evalue <= Math.pow(10, evalue_threshold) &&
           hsp.bit_score >= bitscore_threshold &&
           coverage >= coverage_threshold;
       });

@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet" href="css/ext/colpick.css">
+    <link rel="stylesheet" href="css/ext/bootstrap-tour.min.css">
 
     <link rel="stylesheet" href="css/kablammo.css">
     <!-- svg-css class indicates that this stylesheet should have its rules included in exported SVGs. -->
@@ -36,13 +37,13 @@
             <span class="icon-bar"></span>
           </button>
 
-          <h1><span>Kablammo</span></h1>
+          <a href=""><h1><span>Kablammo</span></h1></a>
         </div>
 
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
-            <li><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
+            <li id="load-results"><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
+            <li id="about"><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
           </ul>
         </div>
       </div>
@@ -79,7 +80,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-6" id="max-result-controls">
+              <div class="col-sm-6" id="display-params">
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#">Display parameters</a></li>
                 </ul>
@@ -91,17 +92,17 @@
                   <p>Show only subjects with <input id="subject-filter" class="form-control" type="text" placeholder="..." /> in their names</p>
                   <p>
                     <div class="form-group">
-                      Show only hits whose E value is at most
+                      Show only alignments whose E value is at most
                       <div class="input-group">
                         <span class="input-group-addon">1e</span>
                         <input id="evalue-threshold" class="form-control" type="number" step="any" value="10" />
                       </div>
                     </div>
                   </p>
-                  <p>Show only hits whose bit score is at least <input id="bitscore-threshold" class="form-control" type="number" step="any" min="0" value="0" /></p>
+                  <p>Show only alignments whose bit score is at least <input id="bitscore-threshold" class="form-control" type="number" step="any" min="0" value="0" /></p>
                   <p>
                     <div class="form-group">
-                      Show only hits covering at least
+                      Show only alignments covering at least
                       <div class="input-group">
                         <input id="hsp-coverage-threshold" class="form-control" type="number" step="any" value="0" min="0" max="100" />
                         <span class="input-group-addon">%</span>
@@ -125,8 +126,32 @@
           </form>
         </div>
 
-        <div style="height: 400px" class="control-panel col-sm-12" id="control-panel-about">
-          Pants.
+        <div class="control-panel col-sm-12" id="control-panel-about">
+          <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+              <p id="lab-logo-container"><a href="http://www.wasmuthlab.org"><img src="img/wasmuth_lab_logo.svg" alt="Wasmuth lab" id="lab-logo"></a></p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-4 col-sm-offset-4">
+              <p>Kablammo was created with loving attention to each handcrafted
+              detail by the <a href="http://www.wasmuthlab.org">Wasmuth
+              Lab</a>. Made fresh each day using only local ingredients. Mmm,
+              tasty.</p>
+              <p><a href="https://github.com/jwintersinger/kablammo">Kablammo's
+              source code</a> is available on GitHub.</p>
+              <p><strong>Jeff Wintersinger</strong> (<a
+              href="http://jeff.wintersinger.org">web site</a>, <a
+              href="https://twitter.com/jwintersinger">Twitter</a>) wrote
+              Kablammo. He also proposed the project's billiant name.</p>
+              <p><strong>James Wasmuth</strong> (<a
+              href="mailto:jwasmuth@ucalgary.ca">e-mail</a>, <a
+              href="https://twitter.com/jdwasmuth">Twitter</a>) supervised
+              Kablammo's creation. He eventually acquiesced to calling it
+              Kablammo.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -148,14 +173,14 @@
           <div class="col-sm-8 col-sm-push-2">
             <h1>Visualize your BLAST results.</h1>
             <p>Kablammo helps you create interactive visualizations of BLAST
-            results from your web browser. Find your most interesting hits, list
+            results from your web browser. Find your most interesting alignments, list
             detailed parameters for each, and export a publication-ready vector
             image, all without installing any software.</p>
             <div>
               <img src="img/example_results.svg" alt="Example results" id="example-results">
             </div>
             <div>
-              <button id="show-example-results" type="button" class="btn btn-primary btn-lg btn-block">Show example results &raquo;</button>
+              <button id="start-tour" type="button" class="btn btn-primary btn-lg btn-block">Show me how Kablammo works &raquo;</button>
             </div>
           </div>
         </div>
@@ -187,7 +212,7 @@
           <div class="subject-info">
             <div class="btn-group-vertical subject-buttons">
               <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <button type="button" class="export-image btn btn-default dropdown-toggle" data-toggle="dropdown">
                   Export image
                   <span class="caret"></span>
                 </button>
@@ -245,6 +270,7 @@
     <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/ext/colpick.js"></script>
+    <script type="text/javascript" src="js/ext/bootstrap-tour.min.js"></script>
 
     <script type="text/javascript" src="js/grapher.js"></script>
     <script type="text/javascript" src="js/blast_parser.js"></script>
@@ -252,6 +278,7 @@
     <script type="text/javascript" src="js/interface.js"></script>
     <script type="text/javascript" src="js/exporter.js"></script>
     <script type="text/javascript" src="js/alignment_viewer.js"></script>
+    <script type="text/javascript" src="js/tour_guide.js"></script>
     <script type="text/javascript" src="js/kablammo.js"></script>
   </body>
 </html>
