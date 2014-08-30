@@ -142,6 +142,17 @@ a {
   border-left: 1px solid #ddd;
 }
 
+#lab-logo-container {
+  text-align: center;
+}
+
+#lab-logo {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
 #local-file-chooser {
   display: none;
 }
