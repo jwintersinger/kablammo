@@ -129,7 +129,7 @@ a {
   padding-bottom: 30px;
   top: 92px;
   left: 0;
-  z-index: 9999;
+  z-index: 1000;
   position: fixed;
   overflow-y: auto;
   max-height: calc(100vh - 92px);
@@ -146,7 +146,7 @@ a {
   display: none;
 }
 
-#max-result-controls input {
+#display-params input {
   display: inline;
   width: 5em;
 }
@@ -221,11 +221,17 @@ a {
 
 #example-results {
   width: 80%;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-#show-example-results {
-  margin-top: 25px;
+#start-tour {
   margin-bottom: 30px;
+}
+
+#alignment-viewer {
+  /* Appear in front of "tour" dialog. */
+  z-index: 1200;
 }
 
 #alignment-viewer pre {

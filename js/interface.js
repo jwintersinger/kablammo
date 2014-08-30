@@ -20,7 +20,7 @@ function Interface(grapher, loader) {
 
   this._configure_file_chooser();
   this._configure_query_form();
-  this._configure_example_results_display();
+  this._configure_tour();
 }
 
 Interface.prototype._configure_tab_switching = function() {
@@ -81,9 +81,9 @@ Interface.prototype._configure_nav = function() {
       return;
 
     if($(this).hasClass('active')) {
-      self._deactivate_active_panel();
+      self.deactivate_active_panel();
     } else {
-      self._activate_panel(this);
+      self.activate_panel(this);
     }
   });
 }
@@ -93,8 +93,10 @@ Interface.prototype._resolve_panel_for_nav = function(nav_elem) {
   return $('#control-panel-' + target);
 }
 
-Interface.prototype._activate_panel = function(nav_target) {
+Interface.prototype.activate_panel = function(nav_target) {
   nav_target = $(nav_target);
+  if(nav_target.hasClass('active'))
+    return;
 
   $('.control-panel').slideUp();
   this._navbar_elements.removeClass('active');
@@ -104,7 +106,7 @@ Interface.prototype._activate_panel = function(nav_target) {
   panel.slideDown();
 }
 
-Interface.prototype._deactivate_active_panel = function() {
+Interface.prototype.deactivate_active_panel = function() {
   var active_nav = this._navbar_elements.filter('.active');
   // If no navigation active, then no panel should be closed.
   if(active_nav.length === 0)
@@ -188,15 +190,15 @@ Interface.prototype._configure_file_chooser = function() {
   });
 }
 
-Interface.prototype._on_load_server = function() {
-  this._deactivate_active_panel();
+Interface.prototype._on_load_server = function(on_complete) {
+  this.deactivate_active_panel();
 
   var self = this;
   Interface.show_curtain(function() {
     var server_results_chooser = $('#server-results-chooser');
     var blast_results_filename = server_results_chooser.val();
     self._loader.load_from_server(blast_results_filename, function(results) {
-      self._display_results(results);
+      self._display_results(results, on_complete);
     });
   });
 }
@@ -214,7 +216,7 @@ Interface.prototype._on_load_local = function() {
   if(!file)
     return;
 
-  this._deactivate_active_panel();
+  this.deactivate_active_panel();
   var self = this;
   Interface.show_curtain(function() {
     self._loader.load_local_file(file, function(results) {
@@ -241,13 +243,16 @@ Interface.prototype._configure_query_form = function() {
   });
 }
 
-Interface.prototype._configure_example_results_display = function() {
+Interface.prototype._configure_tour = function() {
   var self = this;
-  $('#show-example-results').click(function() {
+  $('#start-tour').click(function() {
     // Switch to this tab in the (hidden) navigation, so that if user opens "load
     // results," the tab corresponding to the displayed results will be shown.
     $('#load-server-nav').tab('show');
-    self._on_load_server();
+    self._on_load_server(function() {
+      var tour_guide = new TourGuide(self);
+      tour_guide.start();
+    });
   });
 }
 
@@ -269,9 +274,11 @@ Interface.hide_curtain = function(on_done) {
   $('#curtain').fadeOut(500, on_done);
 }
 
-Interface.prototype._display_results = function(results) {
+Interface.prototype._display_results = function(results, on_complete) {
   this._grapher.display_blast_results(results, '#results-container', this);
   this.update_results_info(results);
   Interface.hide_curtain();
   $('html, body').scrollTop(0);
+  if(typeof on_complete !== 'undefined')
+    on_complete();
 }

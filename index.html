@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet" href="css/ext/colpick.css">
+    <link rel="stylesheet" href="css/ext/bootstrap-tour.min.css">
 
     <link rel="stylesheet" href="css/kablammo.css">
     <!-- svg-css class indicates that this stylesheet should have its rules included in exported SVGs. -->
@@ -41,8 +42,8 @@
 
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
-            <li><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
+            <li id="load-results"><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
+            <li id="about"><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
           </ul>
         </div>
       </div>
@@ -79,7 +80,7 @@
                 </div>
               </div>
 
-              <div class="col-sm-6" id="max-result-controls">
+              <div class="col-sm-6" id="display-params">
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#">Display parameters</a></li>
                 </ul>
@@ -155,7 +156,7 @@
               <img src="img/example_results.svg" alt="Example results" id="example-results">
             </div>
             <div>
-              <button id="show-example-results" type="button" class="btn btn-primary btn-lg btn-block">Show example results &raquo;</button>
+              <button id="start-tour" type="button" class="btn btn-primary btn-lg btn-block">Show me how Kablammo works &raquo;</button>
             </div>
           </div>
         </div>
@@ -187,7 +188,7 @@
           <div class="subject-info">
             <div class="btn-group-vertical subject-buttons">
               <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <button type="button" class="export-image btn btn-default dropdown-toggle" data-toggle="dropdown">
                   Export image
                   <span class="caret"></span>
                 </button>
@@ -245,6 +246,7 @@
     <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/ext/colpick.js"></script>
+    <script type="text/javascript" src="js/ext/bootstrap-tour.min.js"></script>
 
     <script type="text/javascript" src="js/grapher.js"></script>
     <script type="text/javascript" src="js/blast_parser.js"></script>
@@ -252,6 +254,7 @@
     <script type="text/javascript" src="js/interface.js"></script>
     <script type="text/javascript" src="js/exporter.js"></script>
     <script type="text/javascript" src="js/alignment_viewer.js"></script>
+    <script type="text/javascript" src="js/tour_guide.js"></script>
     <script type="text/javascript" src="js/kablammo.js"></script>
   </body>
 </html>
