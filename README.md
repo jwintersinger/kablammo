@@ -41,7 +41,7 @@ Contact
 =======
 Reach me via [my web site][my site] or [on Twitter][my twitter].
 
-[kablammo]: http://kablammo.wintersinger.org
+[kablammo]: http://kablammo.wasmuthlab.org
 [kablammo blog]: http://jeff.wintersinger.org/posts/2013/07/introducing-kablammo-a-blast-visualization-tool/
 [my site]: http://jeff.wintersinger.org/
 [my twitter]: http://twitter.com/jwintersinger

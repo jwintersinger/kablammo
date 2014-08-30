@@ -43,7 +43,8 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <li id="load-results"><a href="#load"><span class="glyphicon glyphicon-cloud-upload"></span> Load results</a></li>
-            <li id="about"><a href="#about"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
+            <li id="help"><a href="#help"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>
+            <li id="about"><a href="#about"><span class="glyphicon glyphicon-info-sign"></span> About</a></li>
           </ul>
         </div>
       </div>
@@ -126,6 +127,44 @@
           </form>
         </div>
 
+        <div class="control-panel col-sm-12" id="control-panel-help">
+          <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+              <h3>How do I use Kablammo?</h3>
+              <p>To learn how Kablammo works, please <a class="start-tour" href="#">take the tour</a>.</p>
+
+              <h3>How do I load result data if I am using the web-based NCBI BLAST?</h3>
+              <p>If you are using the web-based NCBI BLAST, you must download its results in XML format before you can load them into Kablammo.</p>
+              <p><img src="img/ncbi_blast_help_1.png" alt="NCBI BLAST help 1"></p>
+              <p>First, click the Download link on the NCBI BLAST results page.</p>
+              <p><img src="img/ncbi_blast_help_2.png" alt="NCBI BLAST help 2"></p>
+              <p>Now, click the XML link to download results in XML format.</p>
+              <p><img src="img/choose_local_file_example.png" alt="Choose local file example"></p>
+              <p>Finally, click on <strong>Load results</strong> in Kablammo,
+              then click the <strong>Choose file ...</strong> button and choose
+              the <strong>Load results from your computer</strong> tab. Select
+              the XML file you just downloaded from NCBI BLAST, which will
+              likely be by default in your downloads directory.</p>
+
+              <h3>How do I load result data if I am using BLAST myself?</h3>
+              <p>If you are running BLAST yourself from the command line,
+              simply specify the <code>-outfmt 5</code> parameter to output
+              results in XML format. An example command, then, would be thus:</p>
+              <pre><code>blastn -query seqs.fa -db some/blast/db -outfmt 5 -out results.xml</code></pre>
+              <p>Once BLAST finishes, click <strong>Load
+              results</strong> in Kablammo, choose the <strong>Load results from
+              your computer</strong> tab, then click the <strong>Choose files
+              ...</strong> button and select the XML file that BLAST created.</p>
+              <p>If you want the BLAST results to be viewable from other
+              computers (such as when BLAST is running on a central lab server
+              instead of your own machine), read the <a
+              href="https://github.com/jwintersinger/kablammo#serving-blast-results">Serving
+              BLAST results</a> section in Kablammo's README.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
         <div class="control-panel col-sm-12" id="control-panel-about">
           <div class="row">
             <div class="col-sm-6 col-sm-offset-3">
@@ -180,7 +219,7 @@
               <img src="img/example_results.svg" alt="Example results" id="example-results">
             </div>
             <div>
-              <button id="start-tour" type="button" class="btn btn-primary btn-lg btn-block">Show me how Kablammo works &raquo;</button>
+              <button type="button" class="start-tour btn btn-primary btn-lg btn-block">Show me how Kablammo works &raquo;</button>
             </div>
           </div>
         </div>

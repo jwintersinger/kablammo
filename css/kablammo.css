@@ -34,6 +34,11 @@ a {
   }
 }
 
+#control-panel-help img {
+  display: block;
+  margin-top: 35px;
+}
+
 .navbar-header h1 {
   background-size: contain;
   background-repeat: no-repeat;
