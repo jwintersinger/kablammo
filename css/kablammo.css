@@ -26,7 +26,12 @@ a {
 }
 
 .navbar-nav {
-  margin-top: 42px;
+  margin-top: 8px;
+}
+@media(min-width: 768px) {
+  .navbar-nav {
+    margin-top: 42px;
+  }
 }
 
 .navbar-header h1 {
@@ -35,6 +40,7 @@ a {
   background-image: url('../img/kablammo_logo.svg');
   width: 300px;
   height: 60.92px;
+  margin-left: 1em;
 }
 
 .navbar-header span {
@@ -262,6 +268,14 @@ a {
 
 .query-seq span, .midline-seq span, .subject-seq span {
   padding: 2px;
+}
+
+.navbar-toggle {
+  background-color: transparent !important;
+}
+
+.navbar-toggle .icon-bar {
+  background-color: white !important;
 }
 
 /* AA colours taken from http://www.bioinformatics.nl/~berndb/aacolour.html. */

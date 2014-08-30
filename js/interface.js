@@ -80,6 +80,7 @@ Interface.prototype._configure_nav = function() {
     if($(this).hasClass('disabled-nav'))
       return;
 
+    $('.navbar-collapse').collapse('hide');
     if($(this).hasClass('active')) {
       self.deactivate_active_panel();
     } else {
