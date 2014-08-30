@@ -53,6 +53,4 @@ For given set of queries/subjects, generate Circos diagram showing HSPs between 
 "Only show subjects that align to at least x% of the query" (i.e., length of HSP union)
 
 James' requests:
-  Change "hit" to "alignment"
-  Make logo go back to "home"
   Make alignment viewing more simialr to NCBI version
