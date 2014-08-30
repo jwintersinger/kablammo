@@ -51,3 +51,8 @@ Visualize coverage of all hits across sequence
   Considering all hits, which parts of query sequence have no hits?
 For given set of queries/subjects, generate Circos diagram showing HSPs between them
 "Only show subjects that align to at least x% of the query" (i.e., length of HSP union)
+
+James' requests:
+  Change "hit" to "alignment"
+  Make logo go back to "home"
+  Make alignment viewing more simialr to NCBI version
