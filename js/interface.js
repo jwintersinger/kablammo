@@ -246,7 +246,7 @@ Interface.prototype._configure_query_form = function() {
 
 Interface.prototype._configure_tour = function() {
   var self = this;
-  $('#start-tour').click(function() {
+  $('.start-tour').click(function() {
     // Switch to this tab in the (hidden) navigation, so that if user opens "load
     // results," the tab corresponding to the displayed results will be shown.
     $('#load-server-nav').tab('show');
