@@ -53,8 +53,9 @@ a {
 }
 
 #results-container {
-  margin-left: 1em;
-  margin-right: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1100px;
 }
 
 #results-container > .row {
@@ -76,35 +77,17 @@ a {
 }
 
 .query-name, .subject-name {
-  display: inline-block;
   background-color: #69b2d7;
   vertical-align: bottom;
   padding: 8px 15px 8px 15px;
   text-align: right;
-  max-width: 60em;
 }
 
 .subject, .subject-header {
   margin-left: 1em;
 }
 
-.subject {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.subject-info {
-  display: inline-block;
-}
-
-.subject-params {
-  display: none;
-}
-
 .subject svg {
-  float: left;
-  margin-bottom: 1em;
-
   /* Prevent selecting axis labels and other text, which may happen
    * accidentally as user is clicking and dragging mouse to pan the SVG. */
   user-select: none;
@@ -116,18 +99,9 @@ a {
   user-select: none;
 }
 
-.subject-info {
-  margin-left: 2em;
-}
-
 .subject-params {
   list-style: none;
-  padding-left: 0;
-  float: left;
-}
-
-.subject-buttons {
-  margin-bottom: 1.5em;
+  display: none;
 }
 
 .subject-info span {

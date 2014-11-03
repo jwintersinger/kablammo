@@ -54,3 +54,11 @@ For given set of queries/subjects, generate Circos diagram showing HSPs between 
 
 James' requests:
   Make alignment viewing more simialr to NCBI version
+
+---------------------------
+Before submitting revisions
+---------------------------
+Export FASTA alignment
+Add numeric coordinates to alignment viewer
+Fix zooming in
+Add means of selecting HSPs

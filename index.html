@@ -244,33 +244,36 @@
           class="subject-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</div>
       </div>
 
-      <div class="row" id="example-subject-result">
-        <div class="subject">
+      <div class="row subject" id="example-subject-result">
+        <div class="subject-plot col-md-6">
           <!-- SVG inserted here via prepend(). -->
+        </div>
 
-          <div class="subject-info">
-            <div class="btn-group-vertical subject-buttons">
-              <div class="btn-group">
-                <button type="button" class="export-image btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  Export image
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li><a href="#" class="export-to-svg">Export to SVG</a></li>
-                  <li><a href="#" class="export-to-png">Export to PNG</a></li>
-                </ul>
-              </div>
-            </div>
+        <div class="subject-info col-md-3">
+          <ul class="subject-params">
+            <li><span>Subject ID:</span> Pants</li>
+            <li><span>Bit score:</span> Pants</li>
+            <li><span>E value:</span> Pants</li>
+            <li><span>Query coords:</span> Pants and socks</li>
+            <li><span>Subject coords:</span> Pants</li>
+            <li><span>Alignment length:</span> Pants</li>
+          </ul>
+        </div>
 
-            <ul class="subject-params">
-              <li><span>Subject ID:</span> Pants</li>
-              <li><span>Bit score:</span> Pants</li>
-              <li><span>E value:</span> Pants</li>
-              <li><span>Query coords:</span> Pants and socks</li>
-              <li><span>Subject coords:</span> Pants</li>
-              <li><span>Alignment length:</span> Pants</li>
+        <div class="btn-group-vertical subject-buttons col-md-3">
+          <div class="btn-group">
+            <button type="button" class="export-image btn btn-default dropdown-toggle" data-toggle="dropdown">
+              Export image
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" class="export-to-svg">Export to SVG</a></li>
+              <li><a href="#" class="export-to-png">Export to PNG</a></li>
             </ul>
           </div>
+          <button type="button" class="btn btn-default">View alignment</button>
+          <button type="button" class="btn btn-default">Export alignment</button>
+          <button type="button" class="btn btn-default">Deselect all alignments</button>
         </div>
 
         <div class="modal fade" id="alignment-viewer" tabindex="-1" role="dialog">

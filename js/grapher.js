@@ -457,7 +457,7 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
       subj_header.find('.subject-index').text(subject_label);
 
       var subj_result = $('#example-subject-result').clone().removeAttr('id');
-      var svg_container = d3.select(subj_result.find('.subject').get(0));
+      var svg_container = d3.select(subj_result.find('.subject-plot').get(0));
 
       self._create_graph(
         iteration.query_length,
