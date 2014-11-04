@@ -22,6 +22,20 @@ function Interface(grapher, loader) {
   this._configure_query_form();
   this._configure_tour();
   this._configure_help();
+  this._configure_hsp_outline_toggles();
+}
+
+
+Interface.prototype._configure_hsp_outline_toggles = function() {
+  var self = this;
+  $('body').on('change', '.toggle-hsp-outline', function() {
+    var svg = $(this).parents('.subject').find('svg');
+    if(this.checked) {
+      self._grapher.enable_hsp_outlines(svg);
+    } else {
+      self._grapher.disable_hsp_outlines(svg);
+    }
+  });
 }
 
 Interface.prototype._configure_tab_switching = function() {

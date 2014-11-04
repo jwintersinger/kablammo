@@ -6,6 +6,7 @@ function Grapher(alignment_viewer, use_complement_coords) {
   this._min_opacity  = 0.3;
   this._alignment_viewer = alignment_viewer;
   this._use_complement_coords = use_complement_coords;
+  this._show_hsp_outlines = true;
 }
 
 Grapher.prototype.get_graph_colour = function() {
@@ -22,8 +23,8 @@ Grapher.prototype._display_selected_hsp_count = function(svg) {
   var elem = svg_jq.parents('.subject').find('.selected-count');
 
   if(count === 1) {
-    var key = Object.keys(svg._selected)[0];
-    this._show_subject_params(svg_jq, svg._selected[key]);
+    var key = Object.keys(svg[0][0]._selected)[0];
+    this._show_subject_params(svg_jq, svg[0][0]._selected[key]);
   } else {
     this._hide_subject_params(svg_jq);
   }
@@ -33,7 +34,7 @@ Grapher.prototype._display_selected_hsp_count = function(svg) {
     return;
   } else {
     if(count === 1) {
-      var desc = 'Alignment #' + (parseInt(Object.keys(svg._selected)[0], 10) + 1) + ' selected';
+      var desc = 'Alignment #' + (parseInt(Object.keys(svg[0][0]._selected)[0], 10) + 1) + ' selected';
     } else {
       var desc = count + ' alignments selected';
     }
@@ -306,15 +307,38 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
          self._results.subject_seq_type
        );
      });
+
+  this._add_outline_to_selected(svg);
+}
+
+Grapher.prototype._change_outline_on_selected = function(svg, use_outline) {
+  var self = this;
+  var all_hits = svg.selectAll('.hit');
+  for(var idx in svg[0][0]._selected) {
+    console.log(idx);
+    var hit = d3.select(all_hits[0][idx]);
+    hit.classed('selected', use_outline);
+  }
+}
+
+Grapher.prototype._add_outline_to_selected = function(svg) {
+  if(!this._show_hsp_outlines)
+    return;
+  this._change_outline_on_selected(svg, true);
+}
+
+Grapher.prototype._remove_outline_from_selected = function(svg) {
+  this._change_outline_on_selected(svg, false);
 }
 
 Grapher.prototype._select_hsp = function(svg, polygon, clicked_hsp, hsp_index) {
   if(this._is_hsp_selected(svg, hsp_index))
     return;
-  svg._selected[hsp_index] = clicked_hsp;
+  svg[0][0]._selected[hsp_index] = clicked_hsp;
   this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
-  d3.select(polygon).classed('selected', true);
+  if(this._show_hsp_outlines)
+    d3.select(polygon).classed('selected', true);
 
   var count = this._count_selected_hsps(svg);
   if(count === 1) {
@@ -323,7 +347,7 @@ Grapher.prototype._select_hsp = function(svg, polygon, clicked_hsp, hsp_index) {
 }
 
 Grapher.prototype._deselect_hsp = function(svg, polygon, hsp_index) {
-  delete svg._selected[hsp_index];
+  delete svg[0][0]._selected[hsp_index];
   this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
   d3.select(polygon).classed('selected', false);
@@ -335,11 +359,11 @@ Grapher.prototype._deselect_hsp = function(svg, polygon, hsp_index) {
 }
 
 Grapher.prototype._is_hsp_selected = function(svg, index) {
-  return index in svg._selected;
+  return index in svg[0][0]._selected;
 }
 
 Grapher.prototype._count_selected_hsps = function(svg) {
-  return Object.keys(svg._selected).length;
+  return Object.keys(svg[0][0]._selected).length;
 }
 
 Grapher.prototype._render_axes = function(svg, scales) {
@@ -507,7 +531,7 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   // passing around "svg" as a parameter to almost every method. Using a single
   // global instance of Grapher made sense in a more primitive version of the
   // app, but it no longer does.
-  svg._selected = {}
+  svg[0][0]._selected = {}
   var scales = this._create_scales(padding_x, padding_y, canvas_width,
                                    canvas_height, query_length, subject_length, hsps);
   this._render_graph(svg, hsps, scales);
@@ -584,4 +608,14 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
       $(results_container).append(subj_header).append(subj_result);
     });
   });
+}
+
+Grapher.prototype.enable_hsp_outlines = function(svg) {
+  this._show_hsp_outlines = true;
+  this._add_outline_to_selected(d3.select(svg[0]));
+}
+
+Grapher.prototype.disable_hsp_outlines = function(svg) {
+  this._show_hsp_outlines = false;
+  this._remove_outline_from_selected(d3.select(svg[0]));
 }
