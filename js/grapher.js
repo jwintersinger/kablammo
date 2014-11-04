@@ -292,9 +292,9 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        self._fade_unselected(svg, 0.1);
      }).on('click', function(clicked_hsp, clicked_index) {
        if(!self._is_hsp_selected(svg, clicked_index)) {
-         self._select_hsp(svg, clicked_hsp, clicked_index);
+         self._select_hsp(svg, this, clicked_hsp, clicked_index);
        } else {
-         self._deselect_hsp(svg, clicked_index);
+         self._deselect_hsp(svg, this, clicked_index);
        }
        return;
 
@@ -306,18 +306,20 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      });
 }
 
-Grapher.prototype._select_hsp = function(svg, clicked_hsp, hsp_index) {
+Grapher.prototype._select_hsp = function(svg, polygon, clicked_hsp, hsp_index) {
   if(this._is_hsp_selected(svg, hsp_index))
     return;
   svg._selected[hsp_index] = clicked_hsp;
   this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
+  d3.select(polygon).classed('selected', true);
 }
 
-Grapher.prototype._deselect_hsp = function(svg, hsp_index) {
+Grapher.prototype._deselect_hsp = function(svg, polygon, hsp_index) {
   delete svg._selected[hsp_index];
   this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
+  d3.select(polygon).classed('selected', false);
 }
 
 Grapher.prototype._is_hsp_selected = function(svg, index) {
