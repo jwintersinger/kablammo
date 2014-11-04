@@ -299,13 +299,6 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        } else {
          self._deselect_hsp(svg, this, clicked_index);
        }
-       return;
-
-       self._alignment_viewer.view_alignment(
-         clicked_hsp,
-         self._results.query_seq_type,
-         self._results.subject_seq_type
-       );
      });
 
   this._add_outline_to_selected(svg);
@@ -617,4 +610,13 @@ Grapher.prototype.enable_hsp_outlines = function(svg) {
 Grapher.prototype.disable_hsp_outlines = function(svg) {
   this._show_hsp_outlines = false;
   this._remove_outline_from_selected(d3.select(svg[0]));
+}
+
+Grapher.prototype.view_alignment = function(svg) {
+  svg = svg[0];
+  this._alignment_viewer.view_alignments(
+    svg._selected,
+    this._results.query_seq_type,
+    this._results.subject_seq_type
+  );
 }

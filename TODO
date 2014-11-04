@@ -62,3 +62,4 @@ Export FASTA alignment
 Add numeric coordinates to alignment viewer
 Fix zooming in
 Add means of selecting HSPs
+  Fix non-selected opacity resets when user zooms

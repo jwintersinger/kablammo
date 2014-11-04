@@ -234,6 +234,13 @@
     </div>
 
     <div id="snippets">
+      <div class="alignment" id="example-alignment">
+        <h3 class="alignment-name">Pants</h3>
+        <pre><div class="query-seq"></div><div
+                  class="midline-seq"></div><div
+                  class="subject-seq"></div></pre>
+      </div>
+
       <div class="query-header row" id="example-query-header">
         <div class="query-index">Query 1 of 4</div><div
           class="query-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</div>
@@ -273,9 +280,9 @@
               <li><a href="#" class="export-to-png">Export to PNG</a></li>
             </ul>
             <div class="hsp-selection-controls">
-              <button type="button" class="btn btn-default">View alignment</button>
-              <button type="button" class="btn btn-default">Export alignment</button>
-              <button type="button" class="btn btn-default">Deselect all alignments</button>
+              <button type="button" class="btn btn-default view-alignment">View alignments</button>
+              <button type="button" class="btn btn-default export-alignment">Export alignments</button>
+              <button type="button" class="btn btn-default deselect-all-hsps">Deselect all alignments</button>
               <div class="checkbox">
                 <label>
                   <input class="toggle-hsp-outline" type="checkbox" value="" checked="checked">
@@ -293,10 +300,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Alignment viewer</h4>
               </div>
-              <div class="modal-body">
-                <pre><div class="query-seq"></div><div
-                          class="midline-seq"></div><div
-                          class="subject-seq"></div></pre>
+              <div class="modal-body alignments">
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>

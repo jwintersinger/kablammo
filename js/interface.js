@@ -22,14 +22,30 @@ function Interface(grapher, loader) {
   this._configure_query_form();
   this._configure_tour();
   this._configure_help();
-  this._configure_hsp_outline_toggles();
+  this._configure_hsp_outline_controls();
 }
 
-
-Interface.prototype._configure_hsp_outline_toggles = function() {
+Interface.prototype._configure_hsp_outline_controls = function() {
   var self = this;
+
+  var find_svg = function(elem) {
+    var svg = $(elem).parents('.subject').find('svg');
+    return svg;
+  }
+
+  $('body').on('click', '.view-alignment', function() {
+    var svg = find_svg(this);
+    self._grapher.view_alignment(svg);
+  });
+
+  $('body').on('click', '.export-alignment', function() {
+  });
+
+  $('body').on('click', '.deselect-all-hsps', function() {
+  });
+
   $('body').on('change', '.toggle-hsp-outline', function() {
-    var svg = $(this).parents('.subject').find('svg');
+    var svg = find_svg(this);
     if(this.checked) {
       self._grapher.enable_hsp_outlines(svg);
     } else {
