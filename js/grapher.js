@@ -16,6 +16,31 @@ Grapher.prototype.set_graph_colour = function(graph_colour) {
   this._graph_colour = graph_colour;
 }
 
+Grapher.prototype._display_selected_hsp_count = function(svg) {
+  var count = this._count_selected_hsps(svg);
+  var svg_jq = $(svg[0][0]);
+  var elem = svg_jq.parents('.subject').find('.selected-count');
+
+  if(count === 1) {
+    var key = Object.keys(svg._selected)[0];
+    this._show_subject_params(svg_jq, svg._selected[key]);
+  } else {
+    this._hide_subject_params(svg_jq);
+  }
+
+  if(count === 0) {
+    elem.hide();
+    return;
+  } else {
+    if(count === 1) {
+      var desc = 'Alignment #' + (parseInt(Object.keys(svg._selected)[0], 10) + 1) + ' selected';
+    } else {
+      var desc = count + ' alignments selected';
+    }
+    elem.show().html(desc);
+  }
+}
+
 Grapher.prototype._show_subject_params = function(svg, hsp) {
   svg = $(svg);
   var position_formatter = d3.format(',d');
@@ -254,14 +279,20 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
         return point[0] + ',' + point[1];
        }).join(' ');
      }).on('mouseenter', function(hovered_hsp, hovered_index) {
+       if(self._count_selected_hsps(svg) > 0) {
+         return;
+       }
        self._show_subject_params(svg[0][0], hovered_hsp);
        self._fade_unhovered(svg, hovered_index, 0.1);
      }).on('mouseleave', function(hovered_hsp, hovered_index) {
+       if(self._is_hsp_selected(svg, hovered_index)) {
+         return;
+       }
        self._hide_subject_params(svg[0][0])
        self._fade_unselected(svg, 0.1);
      }).on('click', function(clicked_hsp, clicked_index) {
        if(!self._is_hsp_selected(svg, clicked_index)) {
-         self._select_hsp(svg, clicked_index);
+         self._select_hsp(svg, clicked_hsp, clicked_index);
        } else {
          self._deselect_hsp(svg, clicked_index);
        }
@@ -275,27 +306,26 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
      });
 }
 
-Grapher.prototype._select_hsp = function(svg, hsp_index) {
+Grapher.prototype._select_hsp = function(svg, clicked_hsp, hsp_index) {
   if(this._is_hsp_selected(svg, hsp_index))
     return;
-  svg._selected.push(hsp_index);
+  svg._selected[hsp_index] = clicked_hsp;
   this._fade_unselected(svg, 0.1);
+  this._display_selected_hsp_count(svg);
 }
 
 Grapher.prototype._deselect_hsp = function(svg, hsp_index) {
-  var idx = svg._selected.indexOf(hsp_index);
-  if(idx === -1)
-    return;
-  svg._selected.splice(idx, 1);
+  delete svg._selected[hsp_index];
   this._fade_unselected(svg, 0.1);
+  this._display_selected_hsp_count(svg);
 }
 
 Grapher.prototype._is_hsp_selected = function(svg, index) {
-  return svg._selected.indexOf(index) !== -1;
+  return index in svg._selected;
 }
 
 Grapher.prototype._count_selected_hsps = function(svg) {
-  return svg._selected.length;
+  return Object.keys(svg._selected).length;
 }
 
 Grapher.prototype._render_axes = function(svg, scales) {
@@ -455,7 +485,15 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   var svg = svg_container.insert('svg', ':first-child') // Prepend to svg_container
                          .attr('width', canvas_width)
                          .attr('height', canvas_height);
-  svg._selected = [];
+  // TODO: rearchitect this whole class so that separate instances are created
+  // for each subject, instead of maintaining a single global instance. This
+  // would let me store state in each instance. This means I could store
+  // svg._selected as a property of the D3 SVG object, but instead allowing me to
+  // place it as an instance variable on Grapher. It would also let me cease
+  // passing around "svg" as a parameter to almost every method. Using a single
+  // global instance of Grapher made sense in a more primitive version of the
+  // app, but it no longer does.
+  svg._selected = {}
   var scales = this._create_scales(padding_x, padding_y, canvas_width,
                                    canvas_height, query_length, subject_length, hsps);
   this._render_graph(svg, hsps, scales);
@@ -468,8 +506,6 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
   var self = this;
   this._results = results;
 
-  // TODO: determine whether to keep below line.
-  //$('#results-container').show(); // Hidden by default at app start.
   $(results_container).children().remove();
 
   var iterations = this._results.filtered_iterations;

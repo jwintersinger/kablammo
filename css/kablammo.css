@@ -99,13 +99,22 @@ a {
   user-select: none;
 }
 
+.subject-info {
+  padding-left: 2em;
+}
+
 .subject-params {
   list-style: none;
   display: none;
+  padding-left: 0;
 }
 
 .subject-info span {
   font-weight: bold;
+}
+
+.subject .selected-count {
+  display: none;
 }
 
 #control-panels .control-panel {
