@@ -315,7 +315,6 @@ Grapher.prototype._change_outline_on_selected = function(svg, use_outline) {
   var self = this;
   var all_hits = svg.selectAll('.hit');
   for(var idx in svg[0][0]._selected) {
-    console.log(idx);
     var hit = d3.select(all_hits[0][idx]);
     hit.classed('selected', use_outline);
   }
