@@ -285,7 +285,9 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        self._show_subject_params(svg[0][0], hovered_hsp);
        self._fade_unhovered(svg, hovered_index, 0.1);
      }).on('mouseleave', function(hovered_hsp, hovered_index) {
-       if(self._is_hsp_selected(svg, hovered_index)) {
+       // If *any* HSP is selected, do nothing -- we don't want to fade out the
+       // subject-params for whatever HSP is selected.
+       if(self._count_selected_hsps(svg) > 0) {
          return;
        }
        self._hide_subject_params(svg[0][0])
