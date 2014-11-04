@@ -63,3 +63,4 @@ Add numeric coordinates to alignment viewer
 Fix zooming in
 Add means of selecting HSPs
   Fix non-selected opacity resets when user zooms
+  Make scrollbars appear for OS X users
