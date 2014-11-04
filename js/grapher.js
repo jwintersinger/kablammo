@@ -315,6 +315,11 @@ Grapher.prototype._select_hsp = function(svg, polygon, clicked_hsp, hsp_index) {
   this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
   d3.select(polygon).classed('selected', true);
+
+  var count = this._count_selected_hsps(svg);
+  if(count === 1) {
+    $(svg[0][0]).parents('.subject').find('.hsp-selection-controls').slideDown();
+  }
 }
 
 Grapher.prototype._deselect_hsp = function(svg, polygon, hsp_index) {
@@ -322,6 +327,11 @@ Grapher.prototype._deselect_hsp = function(svg, polygon, hsp_index) {
   this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
   d3.select(polygon).classed('selected', false);
+
+  var count = this._count_selected_hsps(svg);
+  if(count === 0) {
+    $(svg[0][0]).parents('.subject').find('.hsp-selection-controls').slideUp();
+  }
 }
 
 Grapher.prototype._is_hsp_selected = function(svg, index) {

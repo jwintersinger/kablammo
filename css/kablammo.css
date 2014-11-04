@@ -117,6 +117,14 @@ a {
   display: none;
 }
 
+.subject-buttons .hsp-selection-controls {
+  display: none;
+}
+
+.subject-buttons .hsp-selection-controls button {
+  width: 100%;
+}
+
 #control-panels .control-panel {
   background-color: white;
   padding-top: 15px;
