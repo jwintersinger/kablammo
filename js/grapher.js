@@ -46,14 +46,48 @@ Grapher.prototype._hide_subject_params = function(svg) {
   $(svg).parents('.subject').find('.subject-params').hide();
 }
 
-Grapher.prototype._fade_other_polygons = function(svg, hovered_index, opacity) {
-   svg.selectAll('.hit')
-      .filter(function(hit, index) {
-        return index !== hovered_index;
-      })
-      .transition()
-      .duration(200)
-      .style('opacity', opacity);
+Grapher.prototype._fade_subset = function(svg, predicate, faded_opacity) {
+  var all_hsps = svg.selectAll('.hit');
+  var to_make_opaque = [];
+  var to_fade = [];
+
+  all_hsps.each(function(d, idx) {
+    if(predicate(this, idx)) {
+      to_fade.push(this);
+    } else {
+      to_make_opaque.push(this);
+    }
+  });
+
+  this._set_hsp_opacity(d3.selectAll(to_make_opaque), 1);
+  this._set_hsp_opacity(d3.selectAll(to_fade),        faded_opacity);
+}
+
+Grapher.prototype._fade_unhovered = function(svg, hovered_idx, opacity) {
+  var self = this;
+  this._fade_subset(svg, function(hsp, idx) {
+    return !(idx === hovered_idx || self._is_hsp_selected(svg, idx));
+  }, 0.1);
+}
+
+Grapher.prototype._fade_unselected = function(svg, opacity) {
+  // If nothing is selected, everything should be opaque.
+  if(this._count_selected_hsps(svg) === 0) {
+    var all_hsps = svg.selectAll('.hit');
+    this._set_hsp_opacity(all_hsps, 1);
+    return;
+  }
+
+  var self = this;
+  this._fade_subset(svg, function(hsp, idx) {
+    return !self._is_hsp_selected(svg, idx);
+  }, 0.1);
+}
+
+Grapher.prototype._set_hsp_opacity = function(hsps, opacity) {
+  hsps.transition()
+    .duration(200)
+    .style('opacity', opacity);
 }
 
 Grapher.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
@@ -219,19 +253,49 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        return points.map(function(point) {
         return point[0] + ',' + point[1];
        }).join(' ');
-     }).on('mouseover', function(hovered_hsp, hovered_index) {
+     }).on('mouseenter', function(hovered_hsp, hovered_index) {
        self._show_subject_params(svg[0][0], hovered_hsp);
-       self._fade_other_polygons(svg, hovered_index, 0.1);
-     }).on('mouseout', function(hovered_hsp, hovered_index) {
+       self._fade_unhovered(svg, hovered_index, 0.1);
+     }).on('mouseleave', function(hovered_hsp, hovered_index) {
        self._hide_subject_params(svg[0][0])
-       self._fade_other_polygons(svg, hovered_index, 1);
-     }).on('click', function(clicked_hsp) {
+       self._fade_unselected(svg, 0.1);
+     }).on('click', function(clicked_hsp, clicked_index) {
+       if(!self._is_hsp_selected(svg, clicked_index)) {
+         self._select_hsp(svg, clicked_index);
+       } else {
+         self._deselect_hsp(svg, clicked_index);
+       }
+       return;
+
        self._alignment_viewer.view_alignment(
          clicked_hsp,
          self._results.query_seq_type,
          self._results.subject_seq_type
        );
      });
+}
+
+Grapher.prototype._select_hsp = function(svg, hsp_index) {
+  if(this._is_hsp_selected(svg, hsp_index))
+    return;
+  svg._selected.push(hsp_index);
+  this._fade_unselected(svg, 0.1);
+}
+
+Grapher.prototype._deselect_hsp = function(svg, hsp_index) {
+  var idx = svg._selected.indexOf(hsp_index);
+  if(idx === -1)
+    return;
+  svg._selected.splice(idx, 1);
+  this._fade_unselected(svg, 0.1);
+}
+
+Grapher.prototype._is_hsp_selected = function(svg, index) {
+  return svg._selected.indexOf(index) !== -1;
+}
+
+Grapher.prototype._count_selected_hsps = function(svg) {
+  return svg._selected.length;
 }
 
 Grapher.prototype._render_axes = function(svg, scales) {
@@ -391,6 +455,7 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   var svg = svg_container.insert('svg', ':first-child') // Prepend to svg_container
                          .attr('width', canvas_width)
                          .attr('height', canvas_height);
+  svg._selected = [];
   var scales = this._create_scales(padding_x, padding_y, canvas_width,
                                    canvas_height, query_length, subject_length, hsps);
   this._render_graph(svg, hsps, scales);
