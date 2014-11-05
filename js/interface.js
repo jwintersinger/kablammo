@@ -28,32 +28,29 @@ function Interface(grapher, loader) {
 Interface.prototype._configure_hsp_outline_controls = function() {
   var self = this;
 
-  var find_svg = function(elem) {
-    var svg = $(elem).parents('.subject').find('svg');
-    return svg;
+  var get_grapher = function(elem) {
+    var container = $(elem).parents('.subject');
+    return container[0]._grapher;
   }
 
   $('body').on('click', '.view-alignment', function() {
-    var svg = find_svg(this);
-    self._grapher.view_alignments(svg);
+    get_grapher(this).view_alignments();
   });
 
   $('body').on('click', '.export-alignment', function() {
-    var svg = find_svg(this);
-    self._grapher.export_alignments(svg);
+    get_grapher(this).export_alignments();
   });
 
   $('body').on('click', '.deselect-all-hsps', function() {
-    var svg = find_svg(this);
-    self._grapher.deselect_all_alignments(svg);
+    get_grapher(this).deselect_all_alignments();
   });
 
   $('body').on('change', '.toggle-hsp-outline', function() {
-    var svg = find_svg(this);
+    var grapher = get_grapher(this);
     if(this.checked) {
-      self._grapher.enable_hsp_outlines(svg);
+      grapher.enable_hsp_outlines();
     } else {
-      self._grapher.disable_hsp_outlines(svg);
+      grapher.disable_hsp_outlines();
     }
   });
 }
