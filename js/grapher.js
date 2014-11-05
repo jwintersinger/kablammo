@@ -3,11 +3,12 @@
 // TODO: rearchitect this whole class so that separate instances are created.
 // This is badly needed. See comment in _create_graph().
 
-function Grapher(alignment_viewer, use_complement_coords) {
+function Grapher(alignment_viewer, alignment_exporter, use_complement_coords) {
   this._graph_colour = { r: 30, g: 139, b: 195 };
   this._matte_colour = { r: 255, g: 255, b: 255 };
   this._min_opacity  = 0.3;
   this._alignment_viewer = alignment_viewer;
+  this._alignment_exporter = alignment_exporter;
   this._use_complement_coords = use_complement_coords;
   this._show_hsp_outlines = true;
 }
@@ -619,12 +620,19 @@ Grapher.prototype.disable_hsp_outlines = function(svg) {
   this._remove_outline_from_selected(d3.select(svg[0]));
 }
 
-Grapher.prototype.view_alignment = function(svg) {
+Grapher.prototype.view_alignments = function(svg) {
   svg = svg[0];
   this._alignment_viewer.view_alignments(
     svg._selected,
     this._results.query_seq_type,
     this._results.subject_seq_type
+  );
+}
+
+Grapher.prototype.export_alignments = function(svg) {
+  svg = svg[0];
+  this._alignment_exporter.export_alignments(
+    svg._selected
   );
 }
 

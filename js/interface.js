@@ -35,10 +35,12 @@ Interface.prototype._configure_hsp_outline_controls = function() {
 
   $('body').on('click', '.view-alignment', function() {
     var svg = find_svg(this);
-    self._grapher.view_alignment(svg);
+    self._grapher.view_alignments(svg);
   });
 
   $('body').on('click', '.export-alignment', function() {
+    var svg = find_svg(this);
+    self._grapher.export_alignments(svg);
   });
 
   $('body').on('click', '.deselect-all-hsps', function() {
