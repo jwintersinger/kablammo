@@ -1,4 +1,4 @@
-function Exporter(container_selector, export_svg_selector, export_png_selector) {
+function ImageExporter(container_selector, export_svg_selector, export_png_selector) {
   var self = this;
   var handle_click = function(export_callback) {
     return function() {
@@ -17,7 +17,7 @@ function Exporter(container_selector, export_svg_selector, export_png_selector) 
   container.on('click', export_png_selector, handle_click(this._export_png));
 }
 
-Exporter.prototype._get_styles = function(doc) {
+ImageExporter.prototype._get_styles = function(doc) {
   // Based on https://github.com/NYTimes/svg-crowbar.
   var styles      = '';
 
@@ -72,7 +72,7 @@ Exporter.prototype._get_styles = function(doc) {
   return styles;
 }
 
-Exporter.prototype._sanitize_filename = function(str) {
+ImageExporter.prototype._sanitize_filename = function(str) {
   var san = str.replace(/[^a-zA-Z0-9=_\-]/g, '_');
   // Replace runs of underscores with single one.
   san = san.replace(/_{2,}/g, '_');
@@ -81,7 +81,7 @@ Exporter.prototype._sanitize_filename = function(str) {
   return san;
 }
 
-Exporter.prototype._serialize_svg = function(svg, styles) {
+ImageExporter.prototype._serialize_svg = function(svg, styles) {
   // Based on https://github.com/NYTimes/svg-crowbar.
 
   // We do not wish any of our changes to affect the SVG inserted in the
@@ -124,7 +124,7 @@ Exporter.prototype._serialize_svg = function(svg, styles) {
   return doctype + source;
 }
 
-Exporter.prototype._download_file = function(url, filename) {
+ImageExporter.prototype._download_file = function(url, filename) {
   var a = d3.select('body')
             .append('a')
             .style('display', 'none')
@@ -134,7 +134,7 @@ Exporter.prototype._download_file = function(url, filename) {
   return a;
 }
 
-Exporter.prototype._download_blob = function(blob, filename) {
+ImageExporter.prototype._download_blob = function(blob, filename) {
   if(typeof window.navigator.msSaveOrOpenBlob !== 'undefined') {
     window.navigator.msSaveOrOpenBlob(blob, filename);
     return;
@@ -149,13 +149,13 @@ Exporter.prototype._download_blob = function(blob, filename) {
   }, 100);
 }
 
-Exporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) {
+ImageExporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) {
   var blob = new Blob([serialized_svg], { type: 'text/xml' });
   var filename = this._sanitize_filename(filename_prefix) + '.svg';
   this._download_blob(blob, filename);
 }
 
-Exporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) {
+ImageExporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) {
   // In future, when all browsers support canvas.toBlob() and
   // canvas.toBlobHD(), we should be able to use it. Currently, however, Chrome
   // and IE do not support it. Furthermore, IE 11 doesn't support my current

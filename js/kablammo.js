@@ -13,7 +13,7 @@ function Kablammo() {
   this._parser        = new BlastParser(use_complement_coords);
   this._loader        = new BlastResultsLoader(this._parser);
   this._iface         = new Interface(this._grapher, this._loader);
-  this._exporter      = new Exporter('#results-container', '.export-to-svg', '.export-to-png');
+  this._img_exporter  = new ImageExporter('#results-container', '.export-to-svg', '.export-to-png');
 }
 
 function main() {
