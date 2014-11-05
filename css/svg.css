@@ -16,6 +16,12 @@
   cursor: pointer;
 }
 
+.hit.selected {
+  stroke: rgba(0, 0, 0, 0.4);
+  stroke-width: 2px;
+  stroke-dasharray: 5,5;
+}
+
 .axis-label {
   font-size: 11px;
 }

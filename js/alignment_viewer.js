@@ -23,10 +23,20 @@ AlignmentViewer.prototype._color_seq = function(seq, seq_type) {
   return coloured.join('');
 }
 
-AlignmentViewer.prototype.view_alignment = function(hsp, query_seq_type, subject_seq_type) {
+AlignmentViewer.prototype.view_alignments = function(hsps, query_seq_type, subject_seq_type) {
   var viewer = $('#alignment-viewer');
-  viewer.find('.query-seq').html(  '  Query: ' + this._color_seq(hsp.query_seq, query_seq_type));
-  viewer.find('.midline-seq').html('         ' + this._colour_midline(hsp.midline_seq));
-  viewer.find('.subject-seq').html('Subject: ' + this._color_seq(hsp.subject_seq, subject_seq_type));
-  viewer.modal('show');
+  var self = this;
+
+  var container = viewer.find('.alignments');
+  container.empty();
+  Object.keys(hsps).forEach(function(idx) {
+    var hsp = hsps[idx];
+    var alignment = $('#example-alignment').clone().removeAttr('id');
+    alignment.find('.alignment-name').html('Alignment #' + (parseInt(idx, 10) + 1));
+    alignment.find('.query-seq').html(  '  Query: ' + self._color_seq(hsp.query_seq, query_seq_type));
+    alignment.find('.midline-seq').html('         ' + self._colour_midline(hsp.midline_seq));
+    alignment.find('.subject-seq').html('Subject: ' + self._color_seq(hsp.subject_seq, subject_seq_type));
+    container.append(alignment);
+    viewer.modal('show');
+  });
 }

@@ -234,6 +234,13 @@
     </div>
 
     <div id="snippets">
+      <div class="alignment" id="example-alignment">
+        <h3 class="alignment-name">Pants</h3>
+        <pre><div class="query-seq"></div><div
+                  class="midline-seq"></div><div
+                  class="subject-seq"></div></pre>
+      </div>
+
       <div class="query-header row" id="example-query-header">
         <div class="query-index">Query 1 of 4</div><div
           class="query-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</div>
@@ -244,32 +251,47 @@
           class="subject-name">tgme49_asmbl.111 | organism=Toxoplasma_gondii_ME49 | version=2012-07-08 | length=6619 | SO=supercontig</div>
       </div>
 
-      <div class="row" id="example-subject-result">
-        <div class="subject">
+      <div class="row subject" id="example-subject-result">
+        <div class="subject-plot col-md-6">
           <!-- SVG inserted here via prepend(). -->
+        </div>
 
-          <div class="subject-info">
-            <div class="btn-group-vertical subject-buttons">
-              <div class="btn-group">
-                <button type="button" class="export-image btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  Export image
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li><a href="#" class="export-to-svg">Export to SVG</a></li>
-                  <li><a href="#" class="export-to-png">Export to PNG</a></li>
-                </ul>
+        <div class="subject-info col-md-3">
+          <p class="selected-count"></p>
+
+          <ul class="subject-params">
+            <li><span>Subject ID:</span> Pants</li>
+            <li><span>Bit score:</span> Pants</li>
+            <li><span>E value:</span> Pants</li>
+            <li><span>Query coords:</span> Pants and socks</li>
+            <li><span>Subject coords:</span> Pants</li>
+            <li><span>Alignment length:</span> Pants</li>
+          </ul>
+        </div>
+
+        <div class="btn-group-vertical subject-buttons col-md-3">
+          <div class="btn-group">
+            <button type="button" class="export-image btn btn-default dropdown-toggle" data-toggle="dropdown">
+              Export image
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" class="export-to-svg">Export to SVG</a></li>
+              <li><a href="#" class="export-to-png">Export to PNG</a></li>
+            </ul>
+          </div>
+          <div class="btn-group">
+            <div class="hsp-selection-controls">
+              <button type="button" class="btn btn-default view-alignment">View alignments</button>
+              <button type="button" class="btn btn-default export-alignment">Export alignments</button>
+              <button type="button" class="btn btn-default deselect-all-hsps">Deselect all alignments</button>
+              <div class="checkbox">
+                <label>
+                  <input class="toggle-hsp-outline" type="checkbox" value="" checked="checked">
+                  Outline selected alignments
+                </label>
               </div>
             </div>
-
-            <ul class="subject-params">
-              <li><span>Subject ID:</span> Pants</li>
-              <li><span>Bit score:</span> Pants</li>
-              <li><span>E value:</span> Pants</li>
-              <li><span>Query coords:</span> Pants and socks</li>
-              <li><span>Subject coords:</span> Pants</li>
-              <li><span>Alignment length:</span> Pants</li>
-            </ul>
           </div>
         </div>
 
@@ -280,10 +302,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Alignment viewer</h4>
               </div>
-              <div class="modal-body">
-                <pre><div class="query-seq"></div><div
-                          class="midline-seq"></div><div
-                          class="subject-seq"></div></pre>
+              <div class="modal-body alignments">
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -312,11 +331,14 @@
     <script type="text/javascript" src="js/ext/bootstrap-tour.min.js"></script>
 
     <script type="text/javascript" src="js/grapher.js"></script>
+    <script type="text/javascript" src="js/graph.js"></script>
     <script type="text/javascript" src="js/blast_parser.js"></script>
     <script type="text/javascript" src="js/blast_results_loader.js"></script>
     <script type="text/javascript" src="js/interface.js"></script>
     <script type="text/javascript" src="js/exporter.js"></script>
+    <script type="text/javascript" src="js/image_exporter.js"></script>
     <script type="text/javascript" src="js/alignment_viewer.js"></script>
+    <script type="text/javascript" src="js/alignment_exporter.js"></script>
     <script type="text/javascript" src="js/tour_guide.js"></script>
     <script type="text/javascript" src="js/kablammo.js"></script>
   </body>
