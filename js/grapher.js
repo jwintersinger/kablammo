@@ -523,11 +523,13 @@ Grapher.prototype._create_graph = function(query_length, subject_length, hsps, s
   // TODO: rearchitect this whole class so that separate instances are created
   // for each subject, instead of maintaining a single global instance. This
   // would let me store state in each instance. This means I could store
-  // svg._selected as a property of the D3 SVG object, but instead allowing me to
-  // place it as an instance variable on Grapher. It would also let me cease
+  // svg._selected as a property of the D3 SVG object, but instead allowing me
+  // to place it as an instance variable on Grapher. It would also let me cease
   // passing around "svg" as a parameter to almost every method. Using a single
   // global instance of Grapher made sense in a more primitive version of the
-  // app, but it no longer does.
+  // app, but it no longer does. (For example, this means I could store
+  // _selected as a property of Grapher, instead of the SVG node associated
+  // with each plot.)
   svg[0][0]._selected = {}
   var scales = this._create_scales(padding_x, padding_y, canvas_width,
                                    canvas_height, query_length, subject_length, hsps);
@@ -624,4 +626,14 @@ Grapher.prototype.view_alignment = function(svg) {
     this._results.query_seq_type,
     this._results.subject_seq_type
   );
+}
+
+Grapher.prototype.deselect_all_alignments = function(svg) {
+  svg = d3.select(svg[0]);
+  var all_polygons = svg.selectAll('.hit');
+  for(var idx in Object.keys(svg[0][0]._selected)) {
+    idx = parseInt(idx, 10);
+    var polygon = all_polygons[0][idx];
+    this._deselect_hsp(svg, polygon, idx);
+  }
 }

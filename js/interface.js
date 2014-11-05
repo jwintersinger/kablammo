@@ -42,6 +42,8 @@ Interface.prototype._configure_hsp_outline_controls = function() {
   });
 
   $('body').on('click', '.deselect-all-hsps', function() {
+    var svg = find_svg(this);
+    self._grapher.deselect_all_alignments(svg);
   });
 
   $('body').on('change', '.toggle-hsp-outline', function() {
