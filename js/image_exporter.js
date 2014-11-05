@@ -1,4 +1,6 @@
 function ImageExporter(container_selector, export_svg_selector, export_png_selector) {
+  this._exporter = new Exporter();
+
   var self = this;
   var handle_click = function(export_callback) {
     return function() {
@@ -72,15 +74,6 @@ ImageExporter.prototype._get_styles = function(doc) {
   return styles;
 }
 
-ImageExporter.prototype._sanitize_filename = function(str) {
-  var san = str.replace(/[^a-zA-Z0-9=_\-]/g, '_');
-  // Replace runs of underscores with single one.
-  san = san.replace(/_{2,}/g, '_');
-  // Remove any leading or trailing underscores.
-  san = san.replace(/^_/, '').replace(/_$/, '');
-  return san;
-}
-
 ImageExporter.prototype._serialize_svg = function(svg, styles) {
   // Based on https://github.com/NYTimes/svg-crowbar.
 
@@ -124,35 +117,10 @@ ImageExporter.prototype._serialize_svg = function(svg, styles) {
   return doctype + source;
 }
 
-ImageExporter.prototype._download_file = function(url, filename) {
-  var a = d3.select('body')
-            .append('a')
-            .style('display', 'none')
-            .attr('download', filename)
-            .attr('href', url);
-  a.node().click();
-  return a;
-}
-
-ImageExporter.prototype._download_blob = function(blob, filename) {
-  if(typeof window.navigator.msSaveOrOpenBlob !== 'undefined') {
-    window.navigator.msSaveOrOpenBlob(blob, filename);
-    return;
-  }
-
-  var url = window.URL.createObjectURL(blob);
-  var a = this._download_file(url, filename);
-  // If URL revoked immediately, download doesn't work.
-  setTimeout(function() {
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  }, 100);
-}
-
 ImageExporter.prototype._export_svg = function(svg, serialized_svg, filename_prefix) {
   var blob = new Blob([serialized_svg], { type: 'text/xml' });
-  var filename = this._sanitize_filename(filename_prefix) + '.svg';
-  this._download_blob(blob, filename);
+  var filename = this._exporter.sanitize_filename(filename_prefix) + '.svg';
+  this._exporter.download_blob(blob, filename);
 }
 
 ImageExporter.prototype._export_png = function(svg, serialized_svg, filename_prefix) {
@@ -180,9 +148,9 @@ ImageExporter.prototype._export_png = function(svg, serialized_svg, filename_pre
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    var filename = self._sanitize_filename(filename_prefix) + '.png';
+    var filename = self._exporter.sanitize_filename(filename_prefix) + '.png';
     var url = canvas.toDataURL('image/png');
-    var a = self._download_file(url, filename);
+    var a = self._exporter.download_file(url, filename);
     setTimeout(function() {
       a.remove();
     }, 100);

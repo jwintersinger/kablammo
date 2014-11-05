@@ -1,6 +1,6 @@
 "use strict";
 
-function Graph(grapher, results, query_length, subject_length, hsps, svg_container) {
+function Graph(grapher, results, query_def, query_id, subject_def, subject_id, query_length, subject_length, hsps, svg_container) {
   this._show_hsp_outlines = true;
   this._zoom_scale_by = 1.4;
   this._padding_x = 20;
@@ -10,6 +10,10 @@ function Graph(grapher, results, query_length, subject_length, hsps, svg_contain
 
   this._grapher = grapher;
   this._results = results;
+  this._query_def = query_def;
+  this._query_id = query_id;
+  this._subject_def = subject_def;
+  this._subject_id = subject_id;
   this._query_length = query_length;
   this._subject_length = subject_length;
   this._hsps = hsps;
@@ -514,7 +518,13 @@ Graph.prototype.view_alignments = function() {
 }
 
 Graph.prototype.export_alignments = function() {
-  this._grapher.alignment_exporter.export_alignments(this._selected);
+  this._grapher.alignment_exporter.export_alignments(
+    this._selected,
+    this._query_def,
+    this._query_id,
+    this._subject_def,
+    this._subject_id
+  );
 }
 
 Graph.prototype.deselect_all_alignments = function() {

@@ -42,7 +42,7 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
 
     iface.create_query_header(
       results_container,
-      iteration.query_def,
+      iteration.query_def + ' (' + iteration.query_id + ')',
       iteration_idx + 1,
       num_filtered_iterations,
       num_hidden_iterations
@@ -73,6 +73,10 @@ Grapher.prototype.display_blast_results = function(results, results_container, i
       new Graph(
         self,
         results,
+        iteration.query_def,
+        iteration.query_id,
+        hit.subject_def,
+        hit.subject_id,
         iteration.query_length,
         hit.subject_length,
         hsps,
@@ -128,4 +132,3 @@ Grapher.prototype.get_graph_colour = function() {
 Grapher.prototype.set_graph_colour = function(graph_colour) {
   this._graph_colour = graph_colour;
 }
-

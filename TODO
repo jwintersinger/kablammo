@@ -64,3 +64,5 @@ Fix zooming in
 Add means of selecting HSPs
   Fix non-selected opacity resets when user zooms
   Make scrollbars appear for OS X users
+Fix bug with SVG export -- polygons aren't clipped according to view
+  I can probably fix this by clipping to the SVG's document size, but I'm not sure of algorithm that does this
