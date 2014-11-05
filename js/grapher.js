@@ -1,5 +1,8 @@
 "use strict";
 
+// TODO: rearchitect this whole class so that separate instances are created.
+// This is badly needed. See comment in _create_graph().
+
 function Grapher(alignment_viewer, use_complement_coords) {
   this._graph_colour = { r: 30, g: 139, b: 195 };
   this._matte_colour = { r: 255, g: 255, b: 255 };
@@ -72,7 +75,7 @@ Grapher.prototype._hide_subject_params = function(svg) {
   $(svg).parents('.subject').find('.subject-params').hide();
 }
 
-Grapher.prototype._fade_subset = function(svg, predicate, faded_opacity) {
+Grapher.prototype._fade_subset = function(svg, predicate, faded_opacity, duration) {
   var all_hsps = svg.selectAll('.hit');
   var to_make_opaque = [];
   var to_fade = [];
@@ -85,34 +88,34 @@ Grapher.prototype._fade_subset = function(svg, predicate, faded_opacity) {
     }
   });
 
-  this._set_hsp_opacity(d3.selectAll(to_make_opaque), 1);
-  this._set_hsp_opacity(d3.selectAll(to_fade),        faded_opacity);
+  this._set_hsp_opacity(d3.selectAll(to_make_opaque), 1, duration);
+  this._set_hsp_opacity(d3.selectAll(to_fade), faded_opacity, duration);
 }
 
 Grapher.prototype._fade_unhovered = function(svg, hovered_idx, opacity) {
   var self = this;
   this._fade_subset(svg, function(hsp, idx) {
     return !(idx === hovered_idx || self._is_hsp_selected(svg, idx));
-  }, 0.1);
+  }, 0.1, 200);
 }
 
 Grapher.prototype._fade_unselected = function(svg, opacity) {
   // If nothing is selected, everything should be opaque.
   if(this._count_selected_hsps(svg) === 0) {
     var all_hsps = svg.selectAll('.hit');
-    this._set_hsp_opacity(all_hsps, 1);
+    this._set_hsp_opacity(all_hsps, 1, 200);
     return;
   }
 
   var self = this;
   this._fade_subset(svg, function(hsp, idx) {
     return !self._is_hsp_selected(svg, idx);
-  }, 0.1);
+  }, 0.1, 0);
 }
 
-Grapher.prototype._set_hsp_opacity = function(hsps, opacity) {
+Grapher.prototype._set_hsp_opacity = function(hsps, opacity, duration) {
   hsps.transition()
-    .duration(200)
+    .duration(duration)
     .style('opacity', opacity);
 }
 
@@ -301,6 +304,7 @@ Grapher.prototype._render_polygons = function(svg, hsps, scales) {
        }
      });
 
+  this._fade_unselected(svg, 0.1);
   this._add_outline_to_selected(svg);
 }
 
@@ -327,8 +331,9 @@ Grapher.prototype._select_hsp = function(svg, polygon, clicked_hsp, hsp_index) {
   if(this._is_hsp_selected(svg, hsp_index))
     return;
   svg[0][0]._selected[hsp_index] = clicked_hsp;
-  this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
+
+  this._fade_unselected(svg, 0.1);
   if(this._show_hsp_outlines)
     d3.select(polygon).classed('selected', true);
 
@@ -340,8 +345,8 @@ Grapher.prototype._select_hsp = function(svg, polygon, clicked_hsp, hsp_index) {
 
 Grapher.prototype._deselect_hsp = function(svg, polygon, hsp_index) {
   delete svg[0][0]._selected[hsp_index];
-  this._fade_unselected(svg, 0.1);
   this._display_selected_hsp_count(svg);
+  this._fade_unselected(svg, 0.1);
   d3.select(polygon).classed('selected', false);
 
   var count = this._count_selected_hsps(svg);
