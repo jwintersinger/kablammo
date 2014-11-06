@@ -166,8 +166,35 @@ Graph.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
 
 }
 
+// Returns copy of `arr` containing only unique values. Assumes duplicate
+// values always occur consecutively (which they will if `arr` is sorted).
+Graph.prototype._uniq = function(arr) {
+  var uniq = [];
+  for(var i = 0; i < arr.length; i++) {
+    while(i < (arr.length - 1) && arr[i] === arr[i + 1]) { i++; }
+    uniq.push(arr[i]);
+  }
+  return uniq;
+}
+
+Graph.prototype._create_formatter = function(scale) {
+  var digits = 2;
+  var formatter;
+  while(true) {
+    formatter = d3.format('.' + digits + 's');
+    var ticks = scale.ticks().map(function(t) {
+      return formatter(t);
+    });
+    if(ticks.length === this._uniq(ticks).length) {
+      break;
+    }
+    digits++;
+  }
+  return formatter;
+}
+
 Graph.prototype._create_axis = function(scale, orientation, height, text_anchor, dx, dy, seq_type) {
-  var scinotation_formatter = d3.format('.2s');
+  var scinotation_formatter = this._create_formatter(scale);
   var formatter = function(val) {
     var suffixes = {
       amino_acid:   'aa',
