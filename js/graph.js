@@ -42,6 +42,11 @@ function Graph(grapher, results, query_def, query_id, subject_def, subject_id, q
 
   this._scales = this._create_scales();
 
+  this._axis_label_visibility = {
+    query: 'visible',
+    subject: 'visible'
+  };
+
   this._render_graph();
   this._configure_panning();
   this._configure_zooming();
@@ -404,41 +409,31 @@ Graph.prototype._rects_overlap = function(rect1, rect2, padding) {
 // `type` should be 'query' or 'subject'.
 Graph.prototype._label_axis = function(type, axis) {
   var centre = 0.5 * this._svg.d3.attr('width');
-  var delta = 2;
-  var padding = 0;
+  var padding = 1;
 
   if(type === 'query') {
     var y = 12;
-    var y_delta = -1 * delta;
   } else if(type === 'subject') {
     var y = this._svg.d3.attr('height') - 5;
-    var y_delta = 1 * delta;
   } else {
     throw 'Unknown axis type: ' + type;
   }
 
   var capitalized = type.charAt(0).toUpperCase() + type.slice(1);
   var label = this._svg.d3.append('text')
+    // Cache the last visible state of the label so that, during
+    // zooming/panning operations, you don't see it flickering into existence
+    // here as it's created, only to be hidden by the overlap-detection code
+    // below.
+     .style('visibility', this._axis_label_visibility[type])
      .attr('class', type + ' axis-label')
      .attr('text-anchor', 'end')
      .attr('x', centre)
      .attr('y', y)
      .text(capitalized);
 
-  // Though this code is clever, it creates a distracting effect in which
-  // the label "animates" up or down every time you zoom in when there's
-  // overlap. To make it less distracting, I'd have to store the previous y
-  // position before performing every pan/zoom operation, so the label wouldn't
-  // always start from the same origin. Removing the label outright is still
-  // somewhat distracting, as you see it flicker into existence before
-  // disappearing on every operation. As such, I shall commit this to history before replacing it with a simpler solution.
-  //
-  // Note the interval-based technique is necessary to allow the browser time
-  // to place the element and calculate its position; without the technique,
-  // the bounding box coordinates are all zero. Even a delay of 1 ms is
-  // seemingly enough for Chrome & Firefox to return sensible values.
   var self = this;
-  var interval_id = setInterval(function() {
+  setTimeout(function() {
     var label_bb = label[0][0].getBoundingClientRect();
     var ticks = axis.selectAll('.tick');
     var does_label_overlap_ticks = axis.selectAll('.tick')[0].reduce(function(previous_overlap, tick) {
@@ -448,10 +443,10 @@ Graph.prototype._label_axis = function(type, axis) {
     }, false);
 
     if(does_label_overlap_ticks) {
-      y += y_delta;
-      label.attr('y', y);
+      self._axis_label_visibility[type] = 'hidden';
+      label.style('visibility', 'hidden');
     } else {
-      clearInterval(interval_id);
+      self._axis_label_visibility[type] = 'visible';
     }
   }, 1);
 }
