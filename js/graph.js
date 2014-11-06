@@ -213,6 +213,8 @@ Graph.prototype._create_axis = function(scale, orientation, height, text_anchor,
      .attr('transform', 'translate(0,' + height + ')')
      .call(axis);
   this._rotate_axis_labels(container.selectAll('text'), text_anchor, dx, dy);
+
+  return container;
 }
 
 Graph.prototype._is_domain_within_orig = function(original_domain, new_domain) {
@@ -378,28 +380,91 @@ Graph.prototype._count_selected_hsps = function() {
   return Object.keys(this._selected).length;
 }
 
+// Determines whether interval [s1, e1) overlaps interval [s2, e2).
+Graph.prototype._overlaps = function(s1, e1, s2, e2) {
+  return Math.min(e1, e2) > Math.max(s1, s2);
+}
+
+Graph.prototype._rects_overlap = function(rect1, rect2, padding) {
+  padding = padding || 0;
+
+  return this._overlaps(
+    rect1.left - padding,
+    rect1.right + padding,
+    rect2.left,
+    rect2.right
+  ) && this._overlaps(
+    rect1.top - padding,
+    rect1.bottom + padding,
+    rect2.top,
+    rect2.bottom
+  );
+}
+
+// `type` should be 'query' or 'subject'.
+Graph.prototype._label_axis = function(type, axis) {
+  var centre = 0.5 * this._svg.d3.attr('width');
+  var delta = 2;
+  var padding = 0;
+
+  if(type === 'query') {
+    var y = 12;
+    var y_delta = -1 * delta;
+  } else if(type === 'subject') {
+    var y = this._svg.d3.attr('height') - 5;
+    var y_delta = 1 * delta;
+  } else {
+    throw 'Unknown axis type: ' + type;
+  }
+
+  var capitalized = type.charAt(0).toUpperCase() + type.slice(1);
+  var label = this._svg.d3.append('text')
+     .attr('class', type + ' axis-label')
+     .attr('text-anchor', 'end')
+     .attr('x', centre)
+     .attr('y', y)
+     .text(capitalized);
+
+  // Though this code is clever, it creates a distracting effect in which
+  // the label "animates" up or down every time you zoom in when there's
+  // overlap. To make it less distracting, I'd have to store the previous y
+  // position before performing every pan/zoom operation, so the label wouldn't
+  // always start from the same origin. Removing the label outright is still
+  // somewhat distracting, as you see it flicker into existence before
+  // disappearing on every operation. As such, I shall commit this to history before replacing it with a simpler solution.
+  //
+  // Note the interval-based technique is necessary to allow the browser time
+  // to place the element and calculate its position; without the technique,
+  // the bounding box coordinates are all zero. Even a delay of 1 ms is
+  // seemingly enough for Chrome & Firefox to return sensible values.
+  var self = this;
+  var interval_id = setInterval(function() {
+    var label_bb = label[0][0].getBoundingClientRect();
+    var ticks = axis.selectAll('.tick');
+    var does_label_overlap_ticks = axis.selectAll('.tick')[0].reduce(function(previous_overlap, tick) {
+      var tick_bb = tick.getBoundingClientRect();
+      var current_overlap = self._rects_overlap(label_bb, tick_bb, padding);
+      return previous_overlap || current_overlap;
+    }, false);
+
+    if(does_label_overlap_ticks) {
+      y += y_delta;
+      label.attr('y', y);
+    } else {
+      clearInterval(interval_id);
+    }
+  }, 1);
+}
+
 Graph.prototype._render_axes = function() {
-  this._create_axis(this._scales.query.scale,   'top',
+  var query_axis = this._create_axis(this._scales.query.scale,   'top',
                     this._scales.query.height,   'start', '9px', '2px',
                     this._results.query_seq_type);
-  this._create_axis(this._scales.subject.scale, 'bottom',
+  var subject_axis = this._create_axis(this._scales.subject.scale, 'bottom',
                     this._scales.subject.height, 'end',   '-11px',  '3px',
                     this._results.subject_seq_type);
-
-  // Create axis labels.
-  var centre = 0.5 * this._svg.d3.attr('width');
-  this._svg.d3.append('text')
-     .attr('class', 'query axis-label')
-     .attr('text-anchor', 'end')
-     .attr('x', centre)
-     .attr('y', '12px')
-     .text('Query');
-  this._svg.d3.append('text')
-     .attr('class', 'subject axis-label')
-     .attr('text-anchor', 'end')
-     .attr('x', centre)
-     .attr('y', this._svg.d3.attr('height') - 5)
-     .text('Subject');
+  this._label_axis('query', query_axis);
+  this._label_axis('subject', subject_axis);
 }
 
 Graph.prototype._render_graph = function() {
