@@ -46,6 +46,7 @@ function Graph(grapher, results, query_def, query_id, subject_def, subject_id, q
     query: 'visible',
     subject: 'visible'
   };
+  this._axis_ticks = 10;
 
   this._render_graph();
   this._configure_panning();
@@ -209,6 +210,7 @@ Graph.prototype._create_axis = function(scale, orientation, height, text_anchor,
   }
 
   var axis = d3.svg.axis()
+               .ticks(this._axis_ticks)
                .scale(scale)
                .tickFormat(formatter)
                .orient(orientation);
@@ -235,12 +237,8 @@ Graph.prototype._zoom_scale = function(scale, original_domain, zoom_from, scale_
 
   l = Math.round(l);
   r = Math.round(r);
-  // If Math.round(r) - Math.round(l) = 1 from previous zoom event, and for
-  // this event, fractional parts of l and r such that l rounds up and r rounds
-  // down, we end up with l = r. This is bad, since we're telling d3 to create
-  // scale consisting of only a single point, not an interval.
-  if(l == r)
-    r = l + 1;
+  if(r - l < this._axis_ticks)
+    return;
 
   var new_domain = [l, r];
   if(this._is_domain_within_orig(original_domain, new_domain))
