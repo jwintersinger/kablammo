@@ -252,6 +252,8 @@ a {
   word-wrap: normal;
   font-weight: bold;
   font-size: 15px;
+  /* Show default pointer instead of 'text' cursor. */
+  cursor: default;
 }
 
 #alignment-viewer .midline-seq {
