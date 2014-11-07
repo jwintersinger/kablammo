@@ -78,12 +78,16 @@ AlignmentViewer.prototype._color_seq = function(seq, seq_type) {
   return coloured.join('');
 }
 
-AlignmentViewer.prototype.view_alignments = function(hsps, query_seq_type, subject_seq_type) {
+AlignmentViewer.prototype.view_alignments = function(hsps, query_seq_type, query_def, query_id, subject_seq_type, subject_def, subject_id) {
   var viewer = $('#alignment-viewer');
-  var self = this;
+
+  viewer.find('.subject-title').text(subject_def + ' (' + subject_id + ')');
+  viewer.find('.query-title').text(query_def + ' (' + query_id + ')');
 
   var container = viewer.find('.alignments');
   container.empty();
+  var self = this;
+
   Object.keys(hsps).forEach(function(idx) {
     var hsp = hsps[idx];
     var alignment = $('#example-alignment').clone().removeAttr('id');

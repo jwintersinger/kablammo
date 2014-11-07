@@ -598,7 +598,11 @@ Graph.prototype.view_alignments = function() {
   this._grapher.alignment_viewer.view_alignments(
     this._selected,
     this._results.query_seq_type,
-    this._results.subject_seq_type
+    this._query_def,
+    this._query_id,
+    this._results.subject_seq_type,
+    this._subject_def,
+    this._subject_id
   );
 }
 

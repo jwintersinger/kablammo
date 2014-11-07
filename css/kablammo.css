@@ -76,7 +76,7 @@ a {
   text-align: left;
 }
 
-.query-name, .subject-name {
+#results-container .query-name, #results-container .subject-name {
   background-color: #69b2d7;
   vertical-align: bottom;
   padding: 8px 15px 8px 15px;
@@ -274,6 +274,10 @@ a {
 
 .navbar-toggle .icon-bar {
   background-color: white !important;
+}
+
+.alignment-name {
+  font-weight: bold;
 }
 
 /* AA colours taken from http://www.bioinformatics.nl/~berndb/aacolour.html. */
