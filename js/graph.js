@@ -42,6 +42,12 @@ function Graph(grapher, results, query_def, query_id, subject_def, subject_id, q
 
   this._scales = this._create_scales();
 
+  this._axis_label_visibility = {
+    query: 'visible',
+    subject: 'visible'
+  };
+  this._axis_ticks = 10;
+
   this._render_graph();
   this._configure_panning();
   this._configure_zooming();
@@ -166,8 +172,35 @@ Graph.prototype._rotate_axis_labels = function(text, text_anchor, dx, dy) {
 
 }
 
+// Returns copy of `arr` containing only unique values. Assumes duplicate
+// values always occur consecutively (which they will if `arr` is sorted).
+Graph.prototype._uniq = function(arr) {
+  var uniq = [];
+  for(var i = 0; i < arr.length; i++) {
+    while(i < (arr.length - 1) && arr[i] === arr[i + 1]) { i++; }
+    uniq.push(arr[i]);
+  }
+  return uniq;
+}
+
+Graph.prototype._create_formatter = function(scale) {
+  var digits = 2;
+  var formatter;
+  while(true) {
+    formatter = d3.format('.' + digits + 's');
+    var ticks = scale.ticks().map(function(t) {
+      return formatter(t);
+    });
+    if(ticks.length === this._uniq(ticks).length) {
+      break;
+    }
+    digits++;
+  }
+  return formatter;
+}
+
 Graph.prototype._create_axis = function(scale, orientation, height, text_anchor, dx, dy, seq_type) {
-  var scinotation_formatter = d3.format('.2s');
+  var scinotation_formatter = this._create_formatter(scale);
   var formatter = function(val) {
     var suffixes = {
       amino_acid:   'aa',
@@ -177,6 +210,7 @@ Graph.prototype._create_axis = function(scale, orientation, height, text_anchor,
   }
 
   var axis = d3.svg.axis()
+               .ticks(this._axis_ticks)
                .scale(scale)
                .tickFormat(formatter)
                .orient(orientation);
@@ -186,6 +220,8 @@ Graph.prototype._create_axis = function(scale, orientation, height, text_anchor,
      .attr('transform', 'translate(0,' + height + ')')
      .call(axis);
   this._rotate_axis_labels(container.selectAll('text'), text_anchor, dx, dy);
+
+  return container;
 }
 
 Graph.prototype._is_domain_within_orig = function(original_domain, new_domain) {
@@ -201,12 +237,8 @@ Graph.prototype._zoom_scale = function(scale, original_domain, zoom_from, scale_
 
   l = Math.round(l);
   r = Math.round(r);
-  // If Math.round(r) - Math.round(l) = 1 from previous zoom event, and for
-  // this event, fractional parts of l and r such that l rounds up and r rounds
-  // down, we end up with l = r. This is bad, since we're telling d3 to create
-  // scale consisting of only a single point, not an interval.
-  if(l == r)
-    r = l + 1;
+  if(r - l < this._axis_ticks)
+    return;
 
   var new_domain = [l, r];
   if(this._is_domain_within_orig(original_domain, new_domain))
@@ -351,28 +383,81 @@ Graph.prototype._count_selected_hsps = function() {
   return Object.keys(this._selected).length;
 }
 
+// Determines whether interval [s1, e1) overlaps interval [s2, e2).
+Graph.prototype._overlaps = function(s1, e1, s2, e2) {
+  return Math.min(e1, e2) > Math.max(s1, s2);
+}
+
+Graph.prototype._rects_overlap = function(rect1, rect2, padding) {
+  padding = padding || 0;
+
+  return this._overlaps(
+    rect1.left - padding,
+    rect1.right + padding,
+    rect2.left,
+    rect2.right
+  ) && this._overlaps(
+    rect1.top - padding,
+    rect1.bottom + padding,
+    rect2.top,
+    rect2.bottom
+  );
+}
+
+// `type` should be 'query' or 'subject'.
+Graph.prototype._label_axis = function(type, axis) {
+  var centre = 0.5 * this._svg.d3.attr('width');
+  var padding = 1;
+
+  if(type === 'query') {
+    var y = 12;
+  } else if(type === 'subject') {
+    var y = this._svg.d3.attr('height') - 5;
+  } else {
+    throw 'Unknown axis type: ' + type;
+  }
+
+  var capitalized = type.charAt(0).toUpperCase() + type.slice(1);
+  var label = this._svg.d3.append('text')
+    // Cache the last visible state of the label so that, during
+    // zooming/panning operations, you don't see it flickering into existence
+    // here as it's created, only to be hidden by the overlap-detection code
+    // below.
+     .style('visibility', this._axis_label_visibility[type])
+     .attr('class', type + ' axis-label')
+     .attr('text-anchor', 'end')
+     .attr('x', centre)
+     .attr('y', y)
+     .text(capitalized);
+
+  var self = this;
+  setTimeout(function() {
+    var label_bb = label[0][0].getBoundingClientRect();
+    var ticks = axis.selectAll('.tick');
+    var does_label_overlap_ticks = axis.selectAll('.tick')[0].reduce(function(previous_overlap, tick) {
+      var tick_bb = tick.getBoundingClientRect();
+      var current_overlap = self._rects_overlap(label_bb, tick_bb, padding);
+      return previous_overlap || current_overlap;
+    }, false);
+
+    if(does_label_overlap_ticks) {
+      self._axis_label_visibility[type] = 'hidden';
+      label.style('visibility', 'hidden');
+    } else {
+      self._axis_label_visibility[type] = 'visible';
+    }
+  }, 1);
+}
+
 Graph.prototype._render_axes = function() {
-  this._create_axis(this._scales.query.scale,   'top',
+  var query_axis = this._create_axis(this._scales.query.scale,   'top',
                     this._scales.query.height,   'start', '9px', '2px',
                     this._results.query_seq_type);
-  this._create_axis(this._scales.subject.scale, 'bottom',
+  var subject_axis = this._create_axis(this._scales.subject.scale, 'bottom',
                     this._scales.subject.height, 'end',   '-11px',  '3px',
                     this._results.subject_seq_type);
-
-  // Create axis labels.
-  var centre = 0.5 * this._svg.d3.attr('width');
-  this._svg.d3.append('text')
-     .attr('class', 'query axis-label')
-     .attr('text-anchor', 'end')
-     .attr('x', centre)
-     .attr('y', '12px')
-     .text('Query');
-  this._svg.d3.append('text')
-     .attr('class', 'subject axis-label')
-     .attr('text-anchor', 'end')
-     .attr('x', centre)
-     .attr('y', this._svg.d3.attr('height') - 5)
-     .text('Subject');
+  this._label_axis('query', query_axis);
+  this._label_axis('subject', subject_axis);
 }
 
 Graph.prototype._render_graph = function() {
@@ -513,7 +598,11 @@ Graph.prototype.view_alignments = function() {
   this._grapher.alignment_viewer.view_alignments(
     this._selected,
     this._results.query_seq_type,
-    this._results.subject_seq_type
+    this._query_def,
+    this._query_id,
+    this._results.subject_seq_type,
+    this._subject_def,
+    this._subject_id
   );
 }
 

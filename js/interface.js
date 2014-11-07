@@ -160,18 +160,6 @@ Interface.prototype.deactivate_active_panel = function() {
   });
 }
 
-Interface.prototype.update_results_info = function(blast_results) {
-  // Don't also update "max query seqs" form field's max value, as if user
-  // chooses different BLAST result set, she may want to also input a max value
-  // higher than the number of sequences in the current data set.
-
-  // TODO: reintroduce these in new interface
-  /*$('#query-seqs-count').text(blast_results.iterations_count);
-  $('#filtered-query-seqs-count').text(blast_results.filtered_iterations_count);
-  $('#hits-count').text(blast_results.hits_count);
-  $('#filtered-hits-count').text(blast_results.filtered_hits_count);*/
-}
-
 Interface.prototype._populate_blast_results_chooser = function(valid_sources) {
   var self = this;
   valid_sources.forEach(function(source) {
@@ -315,7 +303,6 @@ Interface.hide_curtain = function(on_done) {
 
 Interface.prototype._display_results = function(results, on_complete) {
   this._grapher.display_blast_results(results, '#results-container', this);
-  this.update_results_info(results);
   Interface.hide_curtain();
   $('html, body').scrollTop(0);
   if(typeof on_complete !== 'undefined')
