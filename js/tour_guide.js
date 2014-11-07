@@ -45,7 +45,7 @@ TourGuide.prototype._create_tour = function() {
         element: '.subject:first svg',
         placement: 'top',
         title: 'Viewing alignments',
-        content: "Mouse over an alignment to see details such as its position, score, and reading frame. Click on an alignment to view the exact portions of the queries and subjects that aligned to each other, with any gaps or mismatches indicated in red.",
+        content: "Mouse over an alignment to see details such as its position, score, and reading frame. Click on an alignment to select it. After selecting, you can view or export the alignment by clicking the associated buttons.",
       },
 
       {

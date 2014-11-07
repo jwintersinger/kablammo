@@ -33,19 +33,19 @@ Interface.prototype._configure_hsp_outline_controls = function() {
     return container[0]._grapher;
   }
 
-  $('body').on('click', '.view-alignment', function() {
+  $('#results-container').on('click', '.view-alignment', function() {
     get_grapher(this).view_alignments();
   });
 
-  $('body').on('click', '.export-alignment', function() {
+  $('#results-container').on('click', '.export-alignment', function() {
     get_grapher(this).export_alignments();
   });
 
-  $('body').on('click', '.deselect-all-hsps', function() {
+  $('#results-container').on('click', '.deselect-all-hsps', function() {
     get_grapher(this).deselect_all_alignments();
   });
 
-  $('body').on('change', '.toggle-hsp-outline', function() {
+  $('#results-container').on('change', '.toggle-hsp-outline', function() {
     var grapher = get_grapher(this);
     if(this.checked) {
       grapher.enable_hsp_outlines();
