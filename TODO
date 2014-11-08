@@ -55,13 +55,6 @@ For given set of queries/subjects, generate Circos diagram showing HSPs between 
 James' requests:
   Make alignment viewing more simialr to NCBI version
 
----------------------------
-Before submitting revisions
----------------------------
-Export FASTA alignment
-Add numeric coordinates to alignment viewer
-Fix zooming in
-Add means of selecting HSPs
-  Make scrollbars appear for OS X users
+Make scrollbars in alignment viewer appear for OS X users
 Fix bug with SVG export -- polygons aren't clipped according to view
   I can probably fix this by clipping to the SVG's document size, but I'm not sure of algorithm that does this
