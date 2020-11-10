@@ -351,6 +351,8 @@ Graph.prototype._remove_outline_from_selected = function() {
 Graph.prototype._select_hsp = function(hsp_index) {
   if(this._is_hsp_selected(hsp_index))
     return;
+  var polygon = this._polygons[0][hsp_index];
+  polygon.parentNode.appendChild(polygon)
   this._selected[hsp_index] = this._hsps[hsp_index];
   this._display_selected_hsp_count();
 
@@ -367,6 +369,10 @@ Graph.prototype._deselect_hsp = function(hsp_index) {
   delete this._selected[hsp_index];
   this._display_selected_hsp_count();
   this._fade_unselected();
+  var polygon = this._polygons[0][hsp_index];
+  var firstChild = polygon.parentNode.firstChild;
+  if(firstChild)
+    polygon.parentNode.insertBefore(polygon, firstChild);
   d3.select(this._polygons[0][hsp_index]).classed('selected', false);
 
   var count = this._count_selected_hsps();
