@@ -199,6 +199,7 @@ BlastParser.prototype._sort_by_score = function(iterations) {
 
 BlastParser.prototype._filter_by_thresholds = function(iterations) {
   var evalue_threshold = parseFloat($('#evalue-threshold').val());
+  var alignment_length_threshold = parseFloat($('#alignment-length-threshold').val());
   var bitscore_threshold = parseFloat($('#bitscore-threshold').val());
   var coverage_threshold = parseFloat($('#hsp-coverage-threshold').val()) / 100;
 
@@ -210,7 +211,8 @@ BlastParser.prototype._filter_by_thresholds = function(iterations) {
         var coverage = (hsp.query_end - hsp.query_start + 1) / query_length;
         return hsp.evalue <= Math.pow(10, evalue_threshold) &&
           hsp.bit_score >= bitscore_threshold &&
-          coverage >= coverage_threshold;
+          coverage >= coverage_threshold &&
+          hsp.alignment_length >= alignment_length_threshold;
       });
       // Exclude hits without any HSPs that pass filter.
       return hit.filtered_hsps.length > 0;
